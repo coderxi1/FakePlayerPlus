@@ -26,6 +26,7 @@ class NMSServerPlayerImpl(private val player: Player) : NMSServerPlayer {
     private val handle: ServerPlayer = craftPlayer.handle
 
     override fun getPlayer() = player
+
     override fun getX(): Double = handle.x
     override fun getY() = handle.y
     override fun getZ() = handle.z

@@ -17,7 +17,8 @@ class NMSNetworkImpl(address: InetAddress, private val plugin: JavaPlugin) : NMS
 
     private lateinit var serverGamePacketListener: NMSServerGamePacketListener
 
-    override fun placeNewPlayer(server: Server, player: Player): NMSServerGamePacketListener {
+    override fun placeNewPlayer(player: Player): NMSServerGamePacketListener {
+        val server = player.server
         val handle = (player as CraftPlayer).handle
         val serverHandle = (server as CraftServer).handle
         val cookie = CommonListenerCookie.createInitial(player.profile, false)
@@ -34,4 +35,5 @@ class NMSNetworkImpl(address: InetAddress, private val plugin: JavaPlugin) : NMS
         if (!::serverGamePacketListener.isInitialized) throw IllegalStateException("not initialized")
         return serverGamePacketListener
     }
+
 }

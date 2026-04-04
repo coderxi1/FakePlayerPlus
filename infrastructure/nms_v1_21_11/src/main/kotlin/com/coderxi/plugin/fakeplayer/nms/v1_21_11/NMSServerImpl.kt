@@ -11,9 +11,11 @@ import org.bukkit.Server
 import org.bukkit.craftbukkit.CraftServer
 import java.util.UUID
 
-class NMSServerImpl(private val server: Server = Bukkit.getServer()) : NMSServer {
+class NMSServerImpl(private val server: Server) : NMSServer {
 
     val handle: MinecraftServer = (server as CraftServer).server
+
+    override fun getServer() = server
 
     override fun newPlayer(uuid: UUID, name: String): NMSServerPlayer {
         val serverPlayer = ServerPlayer(

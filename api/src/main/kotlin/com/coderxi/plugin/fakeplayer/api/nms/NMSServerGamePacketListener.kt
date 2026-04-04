@@ -1,3 +1,7 @@
 package com.coderxi.plugin.fakeplayer.api.nms
 
-interface NMSServerGamePacketListener
+interface NMSServerGamePacketListener {
+
+    fun setPing(ping: Int)
+
+}
