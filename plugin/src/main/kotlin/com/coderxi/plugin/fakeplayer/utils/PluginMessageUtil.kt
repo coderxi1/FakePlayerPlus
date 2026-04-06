@@ -3,7 +3,6 @@ package com.coderxi.plugin.fakeplayer.utils
 import com.coderxi.plugin.fakeplayer.context.PluginContext
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
-import org.jetbrains.annotations.PropertyKey
 import java.io.File
 import java.text.MessageFormat
 import java.util.*
@@ -15,14 +14,16 @@ class PluginMessageUtil: PluginContext {
     
     private val bundleCache = ConcurrentHashMap<Locale, ResourceBundle>()
     private val formatCache = ConcurrentHashMap<String, MessageFormat>()
+    private lateinit var prefixComponent: Component
 
-    fun translate(@PropertyKey(resourceBundle = "messages.messages") key: String, vararg args: Any): Component {
+    fun translate(key: String, vararg args: Any): Component {
         var text = translate(key)
         if (!args.isEmpty()) {
             val format = formatCache.computeIfAbsent(text) { MessageFormat(it) }
             text = format.format(args)
         }
-        return MiniMessage.miniMessage().deserialize(text)
+        val component = MiniMessage.miniMessage().deserialize(text)
+        return prefixComponent.append(component)
     }
 
     private fun translate(key: String,locale: Locale = currentLocale): String {
@@ -46,6 +47,7 @@ class PluginMessageUtil: PluginContext {
 
     fun updateLocale(langTag: String) {
         currentLocale = Locale.forLanguageTag(langTag.replace("[_.]".toRegex(), "-"))
+        prefixComponent = MiniMessage.miniMessage().deserialize(translate("fakeplayer.prefix"))
         bundleCache.clear()
         formatCache.clear()
     }

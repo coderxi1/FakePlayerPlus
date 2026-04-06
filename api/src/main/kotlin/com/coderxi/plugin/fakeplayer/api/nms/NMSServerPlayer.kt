@@ -215,10 +215,10 @@ interface NMSServerPlayer {
     /**
      * 重生
      */
-    fun respawn()
+    fun requestRespawn()
 
     /**
      * 交换主副手物品
      */
-    fun swapItemWithOffhand()
+    fun requestSwapItemWithOffhand()
 }

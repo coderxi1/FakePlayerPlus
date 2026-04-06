@@ -2,14 +2,18 @@ package com.coderxi.plugin.fakeplayer.entity
 
 import com.coderxi.plugin.fakeplayer.api.nms.*
 import com.coderxi.plugin.fakeplayer.listener.FakePlayerLifecycle
-import com.coderxi.plugin.fakeplayer.manager.PluginConfigManager.plugin
+import com.coderxi.plugin.fakeplayer.manager.FakePlayerOwner
 import net.kyori.adventure.text.Component
+import org.bukkit.Location
+import org.bukkit.command.CommandSender
+import java.util.concurrent.CompletableFuture
 
-class FakePlayer(val handle: NMSServerPlayer,private val network: NMSNetwork) {
+class FakePlayer(private val handle: NMSServerPlayer,private val network: NMSNetwork) {
 
-    val player = handle.getPlayer()
+    private val player = handle.getPlayer()
     val lifecycle = FakePlayerLifecycle(this)
-    val ticker = FakePlayerTicker(this)
+    val uniqueId = player.uniqueId
+    lateinit var owner: FakePlayerOwner<out CommandSender>
 
     fun spawn() {
         lifecycle.onPreSpawn()
@@ -27,15 +31,26 @@ class FakePlayer(val handle: NMSServerPlayer,private val network: NMSNetwork) {
             foodLevel = 20
         }
         lifecycle.onPostSpawn()
-        ticker.runTaskTimer(plugin, 0, 1)
     }
 
-    fun quit(message: String = "quit") {
-        player.kick(Component.text(message))
+    fun chat(message: String) {
+        player.chat(message)
     }
 
-    fun respawn() {
-        handle.respawn()
+    fun quit(cause: String = "quit") {
+        player.kick(Component.text(cause))
+    }
+
+    fun doTick() {
+        handle.doTick()
+    }
+
+    fun requestRespawn() {
+        handle.requestRespawn()
+    }
+
+    fun teleportAsync(location: Location): CompletableFuture<Boolean> {
+        return player.teleportAsync(location)
     }
 
 }

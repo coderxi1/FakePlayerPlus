@@ -9,7 +9,23 @@ class PluginConfig : OkaeriConfig() {
     @Comment("插件语言设置")
     var language: String = "zh_CN"
 
+    @Comment("假人创建数量上限")
+    @CustomKey("spawn-limit")
+    val spawnLimit = SpawnLimit()
+    class SpawnLimit : OkaeriConfig() {
+        @Comment("全服最大假人总数")
+        var server: Int = 999
+        @Comment("默认的数量上限 (权限节点: fakeplayer.spawn)")
+        var default: Int = 3
+        @Comment("自定义权限组的数量上限 (需手动给权限组权限节点: fakeplayer.spawn.limit.<group>)")
+        var groups: Map<String, Int> = hashMapOf(
+            "scientist" to 10
+        )
+    }
+
     @Comment("假人死亡时动作 NONE|QUIT|RESPAWN|RESPAWN_BACK")
-    val onDeathAction: DeathAction = DeathAction.RESPAWN_BACK
+    @CustomKey("on-death-action")
+    val onDeathAction: OnDeathAction = OnDeathAction.RESPAWN_BACK
+
 
 }
