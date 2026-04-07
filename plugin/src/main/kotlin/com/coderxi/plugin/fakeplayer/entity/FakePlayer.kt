@@ -1,22 +1,29 @@
 package com.coderxi.plugin.fakeplayer.entity
 
 import com.coderxi.plugin.fakeplayer.api.nms.*
-import com.coderxi.plugin.fakeplayer.listener.FakePlayerLifecycle
-import com.coderxi.plugin.fakeplayer.manager.FakePlayerOwner
+import com.coderxi.plugin.fakeplayer.config.OnDeathAction
+import com.coderxi.plugin.fakeplayer.context.PluginContext
+import com.coderxi.plugin.fakeplayer.event.FakePlayerEvent
+import com.coderxi.plugin.fakeplayer.event.FakePlayerEvent.*
+import com.coderxi.plugin.fakeplayer.scope.FakePlayerScope
+import com.coderxi.plugin.fakeplayer.utils.EventBus
+import com.coderxi.plugin.fakeplayer.utils.EventDispatcher
 import net.kyori.adventure.text.Component
 import org.bukkit.Location
-import org.bukkit.command.CommandSender
 import java.util.concurrent.CompletableFuture
 
-class FakePlayer(private val handle: NMSServerPlayer,private val network: NMSNetwork) {
+class FakePlayer(
+    private val handle: NMSServerPlayer,
+    private val network: NMSNetwork,
+    val scope: FakePlayerScope,
+    override val eventBus: EventBus = EventBus()
+) : EventDispatcher<FakePlayerEvent>, PluginContext {
 
     private val player = handle.getPlayer()
-    val lifecycle = FakePlayerLifecycle(this)
     val uniqueId = player.uniqueId
-    lateinit var owner: FakePlayerOwner<out CommandSender>
 
     fun spawn() {
-        lifecycle.onPreSpawn()
+        emit(FakePlayerEvent.PreSpawn)
         network.apply {
             placeNewPlayer(player)
             getServerGamePacketListener().setPing(-1)
@@ -30,7 +37,7 @@ class FakePlayer(private val handle: NMSServerPlayer,private val network: NMSNet
             health = 20.0
             foodLevel = 20
         }
-        lifecycle.onPostSpawn()
+        emit(FakePlayerEvent.PostSpawn)
     }
 
     fun chat(message: String) {
@@ -52,5 +59,29 @@ class FakePlayer(private val handle: NMSServerPlayer,private val network: NMSNet
     fun teleportAsync(location: Location): CompletableFuture<Boolean> {
         return player.teleportAsync(location)
     }
+
+    private var respawnBackLocation: Location? = null
+
+    init {
+        on<Death> { event ->
+            when (config.onDeathAction) {
+                OnDeathAction.NONE -> null
+                OnDeathAction.QUIT -> Runnable { quit("You died") }
+                OnDeathAction.RESPAWN -> Runnable { requestRespawn() }
+                OnDeathAction.RESPAWN_BACK ->  Runnable {
+                    respawnBackLocation = event.location
+                    requestRespawn()
+                }
+            }?.also { scheduler.runTaskLater(plugin, it, 20) }
+        }
+        on<Respawn> {
+            if (respawnBackLocation != null) {
+                teleportAsync(respawnBackLocation!!).thenAccept {
+                    respawnBackLocation = null
+                }
+            }
+        }
+    }
+
 
 }

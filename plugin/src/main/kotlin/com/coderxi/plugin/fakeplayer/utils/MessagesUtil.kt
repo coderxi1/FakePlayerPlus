@@ -8,7 +8,7 @@ import java.text.MessageFormat
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
-class PluginMessageUtil: PluginContext {
+class MessagesUtil: PluginContext {
     private val bundleName = "messages"
     private var currentLocale = Locale.getDefault()
     
