@@ -4,11 +4,13 @@ import com.coderxi.plugin.fakeplayer.api.nms.NMSBridge
 import com.coderxi.plugin.fakeplayer.config.PluginConfig
 import com.coderxi.plugin.fakeplayer.context.PluginContext
 import com.coderxi.plugin.fakeplayer.event.FakePlayerEventListener
+import com.coderxi.plugin.fakeplayer.manager.FakePlayerNametagManager
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerRegistry
 import com.coderxi.plugin.fakeplayer.manager.PluginConfigManager
 import com.coderxi.plugin.fakeplayer.nms.v1_21_11.NMSBridgeImpl
 import com.coderxi.plugin.fakeplayer.scope.PersonalFakePlayerScope
 import com.coderxi.plugin.fakeplayer.utils.MessagesUtil
+import com.coderxi.plugin.fakeplayer.utils.MinecraftSpritesUtil
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -17,6 +19,10 @@ import org.bukkit.plugin.java.JavaPlugin
 
 class FakePlayerPlusPlugin : JavaPlugin() {
 
+    val import = listOf(
+        FakePlayerNametagManager,
+        MinecraftSpritesUtil
+    )
     lateinit var bridge: NMSBridge private set
     lateinit var config : PluginConfig private set
     lateinit var messages : MessagesUtil private set

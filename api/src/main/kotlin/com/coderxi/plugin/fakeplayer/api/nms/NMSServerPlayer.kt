@@ -224,6 +224,7 @@ interface NMSServerPlayer {
     fun requestSwapItemWithOffhand()
 
     //向玩家展示虚拟nametag
-    fun showVirtualNameTag(player: Player, content: Component)
-    fun hideVirtualNameTag(player: Player)
+    fun showVirtualNametag(player: Player, content: Component)
+    fun updateVirtualNametag(player: Player, content: Component)
+    fun hideVirtualNametag(player: Player)
 }

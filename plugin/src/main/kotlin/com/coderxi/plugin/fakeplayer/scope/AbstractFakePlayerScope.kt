@@ -43,9 +43,9 @@ abstract class AbstractFakePlayerScope(override val uniqueId: UUID): FakePlayerS
             val fakePlayer = FakePlayer(nmsPlayer)
             fakePlayer.emit(PreSpawn)
             fakePlayer.connection = nmsNetwork.placeNewPlayer(fakePlayer.player)
-            onFakePlayerSpawn(fakePlayer)
             fakeplayers[uuid] = fakePlayer
             registry.registerFakePlayer(fakePlayer)
+            onFakePlayerSpawn(fakePlayer)
             fakePlayer.on<PostQuit> {
                 fakeplayers.remove(uuid)
                 registry.unregisterFakePlayer(uuid)
@@ -53,9 +53,9 @@ abstract class AbstractFakePlayerScope(override val uniqueId: UUID): FakePlayerS
             fakePlayer.emit(PostSpawn)
             fakePlayer.teleportAsync(spawnLocation).thenApply { success ->
                 if (success == true) {
-                    startTicker()
                     notify(tl("fakeplayer.spawn.success",fakePlayer.name,fakePlayer.player.world.name,"%.2f, %.2f, %.2f".format(spawnLocation.x, spawnLocation.y, spawnLocation.z)))
                     fakePlayer.emit(AfterSpawn)
+                    startTicker()
                     fakePlayer
                 } else {
                     fakePlayer.quit("Spawn failed")

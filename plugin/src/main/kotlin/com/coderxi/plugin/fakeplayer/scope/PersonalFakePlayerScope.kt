@@ -1,10 +1,9 @@
 package com.coderxi.plugin.fakeplayer.scope
 
-import com.coderxi.plugin.fakeplayer.api.event.FakePlayerEvent
 import com.coderxi.plugin.fakeplayer.command.Permission
 import com.coderxi.plugin.fakeplayer.entity.FakePlayer
+import com.coderxi.plugin.fakeplayer.manager.FakePlayerNametagManager
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Location
 import org.bukkit.entity.Player
 
@@ -17,6 +16,8 @@ class PersonalFakePlayerScope(private val player: Player): AbstractFakePlayerSco
 
     override fun getFakePlayerSpawnLocation(): Location = player.location
 
+    private fun playerAsList() = listOf(player)
+
     override fun onFakePlayerSpawn(fakePlayer: FakePlayer) {
         fakePlayer.setPing(-1)
         fakePlayer.player.apply {
@@ -28,16 +29,7 @@ class PersonalFakePlayerScope(private val player: Player): AbstractFakePlayerSco
             health = 20.0
             foodLevel = 20
         }
-        val nametag = MiniMessage.miniMessage().deserialize("<aqua>[bot] <white>${fakePlayer.name}<br><red>❤❤❤❤❤❤❤❤❤❤")
-        fakePlayer.showVirtualNameTag(player, nametag)
-        fakePlayer.on<FakePlayerEvent.Death> {
-            fakePlayer.hideVirtualNameTag(player)
-        }
-        fakePlayer.on<FakePlayerEvent.Respawn> {
-            scheduler.runTaskLater(plugin, Runnable {
-                fakePlayer.showVirtualNameTag(player, nametag)
-            },1)
-        }
+        FakePlayerNametagManager.bind(fakePlayer,::playerAsList)
     }
 
 }

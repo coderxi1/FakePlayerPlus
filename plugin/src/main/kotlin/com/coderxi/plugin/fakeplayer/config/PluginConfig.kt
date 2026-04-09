@@ -23,6 +23,16 @@ class PluginConfig : OkaeriConfig() {
         )
     }
 
+    @Comment("假人自定义名称")
+    val nametag = NametagConfig()
+    class NametagConfig : OkaeriConfig() {
+        val lines: List<String> = listOf(
+            "血量:{fakeplayer_health_sprites}<red>[{fakeplayer_health}]",
+            "等级:<green>{fakeplayer_level} <white>经验:<green>{fakeplayer_expToLevel} <white>状态:{fakeplayer_status_sprites}",
+            "{fakeplayer_name}"
+        )
+    }
+
     @Comment("假人死亡时动作 NONE|QUIT|RESPAWN|RESPAWN_BACK")
     @CustomKey("on-death-action")
     val onDeathAction: OnDeathAction = OnDeathAction.RESPAWN_BACK

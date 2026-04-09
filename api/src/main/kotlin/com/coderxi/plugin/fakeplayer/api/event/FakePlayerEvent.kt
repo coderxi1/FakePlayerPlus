@@ -17,6 +17,10 @@ sealed class FakePlayerEvent {
     object PostQuit : FakePlayerEvent()
 
     object Respawn: FakePlayerEvent()
-    data class Death(val location: Location?) : FakePlayerEvent()
+    data class Death(val location: Location) : FakePlayerEvent()
+    data class Damage(val finalDamage: Double) : FakePlayerEvent()
+    data class RegainHealth(val amount: Double) : FakePlayerEvent()
+    object ExpChange: FakePlayerEvent()
+    object LevelChange: FakePlayerEvent()
 
 }

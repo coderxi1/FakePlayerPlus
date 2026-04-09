@@ -45,12 +45,16 @@ class FakePlayer(private val handle: NMSServerPlayer) : EventDispatcher<FakePlay
         return player.teleportAsync(location)
     }
 
-    fun showVirtualNameTag(player: Player, content: Component) {
-        handle.showVirtualNameTag(player,content)
+    fun showVirtualNametag(player: Player, content: Component) {
+        handle.showVirtualNametag(player, content)
     }
 
-    fun hideVirtualNameTag(player: Player) {
-        handle.hideVirtualNameTag(player)
+    fun updateVirtualNametag(player: Player, content: Component) {
+        handle.updateVirtualNametag(player, content)
+    }
+
+    fun hideVirtualNametag(player: Player) {
+        handle.hideVirtualNametag(player)
     }
 
     private var respawnBackLocation: Location? = null
