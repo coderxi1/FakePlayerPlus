@@ -3,7 +3,7 @@ package com.coderxi.plugin.fakeplayer.utils
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
-class EventBus {
+class EventEmitter {
 
     private data class Hook(val action: (Any) -> Unit, val priority: Int)
 

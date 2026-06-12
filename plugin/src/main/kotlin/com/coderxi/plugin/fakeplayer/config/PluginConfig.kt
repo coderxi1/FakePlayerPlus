@@ -39,7 +39,7 @@ class PluginConfig : OkaeriConfig() {
             "当然这个选项也不意味着每 x tick都会进行刷新",
             "为了最大程度的降低开销,本插件采取[事件驱动]的方式进行更新(参见refreshEvents变量)")
         @CustomKey("refresh-interval-tick")
-        val refreshIntervalTick: Long = 5
+        val refreshIntervalTick: Long = 20
         @Comment("能够触发假人自定义名称刷新的事件",
             "只有在这些事件发生时才会更新假人的名称",
             "事件列表请参考插件源码中的FakePlayerEvent")
@@ -54,5 +54,7 @@ class PluginConfig : OkaeriConfig() {
     @CustomKey("on-death-action")
     val onDeathAction: OnDeathAction = OnDeathAction.RESPAWN_BACK
 
+    @CustomKey("invsee-type")
+    val invseeProviderType: InvseeProviderType = InvseeProviderType.VANILLA
 
 }

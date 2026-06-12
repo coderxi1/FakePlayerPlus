@@ -81,8 +81,9 @@ class NMSServerPlayerImpl(private val player: Player) : NMSServerPlayer {
 
     override fun showVirtualNametag(player: Player, content: net.kyori.adventure.text.Component) {
         val connection = (player as CraftPlayer).handle.connection
+        val loc = craftPlayer.location
         // 创建TextDisplay实体包
-        val addPacket = ClientboundAddEntityPacket(nametagEntityId, UUID.randomUUID(), player.location.x, player.location.y, player.location.z, 0f, 0f, EntityType.TEXT_DISPLAY, 0, Vec3.ZERO, 0.0)
+        val addPacket = ClientboundAddEntityPacket(nametagEntityId, UUID.randomUUID(), loc.x, loc.y, loc.z, 0f, 0f, EntityType.TEXT_DISPLAY, 0, Vec3.ZERO, 0.0)
         // TextDisplay元数据包
         val metadataPacket = ClientboundSetEntityDataPacket(nametagEntityId, listOf(
             // 索引 11: 文本位置

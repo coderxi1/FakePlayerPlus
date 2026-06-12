@@ -1,20 +1,14 @@
 package com.coderxi.plugin.fakeplayer.network
 
-import io.netty.channel.AbstractChannel
-import io.netty.channel.Channel
-import io.netty.channel.ChannelConfig
-import io.netty.channel.ChannelMetadata
-import io.netty.channel.ChannelOutboundBuffer
-import io.netty.channel.ChannelPipeline
-import io.netty.channel.ChannelPromise
-import io.netty.channel.DefaultChannelConfig
-import io.netty.channel.DefaultEventLoop
-import io.netty.channel.EventLoop
+import io.netty.channel.*
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.SocketAddress
 
 class FakeChannel(parent: Channel?, private val address: InetAddress?): AbstractChannel(parent) {
+    companion object {
+        val EVENT_LOOP: EventLoop = DefaultEventLoop()
+    }
     private val config: ChannelConfig = DefaultChannelConfig(this)
     private val pipeline: ChannelPipeline = FakeChannelPipeline(this)
     override fun config(): ChannelConfig { config.isAutoRead = true; return config }
@@ -30,7 +24,7 @@ class FakeChannel(parent: Channel?, private val address: InetAddress?): Abstract
     override fun localAddress0(): SocketAddress = InetSocketAddress(address, 25565)
     override fun remoteAddress0(): SocketAddress = InetSocketAddress(address, 25565)
     override fun metadata(): ChannelMetadata = ChannelMetadata(true)
-    override fun eventLoop(): EventLoop = DefaultEventLoop()
+    override fun eventLoop(): EventLoop = EVENT_LOOP
     override fun newUnsafe(): AbstractUnsafe = object : AbstractUnsafe() {
         override fun connect(remoteAddress: SocketAddress?, localAddress: SocketAddress?, promise: ChannelPromise) {
             safeSetSuccess(promise)

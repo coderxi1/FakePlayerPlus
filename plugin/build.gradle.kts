@@ -5,8 +5,8 @@ plugins {
 
 repositories {
     maven("https://repo.okaeri.cloud/releases")
-    // PlaceholderAPI Repo
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+    maven("https://jitpack.io/")
 }
 
 dependencies {
@@ -15,14 +15,15 @@ dependencies {
     implementation(project(":infrastructure:nms_v1_21_11"))
     compileOnly("io.papermc.paper:paper-api:${project.findProperty("paper-api.version.base")}")
     implementation("eu.okaeri:okaeri-configs-yaml-bukkit:6.1.0-beta.1")
-    // PlaceholderAPI
     compileOnly("me.clip:placeholderapi:2.12.2")
+    compileOnly("com.github.Jikoo:OpenInv:5.3.0")
     testImplementation(kotlin("test"))
 }
 
 tasks {
     runServer {
         minecraftVersion("1.21.11")
+        jvmArgs("-Xms8G", "-Xmx8G")
         doFirst {
             val eulaFile = project.layout.projectDirectory.file("run/eula.txt").asFile
             if (!eulaFile.exists()) {
@@ -31,6 +32,7 @@ tasks {
             }
             eulaFile.writeText("eula=true")
         }
+
     }
 }
 

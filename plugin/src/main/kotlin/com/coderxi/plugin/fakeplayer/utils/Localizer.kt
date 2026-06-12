@@ -8,7 +8,7 @@ import java.text.MessageFormat
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
-class MessagesUtil: PluginContext {
+class Localizer: PluginContext {
     private val bundleName = "messages"
     private var currentLocale = Locale.getDefault()
     
@@ -16,18 +16,16 @@ class MessagesUtil: PluginContext {
     private val formatCache = ConcurrentHashMap<String, MessageFormat>()
     private lateinit var prefixComponent: Component
 
-    fun translate(key: String, vararg args: Any): Component {
-        var text = translate(key)
-        if (!args.isEmpty()) {
-            val format = formatCache.computeIfAbsent(text) { MessageFormat(it) }
-            text = format.format(args)
-        }
-        val component = MiniMessage.miniMessage().deserialize(text)
-        return prefixComponent.append(component)
+    fun translate(key: String, vararg args: Any) = MiniMessage.miniMessage().deserialize(translateStringWithArgs(key, *args))
+    fun translateWithPrefix(key: String, vararg args: Any) = prefixComponent.append(translate(key, *args))
+    fun translateStringWithArgs(key: String, vararg args: Any): String {
+        val text = translateString(key)
+        if (args.isEmpty()) return text
+        val format = formatCache.computeIfAbsent(text) { MessageFormat(it) }
+        return format.format(args)
     }
-
-    private fun translate(key: String,locale: Locale = currentLocale): String {
-        val bundle = bundleCache.computeIfAbsent(locale) { loadBundle(it) }
+    private fun translateString(key: String): String {
+        val bundle = bundleCache.computeIfAbsent(currentLocale) { loadBundle(it) }
         return try { bundle.getString(key) } catch (_: MissingResourceException) { key }
     }
 
@@ -45,9 +43,9 @@ class MessagesUtil: PluginContext {
         }
     }
 
-    fun updateLocale(langTag: String) {
+    fun locale(langTag: String) {
         currentLocale = Locale.forLanguageTag(langTag.replace("[_.]".toRegex(), "-"))
-        prefixComponent = MiniMessage.miniMessage().deserialize(translate("fakeplayer.prefix"))
+        prefixComponent = translate("fakeplayer.prefix")
         bundleCache.clear()
         formatCache.clear()
     }

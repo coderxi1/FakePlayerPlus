@@ -5,18 +5,23 @@ import com.coderxi.plugin.fakeplayer.api.event.FakePlayerEvent.*
 import com.coderxi.plugin.fakeplayer.context.PluginContext
 import com.coderxi.plugin.fakeplayer.entity.FakePlayer
 import com.coderxi.plugin.fakeplayer.utils.MinecraftSpritesUtil
+import io.papermc.paper.event.packet.PlayerChunkLoadEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
-import org.bukkit.entity.Player
+import org.bukkit.Bukkit
+import org.bukkit.Chunk.getChunkKey
+import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.scheduler.BukkitTask
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.forEach
 
 object FakePlayerNametagManager: PluginContext {
 
     val registry = FakePlayerRegistry
     lateinit var nametagTemplate: Component
-    val nametagTargetsGetters = ConcurrentHashMap<UUID, () -> Collection<Player>>()
+    val nametagTargetsGetters = ConcurrentHashMap<UUID, () -> Collection<UUID>>()
     val nametagArgsSetters: MutableMap<String, (FakePlayer) -> Component> = mutableMapOf(
         "{fakeplayer_name}" to { fp -> Component.text(fp.name) },
         "{fakeplayer_health_sprites}" to { fp -> MinecraftSpritesUtil.health2heartsSprites(fp.player) },
@@ -31,6 +36,7 @@ object FakePlayerNametagManager: PluginContext {
     private val updatingFakePlayers = ConcurrentHashMap.newKeySet<UUID>()
 
     init {
+        registerEvents(Listener())
         onPluginEnable { init() }
         onPluginReload { refreshTask?.cancel(); init() }
         onPluginDisable { refreshTask?.cancel() }
@@ -41,23 +47,19 @@ object FakePlayerNametagManager: PluginContext {
         refreshEvents = config.nametag.refreshEvents.mapNotNull { name ->
             runCatching { Class.forName("com.coderxi.plugin.fakeplayer.events.FakePlayerEvent.$$name") }.getOrNull() as Class<out FakePlayerEvent>?
         }
-        println(refreshEvents)
         refreshTask = scheduler.runTaskTimerAsynchronously(plugin, Runnable {
-            //排空假人队列到局部变量，防止并发修改异常
-            val updatingFakePlayersClone = mutableSetOf<UUID>().also { clone ->
-                val iterator = updatingFakePlayers.iterator()
-                while (iterator.hasNext()) {
-                    clone.add(iterator.next())
-                    iterator.remove()
+            if (updatingFakePlayers.isEmpty()) return@Runnable
+            val iterator = updatingFakePlayers.iterator()
+            while (iterator.hasNext()) {
+                registry.getFakePlayer(iterator.next())?.let { fakePlayer ->
+                    val nametag = fillTemplate(fakePlayer)
+                    nametagTargetsGetters[fakePlayer.uniqueId]?.invoke()?.forEach { uuid ->
+                        Bukkit.getPlayer(uuid)?.let { target ->
+                            if (target.isOnline) fakePlayer.updateVirtualNametag(target, nametag)
+                        }
+                    }
                 }
-            }
-            //处理每一个需要更新的假人
-            if (updatingFakePlayersClone.isEmpty()) return@Runnable
-            updatingFakePlayersClone.forEach { fakePlayerUUID ->
-                val fakePlayer = registry.getFakePlayer(fakePlayerUUID) ?: return@forEach
-                val nametag = fillTemplate(fakePlayer)
-                val targets = nametagTargetsGetters[fakePlayerUUID]?.invoke() ?: return@forEach
-                targets.forEach { target -> fakePlayer.updateVirtualNametag(target, nametag) }
+                iterator.remove()
             }
         }, 0L, config.nametag.refreshIntervalTick)
     }
@@ -67,7 +69,7 @@ object FakePlayerNametagManager: PluginContext {
     }
 
     fun showNametag(fakePlayer: FakePlayer, nametag: Component = fillTemplate(fakePlayer)) {
-        nametagTargetsGetters[fakePlayer.uniqueId]?.invoke()?.forEach { fakePlayer.showVirtualNametag(it, nametag) }
+        nametagTargetsGetters[fakePlayer.uniqueId]?.invoke()?.mapNotNull(Bukkit::getPlayer)?.forEach { fakePlayer.showVirtualNametag(it, nametag) }
     }
 
     fun updateNametag(fakePlayer: FakePlayer) {
@@ -75,10 +77,10 @@ object FakePlayerNametagManager: PluginContext {
     }
 
     fun hideNametag(fakePlayer: FakePlayer) {
-        nametagTargetsGetters[fakePlayer.uniqueId]?.invoke()?.forEach { fakePlayer.hideVirtualNametag(it) }
+        nametagTargetsGetters[fakePlayer.uniqueId]?.invoke()?.mapNotNull(Bukkit::getPlayer)?.forEach { fakePlayer.hideVirtualNametag(it) }
     }
 
-    fun bind(fakePlayer: FakePlayer, targetsGetter: () -> Collection<Player>) {
+    fun bind(fakePlayer: FakePlayer, targetsGetter: () -> Collection<UUID>) {
         nametagTargetsGetters[fakePlayer.uniqueId] = targetsGetter
         showNametag(fakePlayer)
         fakePlayer.apply {
@@ -92,6 +94,25 @@ object FakePlayerNametagManager: PluginContext {
             on<Quit> {
                 hideNametag(this)
                 nametagTargetsGetters.remove(uniqueId)
+                updatingFakePlayers.remove(uniqueId)
+            }
+        }
+    }
+
+    class Listener : org.bukkit.event.Listener {
+
+        @EventHandler(priority = EventPriority.MONITOR)
+        fun onPlayerChunkLoad(event: PlayerChunkLoadEvent) {
+            val player = event.player
+            if (registry.getFakePlayer(player.uniqueId) != null) return
+            val chunkKey = getChunkKey(event.chunk.x, event.chunk.z)
+            schedulerRunLaterAsync(5) {
+                registry.fakeplayersInChunk(chunkKey)?.forEach { fakePlayer ->
+                    val targets = nametagTargetsGetters[fakePlayer.uniqueId]?.invoke() ?: return@forEach
+                    if (targets.contains(player.uniqueId)) {
+                        fakePlayer.showVirtualNametag(player, fillTemplate(fakePlayer))
+                    }
+                }
             }
         }
     }

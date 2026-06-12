@@ -5,19 +5,25 @@ import com.coderxi.plugin.fakeplayer.api.event.FakePlayerEvent.*
 import com.coderxi.plugin.fakeplayer.api.nms.*
 import com.coderxi.plugin.fakeplayer.config.OnDeathAction
 import com.coderxi.plugin.fakeplayer.context.PluginContext
-import com.coderxi.plugin.fakeplayer.utils.EventBus
+import com.coderxi.plugin.fakeplayer.provider.invsee.InvseeProvider
+import com.coderxi.plugin.fakeplayer.utils.EventEmitter
 import com.coderxi.plugin.fakeplayer.utils.EventDispatcher
 import net.kyori.adventure.text.Component
 import org.bukkit.Location
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import java.util.concurrent.CompletableFuture
 
-class FakePlayer(private val handle: NMSServerPlayer) : EventDispatcher<FakePlayerEvent>, PluginContext {
+class FakePlayer(private val nmsPlayer: NMSServerPlayer) : EventDispatcher<FakePlayerEvent>, PluginContext {
 
-    val player = handle.getPlayer()
+    companion object : PluginContext {
+        val invseeProvider: InvseeProvider by lazy { plugin.config.invseeProviderType.newInstance() }
+    }
+
+    val player = nmsPlayer.getPlayer()
     val uniqueId = player.uniqueId
     lateinit var connection: NMSServerGamePacketListener
-    override val eventBus: EventBus = EventBus()
+    override val emitter: EventEmitter = EventEmitter()
 
     val name get() = player.name
 
@@ -34,11 +40,11 @@ class FakePlayer(private val handle: NMSServerPlayer) : EventDispatcher<FakePlay
     }
 
     fun doTick() {
-        handle.doTick()
+        nmsPlayer.doTick()
     }
 
     fun requestRespawn() {
-        handle.requestRespawn()
+        nmsPlayer.requestRespawn()
     }
 
     fun teleportAsync(location: Location): CompletableFuture<Boolean?> {
@@ -46,15 +52,20 @@ class FakePlayer(private val handle: NMSServerPlayer) : EventDispatcher<FakePlay
     }
 
     fun showVirtualNametag(player: Player, content: Component) {
-        handle.showVirtualNametag(player, content)
+        nmsPlayer.showVirtualNametag(player, content)
     }
 
     fun updateVirtualNametag(player: Player, content: Component) {
-        handle.updateVirtualNametag(player, content)
+        nmsPlayer.updateVirtualNametag(player, content)
     }
 
     fun hideVirtualNametag(player: Player) {
-        handle.hideVirtualNametag(player)
+        nmsPlayer.hideVirtualNametag(player)
+    }
+
+    fun showInventory(viewer: Player) {
+        invseeProvider.openInventory(viewer,this.player)
+        player.location.world.playSound(player.location, Sound.BLOCK_CHEST_OPEN, 1f, 1f)
     }
 
     private var respawnBackLocation: Location? = null

@@ -10,14 +10,11 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.*
 import org.bukkit.event.player.*
 
-class FakePlayerEventListener: PluginContext, Listener {
+object FakePlayerEventListener: PluginContext, Listener {
 
     private val registry = FakePlayerRegistry
-    init {
-        onPluginEnable {
-            plugin.server.pluginManager.registerEvents(this, plugin)
-        }
-    }
+    init { registerEvents(this) }
+
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     fun onFakePlayerQuit(event: PlayerQuitEvent) {
         registry.getFakePlayer(event.player.uniqueId)?.emit(Quit(event.quitMessage()))
@@ -49,5 +46,10 @@ class FakePlayerEventListener: PluginContext, Listener {
     @EventHandler
     fun onFakePlayerExpChange(event: PlayerExpChangeEvent) {
         registry.getFakePlayer(event.player.uniqueId)?.emit(ExpChange)
+    }
+
+    @EventHandler
+    fun onFakePlayerInteract(event: PlayerInteractEntityEvent) {
+        registry.getFakePlayer(event.rightClicked.uniqueId)?.emit(Interact(event.player, event.hand))
     }
 }
