@@ -2,22 +2,20 @@ package com.coderxi.plugin.fakeplayer
 
 import com.coderxi.plugin.fakeplayer.api.nms.NMSBridge
 import com.coderxi.plugin.fakeplayer.api.nms.NMSServer
+import com.coderxi.plugin.fakeplayer.command.FakePlayerCommand
 import com.coderxi.plugin.fakeplayer.config.PluginConfig
 import com.coderxi.plugin.fakeplayer.context.PluginContext
 import com.coderxi.plugin.fakeplayer.event.FakePlayerEventListener
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerNametagManager
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerRegistry
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerTickManager
-import com.coderxi.plugin.fakeplayer.utils.PluginConfigUtil
 import com.coderxi.plugin.fakeplayer.nms.v1_21_11.NMSBridgeImpl
-import com.coderxi.plugin.fakeplayer.scope.PersonalFakePlayerScope
 import com.coderxi.plugin.fakeplayer.utils.EventEmitter
 import com.coderxi.plugin.fakeplayer.utils.Localizer
-import org.bukkit.command.Command
-import org.bukkit.command.CommandSender
-import org.bukkit.entity.Player
+import com.coderxi.plugin.fakeplayer.utils.PluginConfigUtil
 import org.bukkit.event.HandlerList
 import org.bukkit.plugin.java.JavaPlugin
+import revxrsal.commands.bukkit.BukkitLamp
 
 class FakePlayerPlusPlugin: JavaPlugin() {
 
@@ -41,6 +39,7 @@ class FakePlayerPlusPlugin: JavaPlugin() {
         config = PluginConfigUtil.load<PluginConfig>("config.yml")
         messages = Localizer()
         messages.locale(config.language)
+        BukkitLamp.builder(this).build().register(FakePlayerCommand())
         emitter.emit("Enable")
     }
 
@@ -54,23 +53,4 @@ class FakePlayerPlusPlugin: JavaPlugin() {
         HandlerList.unregisterAll(this)
         emitter.emit("Disable")
     }
-
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-        if (args.isEmpty()) {
-            return false
-        }
-        if (args[0] == "reload") {
-            onReload()
-            return true
-        }
-        val scope = FakePlayerRegistry.getScope((sender as Player).uniqueId) ?: PersonalFakePlayerScope(sender)
-        when (args[0]) {
-            "spawn" -> scope.spawnAsync(args[1], sender).exceptionally { e ->
-                e.printStackTrace()
-                null
-            }
-        }
-        return true
-    }
-
 }
