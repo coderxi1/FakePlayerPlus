@@ -5,9 +5,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.inventory.InventoryView
 
-class VanillaInvseeProvider: InvseeProvider, PluginContext, Listener {
-
-    init { registerEvents(this) }
+class VanillaInvseeProvider: InvseeProvider, PluginContext {
 
     override fun openInventory(viewer: Player, whom: Player): InventoryView?  {
         return viewer.openInventory(whom.inventory)?.apply {

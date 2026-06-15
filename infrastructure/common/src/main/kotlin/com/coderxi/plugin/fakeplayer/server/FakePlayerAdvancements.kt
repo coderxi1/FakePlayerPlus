@@ -16,13 +16,14 @@ class FakePlayerAdvancements(
     filePath: Path,
     owner: ServerPlayer
 ) : PlayerAdvancements(dataFixer, playerManager, advancementLoader, filePath, owner) {
+    init { super.stopListening() }
     override fun setPlayer(owner: ServerPlayer) {}
     override fun stopListening() {}
     override fun reload(advancementLoader: ServerAdvancementManager) {}
     override fun save() {}
-    override fun award(advancement: AdvancementHolder, criterionName: String): Boolean = false
-    override fun revoke(advancement: AdvancementHolder, criterionName: String): Boolean = false
+    override fun award(advancement: AdvancementHolder, criterionName: String) = false
+    override fun revoke(advancement: AdvancementHolder, criterionName: String) = false
     override fun flushDirty(player: ServerPlayer, showAdvancements: Boolean) {}
     override fun setSelectedTab(advancement: AdvancementHolder?) {}
-    override fun getOrStartProgress(advancement: AdvancementHolder): AdvancementProgress = AdvancementProgress()
+    override fun getOrStartProgress(advancement: AdvancementHolder) = AdvancementProgress()
 }

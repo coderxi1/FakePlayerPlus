@@ -17,9 +17,9 @@ dependencies {
     implementation("eu.okaeri:okaeri-configs-yaml-bukkit:6.1.0-beta.1")
     implementation("io.github.revxrsal:lamp.common:4.0.0-rc.16")
     implementation("io.github.revxrsal:lamp.bukkit:4.0.0-rc.16")
-    implementation("io.github.revxrsal:lamp.brigadier:4.0.0-rc.16")
     compileOnly("me.clip:placeholderapi:2.12.2")
     compileOnly("com.github.Jikoo:OpenInv:5.3.0")
+    implementation("org.sql2o:sql2o:1.9.1")
     testImplementation(kotlin("test"))
 }
 

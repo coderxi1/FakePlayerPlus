@@ -30,4 +30,6 @@ interface FakePlayerEvent {
 
     data class Interact(val player: Player, val hand: EquipmentSlot) : FakePlayerEvent
 
+    data class EnterView(val player: Player) : FakePlayerEvent
+
 }

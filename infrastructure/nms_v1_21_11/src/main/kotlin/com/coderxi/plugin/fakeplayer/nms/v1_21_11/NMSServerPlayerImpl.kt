@@ -6,82 +6,80 @@ import io.netty.buffer.Unpooled
 import io.papermc.paper.adventure.PaperAdventure
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.nbt.NbtOps
 import net.minecraft.network.FriendlyByteBuf
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
-import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
-import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket
-import net.minecraft.network.protocol.game.ServerboundClientCommandPacket
-import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
+import net.minecraft.network.protocol.game.*
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.PlayerAdvancements
 import net.minecraft.server.level.ClientInformation
+import net.minecraft.server.level.ParticleStatus
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityType
-import net.minecraft.world.level.storage.ValueInputContextHelper
+import net.minecraft.world.entity.HumanoidArm
+import net.minecraft.world.entity.player.ChatVisiblity
 import net.minecraft.world.phys.Vec3
+import org.bukkit.Bukkit
 import org.bukkit.craftbukkit.entity.CraftEntity
 import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
-import org.bukkit.plugin.Plugin
 import org.bukkit.util.Vector
 import org.joml.Vector3f
 import java.lang.reflect.Field
-import java.util.UUID
+import java.nio.file.Paths
+import java.util.*
 
-class NMSServerPlayerImpl(private val player: Player) : NMSServerPlayer {
+class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
 
-    private val handle: ServerPlayer = craftPlayer.handle
+    private val handle: ServerPlayer = (player as CraftPlayer).handle
 
-    override fun getPlayer() = player
+    override val x: Double get() = handle.x
+    override val y: Double get() = handle.y
+    override val z: Double get() = handle.z
+    override var xo: Double get() = handle.xo; set(v) { handle.xo = v }
+    override var yo: Double get() = handle.yo; set(v) { handle.yo = v }
+    override var zo: Double get() = handle.zo; set(v) { handle.zo = v }
+    override var xRot: Float get() = handle.xRot; set(v) { handle.xRot = v }
+    override var yRot: Float get() = handle.yRot; set(v) { handle.yRot = v }
 
-    override fun getX(): Double = handle.x
-    override fun getY() = handle.y
-    override fun getZ() = handle.z
-    override fun getTickCount() = handle.tickCount
+    override var xxa: Float get() = handle.xxa; set(v) {handle.xxa=v}
+    override var yya: Float get() = handle.yya; set(v) {handle.yya=v}
+    override var zza: Float get() = handle.zza; set(v) {handle.zza=v}
 
-    override fun onGround() = handle.onGround()
-    override fun isUsingItem() = handle.isUsingItem
-
-    override fun setXo(xo: Double) { handle.xo = xo }
-    override fun setYo(yo: Double) { handle.yo = yo }
-    override fun setZo(zo: Double) { handle.zo = zo }
-    override fun getYRot() = handle.yRot
-    override fun setYRot(yRot: Float) { handle.yRot = yRot }
-    override fun getXRot() = handle.xRot
-    override fun setXRot(xRot: Float) { handle.xRot = xRot }
-    override fun getZza() = handle.zza
-    override fun setZza(zza: Float) { handle.zza = zza }
-    override fun getXxa() = handle.xxa
-    override fun setXxa(xxa: Float) { handle.xxa = xxa }
+    override val tickCount: Int get() = handle.tickCount
+    override val onGround: Boolean get() = handle.onGround
+    override val isUsingItem: Boolean get() = handle.isUsingItem
 
     override fun doTick() = handle.doTick()
     override fun absMoveTo(x: Double, y: Double, z: Double, yRot: Float, xRot: Float) = handle.absSnapTo(x, y, z, yRot, xRot)
+    override fun setDeltaMovement(vector: Vector) { handle.deltaMovement = Vec3(vector.x, vector.y, vector.z) }
+    override fun startRiding(entity: Entity, force: Boolean, triggerEvents: Boolean): Boolean = handle.startRiding((entity as CraftEntity).handle,force,triggerEvents)
     override fun stopRiding() = handle.stopRiding()
     override fun drop(allStack: Boolean) = handle.drop(allStack)
     override fun drop(slot: Int, throwRandomly: Boolean, retainOwnership: Boolean) { handle.drop(handle.inventory.removeItem(slot, handle.inventory.getItem(slot).count), throwRandomly, retainOwnership) }
-    override fun resetLastActionTime() = handle.resetLastActionTime()
     override fun jumpFromGround() = handle.jumpFromGround()
     override fun setJumping(jumping: Boolean) { handle.isJumping = jumping }
-    override fun setDeltaMovement(vector: Vector) { handle.deltaMovement = Vec3(vector.x, vector.y, vector.z) }
-    override fun startRiding(entity: Entity, force: Boolean, triggerEvents: Boolean): Boolean = handle.startRiding((entity as CraftEntity).handle,force,triggerEvents)
-
-    override fun disableAdvancements(plugin: Plugin) { advancements = FakePlayerAdvancements(server.fixerUpper, server.playerList, server.advancements, plugin.dataFolder.getParentFile().toPath(), handle) }
-
-    override fun setPlayBefore() { craftPlayer.readExtraData(ValueInputContextHelper(server.registryAccess(), NbtOps.INSTANCE).empty()) }
-    override fun setupClientOptions() { handle.updateOptions(ClientInformation.createDefault())}
     override fun requestRespawn() { handle.connection.handleClientCommand(ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN)) }
     override fun requestSwapItemWithOffhand() { handle.connection.handlePlayerAction(ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND,BlockPos(0, 0, 0),Direction.DOWN)) }
+    override fun setupClientOptions() { handle.updateOptions(ClientInformation(
+            "en_us",
+            Bukkit.getViewDistance(),
+            ChatVisiblity.SYSTEM,
+            false,
+            0x7f,
+            HumanoidArm.RIGHT,
+            false,
+            true,
+            ParticleStatus.MINIMAL
+    ))}
+    override fun disableAdvancements() { advancements = FakePlayerAdvancements(server.fixerUpper, server.playerList, server.advancements, Paths.get(System.getProperty("java.io.tmpdir")), handle) }
+    override fun resetLastActionTime() = handle.resetLastActionTime()
 
     private var nametagEntityId = net.minecraft.world.entity.Entity.nextEntityId()
 
     override fun showVirtualNametag(player: Player, content: net.kyori.adventure.text.Component) {
-        val connection = (player as CraftPlayer).handle.connection
-        val loc = craftPlayer.location
+        val loc = player.location
         // 创建TextDisplay实体包
         val addPacket = ClientboundAddEntityPacket(nametagEntityId, UUID.randomUUID(), loc.x, loc.y, loc.z, 0f, 0f, EntityType.TEXT_DISPLAY, 0, Vec3.ZERO, 0.0)
         // TextDisplay元数据包
@@ -99,30 +97,27 @@ class NMSServerPlayerImpl(private val player: Player) : NMSServerPlayer {
         ))
         // 骑乘绑定包
         val passengerPacket = ClientboundSetPassengersPacket.STREAM_CODEC.decode(FriendlyByteBuf(Unpooled.buffer()).apply {
-            writeVarInt(craftPlayer.entityId) // 载具ID
+            writeVarInt(player.entityId) // 载具ID
             writeVarInt(1)               // 乘客数量
             writeVarInt(nametagEntityId) // 乘客 ID (NameTag)
         })
         // 发送数据包
-        connection.send(addPacket)
-        connection.send(metadataPacket)
-        connection.send(passengerPacket)
+        handle.connection.send(addPacket)
+        handle.connection.send(metadataPacket)
+        handle.connection.send(passengerPacket)
     }
 
     override fun updateVirtualNametag(player: Player, content: net.kyori.adventure.text.Component) {
-        val connection = (player as CraftPlayer).handle.connection
         val metadataPacket = ClientboundSetEntityDataPacket(nametagEntityId, listOf(
             SynchedEntityData.DataValue(23, EntityDataSerializers.COMPONENT, PaperAdventure.asVanilla(content)),
         ))
-        connection.send(metadataPacket)
+        handle.connection.send(metadataPacket)
     }
     override fun hideVirtualNametag(player: Player) {
-        val connection = (player as CraftPlayer).handle.connection
         val destroyPacket = ClientboundRemoveEntitiesPacket(nametagEntityId)
-        connection.send(destroyPacket)
+        handle.connection.send(destroyPacket)
         nametagEntityId = net.minecraft.world.entity.Entity.nextEntityId()
     }
-
 
     companion object {
         private val advancementsField: Field? = runCatching { ServerPlayer::class.java.getDeclaredField("advancements").apply { isAccessible = true } }.getOrNull()
@@ -131,7 +126,5 @@ class NMSServerPlayerImpl(private val player: Player) : NMSServerPlayer {
             set(value) { advancementsField?.set(handle, value) }
         private val NMSServerPlayerImpl.server: MinecraftServer
             get() = handle.level().server
-        private val NMSServerPlayerImpl.craftPlayer: CraftPlayer
-            get() = player as CraftPlayer
     }
 }
