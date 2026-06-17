@@ -79,6 +79,8 @@ class FakePlayerCommand: PluginComponent {
 
     @Subcommand("skin")
     fun Player.skin(@Named("name") targetName: String, @SelectFlag fakePlayer: FakePlayer) {
-        fpm.get(fakePlayer.name)?.setSkinAsync(targetName)
+        fpm.get(fakePlayer.name)?.setSkinAsync(targetName)?.thenApply { success ->
+            if (success) fakePlayer.world.playSound(fakePlayer.location, Sound.ITEM_ARMOR_EQUIP_GENERIC, 1f, 1f)
+        }
     }
 }

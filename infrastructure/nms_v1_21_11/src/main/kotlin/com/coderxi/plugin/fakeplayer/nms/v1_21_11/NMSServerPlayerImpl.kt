@@ -2,7 +2,7 @@ package com.coderxi.plugin.fakeplayer.nms.v1_21_11
 
 import com.coderxi.plugin.fakeplayer.api.nms.NMSServerPlayer
 import com.coderxi.plugin.fakeplayer.server.FakePlayerAdvancements
-import com.mojang.authlib.properties.Property
+import com.destroystokyo.paper.profile.ProfileProperty
 import io.netty.buffer.Unpooled
 import io.papermc.paper.adventure.PaperAdventure
 import net.minecraft.core.BlockPos
@@ -76,7 +76,13 @@ class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
             ParticleStatus.MINIMAL
     ))}
     override fun setTextures(value: String?, signature: String?) {
-        handle.gameProfile.properties.put("textures", Property("textures", value, signature))
+        val playerProfile = player.playerProfile
+        if (value == null) {
+            playerProfile.removeProperty("textures")
+        } else {
+            playerProfile.setProperty(ProfileProperty("textures", value, signature))
+        }
+        player.playerProfile = playerProfile
     }
 
     override fun resetLastActionTime() = handle.resetLastActionTime()
