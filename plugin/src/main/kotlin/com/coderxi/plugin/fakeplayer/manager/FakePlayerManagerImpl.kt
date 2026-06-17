@@ -10,6 +10,7 @@ import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import com.coderxi.plugin.fakeplayer.entity.StandardFakePlayer
 import com.coderxi.plugin.fakeplayer.repository.FakePlayerRepository
 import com.coderxi.plugin.fakeplayer.utils.IPGenerator
+import com.coderxi.plugin.fakeplayer.utils.SkinFetcher
 import kotlinx.coroutines.future.await
 import org.bukkit.Location
 import org.bukkit.entity.Player
@@ -66,6 +67,12 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
 
     override fun select(name: String, sender: Player): FakePlayer? {
         return null;
+    }
+
+    override suspend fun setSkinAsync(fakePlayer: FakePlayer, targetName: String): Boolean {
+        val skin = SkinFetcher.getPlayerSkinInfoByName(targetName)
+        mainRun { fakePlayer.skin = skin }
+        return skin != null
     }
 
     override fun isOwned(uniqueId: UUID, uuid: UUID): Boolean {

@@ -28,15 +28,13 @@ class FakePlayerCommand: PluginComponent {
     }
 
     @Subcommand("spawn")
-    fun Player.spawn(@Named("name") name: String) {
+    fun Player.spawn(@Named("name") name: String) = asyncRun {
         if (fpm.get(name)!=null) throw SpawnAlreadyExistsException(name)
         if (fpm.fakeplayersCount()>=plugin.config.spawnLimit.server) throw SpawnServerLimitedException()
         if (fpm.fakeplayersByOwnerUuid(uniqueId).count() > 3) throw SpawnPlayerLimitedException()
-        asyncRun {
-            val fakePlayer = fpm.spawnAsync(name, uniqueId, location) ?: return@asyncRun
-            val locationText = "%.2f, %.2f, %.2f".format(location.x, location.y, location.z)
-            sendMessage(tlp("fakeplayer.spawn.success", name, fakePlayer.world.name, locationText))
-        }
+        val fakePlayer = fpm.spawnAsync(name, uniqueId, location) ?: return@asyncRun
+        val locationText = "%.2f, %.2f, %.2f".format(location.x, location.y, location.z)
+        sendMessage(tlp("fakeplayer.spawn.success", name, fakePlayer.world.name, locationText))
     }
 
     @Subcommand("select")
@@ -78,9 +76,8 @@ class FakePlayerCommand: PluginComponent {
     }
 
     @Subcommand("skin")
-    fun Player.skin(@Named("name") targetName: String, @SelectFlag fakePlayer: FakePlayer) {
-        fpm.get(fakePlayer.name)?.setSkinAsync(targetName)?.thenApply { success ->
-            if (success) fakePlayer.world.playSound(fakePlayer.location, Sound.ITEM_ARMOR_EQUIP_GENERIC, 1f, 1f)
-        }
+    fun Player.skin(@Named("name") targetName: String, @SelectFlag fakePlayer: FakePlayer) = asyncRun {
+        fpm.setSkinAsync(fakePlayer, targetName)
+        mainRun { fakePlayer.world.playSound(fakePlayer.location, Sound.ITEM_ARMOR_EQUIP_GENERIC, 1f, 1f) }
     }
 }

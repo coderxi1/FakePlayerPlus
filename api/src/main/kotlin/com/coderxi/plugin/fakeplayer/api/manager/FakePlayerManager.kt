@@ -30,4 +30,6 @@ interface FakePlayerManager {
 
     fun select(name: String, sender: Player): FakePlayer?
 
+    suspend fun setSkinAsync(fakePlayer: FakePlayer, targetName: String): Boolean
+
 }

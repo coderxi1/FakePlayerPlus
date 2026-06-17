@@ -1,21 +1,26 @@
 package com.coderxi.plugin.fakeplayer.entity
 
 import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
+import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer.SkinInfo
 import com.coderxi.plugin.fakeplayer.api.nms.*
-import com.coderxi.plugin.fakeplayer.provider.invsee.InvseeProvider.Companion.plugin
-import com.coderxi.plugin.fakeplayer.utils.SkinFetcher
 import net.kyori.adventure.text.Component
-import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.UUID
-import java.util.concurrent.CompletableFuture
 
 class StandardFakePlayer(
     override val name: String,
     override val uuid: UUID,
     override var ownerUuids: Collection<UUID> = emptyList(),
-    override var skin: FakePlayer.SkinInfo? = null
+    private var _skin: SkinInfo? = null
 ) : FakePlayer {
+
+    override var skin: SkinInfo?
+        get() = _skin;
+        set(skin) {
+            if (skin == null || skin.textures == null || skin.signature == null) nmsPlayer.setTextures(null, null)
+            else nmsPlayer.setTextures(skin.textures!!, skin.signature!!)
+            _skin = skin
+        }
 
     lateinit var nmsPlayer: NMSServerPlayer
     private lateinit var nmsConnection: NMSServerGamePacketListener
@@ -46,21 +51,5 @@ class StandardFakePlayer(
     override fun showVirtualNametag(player: Player, content: Component) = nmsPlayer.showVirtualNametag(player, content)
     override fun updateVirtualNametag(player: Player, content: Component) = nmsPlayer.updateVirtualNametag(player, content)
     override fun hideVirtualNametag(player: Player) = nmsPlayer.hideVirtualNametag(player)
-
-    override fun setSkinAsync(targetName: String): CompletableFuture<Boolean> {
-        val future = CompletableFuture<Boolean>()
-        CompletableFuture.supplyAsync{SkinFetcher.getPlayerSkinInfoByName(targetName)}.thenApply { skinInfo ->
-            Bukkit.getScheduler().runTask(plugin, Runnable {
-                if (skinInfo == null) {
-                    nmsPlayer.setTextures(null,null)
-                    future.complete(false)
-                } else {
-                    nmsPlayer.setTextures(skinInfo.textures, skinInfo.signature)
-                    future.complete(true)
-                }
-            })
-        }
-        return future
-    }
 
 }

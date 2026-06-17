@@ -38,12 +38,7 @@ class FakePlayerRepository : PluginComponent {
     private fun mapToEntity(po: FakePlayerPO, owners: List<UUID>): FakePlayer {
         val skinSplit = po.skin?.split("|")
         val skin = if (skinSplit != null && skinSplit .size > 1) { FakePlayer.SkinInfo(skinSplit[0],skinSplit[1]) } else null
-        return StandardFakePlayer(
-            name = po.name,
-            uuid = UUID.fromString(po.uuid),
-            skin = skin,
-            ownerUuids = owners
-        )
+        return StandardFakePlayer(po.name, UUID.fromString(po.uuid),owners, skin)
     }
 
     fun save(fakePlayer: FakePlayer, saveOwners: Boolean, saveSkin: Boolean) {

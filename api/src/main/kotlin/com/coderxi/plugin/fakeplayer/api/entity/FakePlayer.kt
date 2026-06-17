@@ -42,5 +42,4 @@ interface FakePlayer {
     fun showVirtualNametag(player: Player, content: Component)
     fun updateVirtualNametag(player: Player, content: Component)
     fun hideVirtualNametag(player: Player)
-    fun setSkinAsync(targetName: String): CompletableFuture<Boolean>
 }
