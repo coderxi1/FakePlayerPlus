@@ -2,6 +2,7 @@ package com.coderxi.plugin.fakeplayer.nms.v1_21_11
 
 import com.coderxi.plugin.fakeplayer.api.nms.NMSServerPlayer
 import com.coderxi.plugin.fakeplayer.server.FakePlayerAdvancements
+import com.mojang.authlib.properties.Property
 import io.netty.buffer.Unpooled
 import io.papermc.paper.adventure.PaperAdventure
 import net.minecraft.core.BlockPos
@@ -62,6 +63,7 @@ class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
     override fun setJumping(jumping: Boolean) { handle.isJumping = jumping }
     override fun requestRespawn() { handle.connection.handleClientCommand(ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN)) }
     override fun requestSwapItemWithOffhand() { handle.connection.handlePlayerAction(ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND,BlockPos(0, 0, 0),Direction.DOWN)) }
+    override fun disableAdvancements() { advancements = FakePlayerAdvancements(server.fixerUpper, server.playerList, server.advancements, Paths.get(System.getProperty("java.io.tmpdir")), handle) }
     override fun setupClientOptions() { handle.updateOptions(ClientInformation(
             "en_us",
             Bukkit.getViewDistance(),
@@ -73,7 +75,10 @@ class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
             true,
             ParticleStatus.MINIMAL
     ))}
-    override fun disableAdvancements() { advancements = FakePlayerAdvancements(server.fixerUpper, server.playerList, server.advancements, Paths.get(System.getProperty("java.io.tmpdir")), handle) }
+    override fun setTextures(value: String?, signature: String?) {
+        handle.gameProfile.properties.put("textures", Property("textures", value, signature))
+    }
+
     override fun resetLastActionTime() = handle.resetLastActionTime()
 
     private var nametagEntityId = net.minecraft.world.entity.Entity.nextEntityId()

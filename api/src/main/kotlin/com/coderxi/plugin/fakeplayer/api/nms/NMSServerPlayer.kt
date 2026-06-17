@@ -57,10 +57,12 @@ interface NMSServerPlayer {
     /** 设置是否跳跃中 */
     fun setJumping(jumping: Boolean)
 
-    /** 设置客户端选项 */
-    fun setupClientOptions()
     /** 设置不保存成就数据 */
     fun disableAdvancements()
+    /** 设置客户端选项 */
+    fun setupClientOptions()
+    /** 设置皮肤贴图 */
+    fun setTextures(value: String?, signature: String?)
     /** 重设最后活跃时间 */
     fun resetLastActionTime()
 

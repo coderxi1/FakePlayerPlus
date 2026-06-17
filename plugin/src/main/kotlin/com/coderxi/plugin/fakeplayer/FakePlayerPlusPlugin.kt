@@ -9,9 +9,10 @@ import com.coderxi.plugin.fakeplayer.command.parameter.FakePlayerParameterType
 import com.coderxi.plugin.fakeplayer.command.annotaion.SelectFlag
 import com.coderxi.plugin.fakeplayer.command.annotaion.SelectFlagReplacer
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandExceptionHandler
-import com.coderxi.plugin.fakeplayer.config.PluginConfig
-import com.coderxi.plugin.fakeplayer.event.FakePlayerEventListener
+import com.coderxi.plugin.fakeplayer.config.FakePlayerPlusPluginConfig
+import com.coderxi.plugin.fakeplayer.event.FakePlayerEventDispatcher
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
+import com.coderxi.plugin.fakeplayer.event.FakePlayerBaseCapabilityGrantListener
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerTicker
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerManagerImpl
 import com.coderxi.plugin.fakeplayer.nms.v1_21_11.NMSBridgeImpl
@@ -32,7 +33,7 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
     override lateinit var nms: NMSBridge private set
     override lateinit var nmsServer: NMSServer private set
 
-    lateinit var config : PluginConfig private set
+    lateinit var config : FakePlayerPlusPluginConfig private set
     lateinit var messages : Localizer private set
 
     lateinit var sql2o: Sql2o private set
@@ -43,7 +44,7 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
     override fun onEnable() {
         nms = NMSBridgeImpl()
         nmsServer = nms.fromServer(server)
-        config = ConfigManager.create(PluginConfig::class.java).apply {
+        config = ConfigManager.create(FakePlayerPlusPluginConfig::class.java).apply {
             configure { opt ->
                 opt.configurer(YamlBukkitConfigurer())
                 opt.bindFile(File(dataFolder, "config.yml"))
@@ -66,7 +67,8 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
         }
         fakePlayerManager = FakePlayerManagerImpl().also { fpm ->
             FakePlayerTicker(fpm).start()
-            FakePlayerEventListener(fpm).registerMyEvents()
+            FakePlayerEventDispatcher(fpm).registerMyEvents()
+            FakePlayerBaseCapabilityGrantListener(fpm).registerMyEvents()
             fpm.registerMyEvents()
         }
         lamp = BukkitLamp.builder(this)

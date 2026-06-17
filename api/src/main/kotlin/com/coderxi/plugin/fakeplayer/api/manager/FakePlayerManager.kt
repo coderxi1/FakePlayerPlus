@@ -24,11 +24,9 @@ interface FakePlayerManager {
     fun isOwned(player: Player, fakePlayer: FakePlayer) = isOwned(player.uniqueId, fakePlayer.uuid)
 
     // 操作假人
-    fun spawnAsync(name: String, senderUuid: UUID, location: Location): CompletableFuture<FakePlayer>
+    suspend fun spawnAsync(name: String, senderUuid: UUID, location: Location): FakePlayer?
 
-    fun spawnAsync(name: String, sender: Player) = spawnAsync(name,sender.uniqueId, sender.location)
-
-    fun remove(name: String, sender: Player)
+    suspend fun spawnAsync(name: String, sender: Player) = spawnAsync(name,sender.uniqueId, sender.location)
 
     fun select(name: String, sender: Player): FakePlayer?
 

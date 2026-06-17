@@ -35,22 +35,29 @@ class FakePlayerRepository : PluginComponent {
             .map { UUID.fromString(it) }
     }
 
-    private fun mapToEntity(po: FakePlayerPO, owners: List<UUID>): FakePlayer = StandardFakePlayer(
-        name = po.name,
-        uuid = UUID.fromString(po.uuid),
-        skin = po.skin,
-        ownerUuids = owners
-    )
+    private fun mapToEntity(po: FakePlayerPO, owners: List<UUID>): FakePlayer {
+        val skinSplit = po.skin?.split("|")
+        val skin = if (skinSplit != null && skinSplit .size > 1) { FakePlayer.SkinInfo(skinSplit[0],skinSplit[1]) } else null
+        return StandardFakePlayer(
+            name = po.name,
+            uuid = UUID.fromString(po.uuid),
+            skin = skin,
+            ownerUuids = owners
+        )
+    }
 
-    fun save(fakePlayer: FakePlayer, updateOwners: Boolean = true) {
+    fun save(fakePlayer: FakePlayer, saveOwners: Boolean, saveSkin: Boolean) {
         val sql = "INSERT INTO fakeplayer (name, uuid, skin) VALUES (:name, :uuid, :skin)" +
                  "ON CONFLICT(uuid) DO UPDATE SET name = excluded.name, skin = excluded.skin"
-        if (!updateOwners) {
+        if (!saveOwners) {
             open().use { conn ->
                 conn.createQuery(sql, false)
                     .addParameter("name", fakePlayer.name)
                     .addParameter("uuid", fakePlayer.uuid.toString())
-                    .addParameter("skin", fakePlayer.skin)
+                    .apply {
+                        if (saveSkin && fakePlayer.skin != null)
+                            addParameter("skin", "${fakePlayer.skin!!.textures}|${fakePlayer.skin!!.signature}")
+                    }
                     .executeUpdate()
             }
             return

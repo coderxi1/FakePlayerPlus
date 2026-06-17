@@ -21,6 +21,7 @@ dependencies {
     compileOnly("com.github.Jikoo:OpenInv:5.3.0")
     implementation("org.sql2o:sql2o:1.9.1")
     testImplementation(kotlin("test"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 }
 
 tasks {

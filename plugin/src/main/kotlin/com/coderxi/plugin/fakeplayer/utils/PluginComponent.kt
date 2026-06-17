@@ -1,10 +1,17 @@
 package com.coderxi.plugin.fakeplayer.utils
 
 import com.coderxi.plugin.fakeplayer.FakePlayerPlusPlugin
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import org.jetbrains.annotations.PropertyKey
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.coroutines.CoroutineContext
 
 interface PluginComponent {
 
@@ -21,6 +28,8 @@ interface PluginComponent {
         disableHandlers.add(Hook(action, priority))
         disableHandlers.sortWith(compareByDescending { it.priority })
     }
+    fun asyncRun(action: suspend CoroutineScope.() -> Unit) = coroutineScope.launch(Dispatchers.IO, CoroutineStart.DEFAULT,action)
+    suspend fun <T> mainRun(action: () -> T): T = withContext(bukkitDispatcher){action()}
     companion object {
         val plugin by lazy { JavaPlugin.getPlugin(FakePlayerPlusPlugin::class.java) }
         private data class Hook(val action: () -> Unit, val priority: Int)
@@ -33,6 +42,13 @@ interface PluginComponent {
             for (i in 0 until disableHandlers.size) disableHandlers[i].action()
             reloadHandlers.clear()
             disableHandlers.clear()
+        }
+        private val coroutineScope = CoroutineScope(Dispatchers.Default)
+        private val bukkitDispatcher = object : CoroutineDispatcher() {
+            override fun dispatch(context: CoroutineContext, block: Runnable) {
+                if (Bukkit.isPrimaryThread()) return block.run()
+                plugin.server.scheduler.runTask(plugin, block)
+            }
         }
     }
 

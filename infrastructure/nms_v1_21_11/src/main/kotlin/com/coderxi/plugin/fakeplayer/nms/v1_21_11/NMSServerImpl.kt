@@ -24,13 +24,8 @@ class NMSServerImpl(override val server: Server) : NMSServer {
             GameProfile(uuid, name),
             ClientInformation.createDefault()
         )
-        minecraftServer.playerList.playerIo.load(serverPlayer.nameAndId()).ifPresent { nbt ->
-            val valueInput = TagValueInput.create(
-                ProblemReporter.DISCARDING,
-                minecraftServer.registryAccess(),
-                nbt
-            )
-            serverPlayer.load(valueInput)
+        minecraftServer.playerDataStorage.load(serverPlayer.nameAndId()).ifPresent {
+            serverPlayer.load(TagValueInput.create(ProblemReporter.DISCARDING,minecraftServer.registryAccess(),it))
         }
         return NMSServerPlayerImpl(serverPlayer.bukkitEntity)
     }

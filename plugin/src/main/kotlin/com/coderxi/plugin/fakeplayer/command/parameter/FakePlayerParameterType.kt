@@ -2,6 +2,7 @@ package com.coderxi.plugin.fakeplayer.command.parameter
 
 import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.NotExitsException
+import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.NotOwnerException
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import revxrsal.commands.autocomplete.SuggestionProvider
 import revxrsal.commands.bukkit.actor.BukkitCommandActor
@@ -18,7 +19,9 @@ class FakePlayerParameterType : ParameterType<BukkitCommandActor, FakePlayer> {
         if (context.actor().isConsole) {
             return fpm.get(name) ?: throw NotExitsException(name)
         } else if (context.actor().isPlayer) {
-            return fpm.get(name) ?: throw NotExitsException(name)
+            val fakePlayer = fpm.get(name) ?: throw NotExitsException(name)
+            if (!fpm.isOwned(context.actor().asPlayer()!!,fakePlayer)) throw NotOwnerException(fakePlayer.name)
+            return fakePlayer
         }
         return null
     }

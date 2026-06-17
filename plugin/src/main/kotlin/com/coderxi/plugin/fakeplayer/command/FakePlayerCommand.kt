@@ -29,9 +29,11 @@ class FakePlayerCommand: PluginComponent {
 
     @Subcommand("spawn")
     fun Player.spawn(@Named("name") name: String) {
-        assertNotExits(name)
-        assertNoLimited()
-        fpm.spawnAsync(name, uniqueId, location).thenApply { fakePlayer ->
+        if (fpm.get(name)!=null) throw SpawnAlreadyExistsException(name)
+        if (fpm.fakeplayersCount()>=plugin.config.spawnLimit.server) throw SpawnServerLimitedException()
+        if (fpm.fakeplayersByOwnerUuid(uniqueId).count() > 3) throw SpawnPlayerLimitedException()
+        asyncRun {
+            val fakePlayer = fpm.spawnAsync(name, uniqueId, location) ?: return@asyncRun
             val locationText = "%.2f, %.2f, %.2f".format(location.x, location.y, location.z)
             sendMessage(tlp("fakeplayer.spawn.success", name, fakePlayer.world.name, locationText))
         }
@@ -39,39 +41,32 @@ class FakePlayerCommand: PluginComponent {
 
     @Subcommand("select")
     fun Player.select(fakePlayer: FakePlayer) {
-        assertOwned(fakePlayer)
-        //TODO
     }
 
     @Subcommand("remove")
     fun Player.remove(@SelectFlag fakePlayer: FakePlayer) {
-        assertOwned(fakePlayer)
-        fakePlayer.let { fpm.remove(name, this) }
+        fpm.get(fakePlayer.name)?.quit("Removed by $name")
         sendMessage(tlp("fakeplayer.remove.success", fakePlayer.name))
     }
 
     @Subcommand("invsee")
     fun Player.invsee(@SelectFlag fakePlayer: FakePlayer) {
-        assertOwned(fakePlayer)
         InvseeProvider.current.openInventory(this,fakePlayer.player)
         playSound(location, Sound.BLOCK_CHEST_OPEN, 1f, 1f)
     }
 
     @Subcommand("tp")
     fun Player.tp(@SelectFlag fakePlayer: FakePlayer) {
-        assertOwned(fakePlayer)
         teleportAsync(fakePlayer.location)
     }
 
     @Subcommand("tphere")
     fun Player.tphere(@SelectFlag fakePlayer: FakePlayer) {
-        assertOwned(fakePlayer)
         fakePlayer.player.teleportAsync(location)
     }
 
     @Subcommand("tpswap")
     fun Player.tpswap(@SelectFlag fakePlayer: FakePlayer) {
-        assertOwned(fakePlayer)
         val playerLocation = location
         teleportAsync(fakePlayer.location)
         fakePlayer.player.teleportAsync(playerLocation)
@@ -79,21 +74,11 @@ class FakePlayerCommand: PluginComponent {
 
     @Subcommand("tppos")
     fun Player.tppos(location: Location, @SelectFlag fakePlayer: FakePlayer) {
-        assertOwned(fakePlayer)
         fakePlayer.player.teleportAsync(location)
-
     }
 
-
-    fun Player.assertOwned(fakePlayer: FakePlayer) {
-        if (!fpm.isOwned(this,fakePlayer)) throw NotOwnerException(fakePlayer.name)
+    @Subcommand("skin")
+    fun Player.skin(@Named("name") targetName: String, @SelectFlag fakePlayer: FakePlayer) {
+        fpm.get(fakePlayer.name)?.setSkinAsync(targetName)
     }
-    fun Player.assertNotExits(name: String) {
-        if (fpm.get(name)!=null) throw SpawnAlreadyExistsException(name)
-    }
-    fun Player.assertNoLimited() {
-        if (fpm.fakeplayersCount()>=plugin.config.spawnLimit.server) throw SpawnServerLimitedException()
-        if (fpm.fakeplayersByOwnerUuid(uniqueId).count() > 3) throw SpawnPlayerLimitedException()
-    }
-
 }
