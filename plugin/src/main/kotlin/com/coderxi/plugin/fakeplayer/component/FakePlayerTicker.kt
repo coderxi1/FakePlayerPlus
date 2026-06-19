@@ -1,4 +1,4 @@
-package com.coderxi.plugin.fakeplayer.manager
+package com.coderxi.plugin.fakeplayer.component
 
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
@@ -6,16 +6,18 @@ import org.bukkit.scheduler.BukkitTask
 
 class FakePlayerTicker(private val fpm: FakePlayerManager) : PluginComponent {
 
-    init { onPluginDisable { stop() } }
+    private var tickerTask: BukkitTask? = null
 
-    private var masterTask: BukkitTask? = null
-
-    fun start() {
-        if (masterTask != null) return
-        masterTask = scheduler.runTaskTimer(plugin, this::run, 0L, 1L)
+    init {
+        onPluginDisable(0,this::stop)
     }
 
-    private fun run() {
+    fun start() {
+        if (tickerTask != null) return
+        tickerTask = scheduler.runTaskTimer(plugin, this::tick, 0L, 1L)
+    }
+
+    private fun tick() {
         if (fpm.fakeplayersCount() <= 0) return
         fpm.fakeplayers().forEach { fakePlayer ->
             try {
@@ -27,8 +29,8 @@ class FakePlayerTicker(private val fpm: FakePlayerManager) : PluginComponent {
     }
 
     fun stop() {
-        masterTask?.cancel()
-        masterTask = null
+        tickerTask?.cancel()
+        tickerTask = null
     }
 
 }

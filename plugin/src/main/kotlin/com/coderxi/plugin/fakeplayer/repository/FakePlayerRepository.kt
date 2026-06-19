@@ -6,6 +6,7 @@ import com.coderxi.plugin.fakeplayer.entity.StandardFakePlayer
 import com.coderxi.plugin.fakeplayer.repository.po.FakePlayerPO
 import org.sql2o.Connection
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 
 class FakePlayerRepository : PluginComponent {
 
@@ -84,6 +85,18 @@ class FakePlayerRepository : PluginComponent {
             }
         }
 
+    }
+
+    fun updateSkinAsync(fakePlayer: FakePlayer): CompletableFuture<Boolean> = CompletableFuture.supplyAsync {
+        val sql = "UPDATE fakeplayer SET skin = :skin WHERE uuid = :uuid"
+        open().use { conn ->
+            val affectedRows = conn.createQuery(sql)
+                .addParameter("uuid", fakePlayer.uuid.toString())
+                .addParameter("skin", if (fakePlayer.skin == null) null else "${fakePlayer.skin!!.textures}|${fakePlayer.skin!!.signature}")
+                .executeUpdate()
+                .result
+            affectedRows > 0
+        }
     }
 
 }

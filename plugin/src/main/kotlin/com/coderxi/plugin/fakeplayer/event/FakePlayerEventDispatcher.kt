@@ -19,7 +19,7 @@ class FakePlayerEventDispatcher(private val fpm: FakePlayerManager): Listener, P
     }
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     fun onFakePlayerPostQuit(event: PlayerQuitEvent) {
-        fpm.get(event.player.uniqueId)?.let { scheduler.runTaskLater(plugin, Runnable { FakePlayerQuitedEvent(it).callEvent() }, 1) }
+        fpm.get(event.player.uniqueId)?.let { scheduler.runTaskLater(plugin, FakePlayerQuitedEvent(it)::callEvent, 1) }
     }
     @EventHandler
     fun onFakePlayerDeath(event: PlayerDeathEvent) {

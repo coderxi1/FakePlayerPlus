@@ -6,15 +6,20 @@ import com.coderxi.plugin.fakeplayer.api.nms.NMSBridge
 import com.coderxi.plugin.fakeplayer.api.nms.NMSServer
 import com.coderxi.plugin.fakeplayer.command.FakePlayerCommand
 import com.coderxi.plugin.fakeplayer.command.parameter.FakePlayerParameterType
-import com.coderxi.plugin.fakeplayer.command.annotaion.SelectFlag
-import com.coderxi.plugin.fakeplayer.command.annotaion.SelectFlagReplacer
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandExceptionHandler
 import com.coderxi.plugin.fakeplayer.config.FakePlayerPlusPluginConfig
 import com.coderxi.plugin.fakeplayer.event.FakePlayerEventDispatcher
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
-import com.coderxi.plugin.fakeplayer.event.FakePlayerBaseCapabilityGrantListener
-import com.coderxi.plugin.fakeplayer.manager.FakePlayerTicker
+import com.coderxi.plugin.fakeplayer.command.annotaion.PluginPermissionFactory
+import com.coderxi.plugin.fakeplayer.command.annotaion.Select
+import com.coderxi.plugin.fakeplayer.command.annotaion.SelectReplacer
+import com.coderxi.plugin.fakeplayer.event.FakePlayerBehaviorImplementListener
+import com.coderxi.plugin.fakeplayer.event.FakePlayerLifecycleCommandListener
+import com.coderxi.plugin.fakeplayer.component.FakePlayerLimiter
+import com.coderxi.plugin.fakeplayer.component.FakePlayerTicker
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerManagerImpl
+import com.coderxi.plugin.fakeplayer.component.FakePlayerPingUpdater
+import com.coderxi.plugin.fakeplayer.manager.FakePlayerSelector
 import com.coderxi.plugin.fakeplayer.nms.v1_21_11.NMSBridgeImpl
 import com.coderxi.plugin.fakeplayer.utils.ListenerExtensions.registerMyEvents
 import com.coderxi.plugin.fakeplayer.utils.Localizer
@@ -39,7 +44,7 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
     lateinit var sql2o: Sql2o private set
     lateinit var lamp: Lamp<*> private set
 
-    override lateinit var fakePlayerManager: FakePlayerManager;
+    override lateinit var fakePlayerManager: FakePlayerManager
 
     override fun onEnable() {
         nms = NMSBridgeImpl()
@@ -65,15 +70,22 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
             @Suppress("SqlSourceToSinkFlow")
             sql2o.open().use { conn -> sqlStatements.forEach { sql -> conn.createQuery(sql).executeUpdate() } }
         }
+        var fakePlayerLimiter : FakePlayerLimiter
         fakePlayerManager = FakePlayerManagerImpl().also { fpm ->
             FakePlayerTicker(fpm).start()
             FakePlayerEventDispatcher(fpm).registerMyEvents()
-            FakePlayerBaseCapabilityGrantListener(fpm).registerMyEvents()
+            FakePlayerBehaviorImplementListener(fpm).registerMyEvents()
+            FakePlayerLifecycleCommandListener(fpm).registerMyEvents()
+            fakePlayerLimiter = FakePlayerLimiter(fpm).apply { registerMyEvents(); start() }
+            FakePlayerPingUpdater(fpm).start()
+            FakePlayerSelector.registerMyEvents()
             fpm.registerMyEvents()
         }
         lamp = BukkitLamp.builder(this)
-            .annotationReplacer(SelectFlag::class.java, SelectFlagReplacer())
+            .permissionFactory(PluginPermissionFactory())
+            .annotationReplacer(Select::class.java, SelectReplacer())
             .dependency(FakePlayerManager::class.java,fakePlayerManager)
+            .dependency(FakePlayerLimiter::class.java,fakePlayerLimiter)
             .parameterTypes { parameters -> parameters.addParameterType(FakePlayer::class.java, FakePlayerParameterType()) }
             .exceptionHandler(FakePlayerCommandExceptionHandler())
             .build()

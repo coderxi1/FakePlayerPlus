@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import org.jetbrains.annotations.PropertyKey
 import java.util.concurrent.CopyOnWriteArrayList
@@ -30,6 +31,7 @@ interface PluginComponent {
     }
     fun asyncRun(action: suspend CoroutineScope.() -> Unit) = coroutineScope.launch(Dispatchers.IO, CoroutineStart.DEFAULT,action)
     suspend fun <T> mainRun(action: () -> T): T = withContext(bukkitDispatcher){action()}
+
     companion object {
         val plugin by lazy { JavaPlugin.getPlugin(FakePlayerPlusPlugin::class.java) }
         private data class Hook(val action: () -> Unit, val priority: Int)

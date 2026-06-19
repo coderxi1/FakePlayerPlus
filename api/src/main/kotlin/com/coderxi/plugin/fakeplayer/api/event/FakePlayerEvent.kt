@@ -7,6 +7,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
 import org.bukkit.inventory.EquipmentSlot
+import java.util.UUID
 
 sealed class FakePlayerEvent: Event() {
     abstract val fakePlayer : FakePlayer
@@ -31,7 +32,7 @@ data class FakePlayerQuitEvent(override val fakePlayer: FakePlayer, val reason: 
     companion object { @JvmStatic val HANDLERS = HandlerList() ; @JvmStatic fun getHandlerList() = HANDLERS }
     override fun getHandlers() = HANDLERS
 }
-/** 假人退出事件完成之后 */
+/** 假人完全退出 */
 class FakePlayerQuitedEvent(override val fakePlayer: FakePlayer): FakePlayerEvent() {
     companion object { @JvmStatic val HANDLERS = HandlerList() ; @JvmStatic fun getHandlerList() = HANDLERS }
     override fun getHandlers() = HANDLERS

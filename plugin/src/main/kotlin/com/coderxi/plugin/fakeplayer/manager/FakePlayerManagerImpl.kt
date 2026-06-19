@@ -3,7 +3,7 @@ package com.coderxi.plugin.fakeplayer.manager
 import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
 import com.coderxi.plugin.fakeplayer.api.event.FakePlayerConnectedEvent
 import com.coderxi.plugin.fakeplayer.api.event.FakePlayerPreparingEvent
-import com.coderxi.plugin.fakeplayer.api.event.FakePlayerQuitEvent
+import com.coderxi.plugin.fakeplayer.api.event.FakePlayerQuitedEvent
 import com.coderxi.plugin.fakeplayer.api.event.FakePlayerSpawnedEvent
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
@@ -12,11 +12,14 @@ import com.coderxi.plugin.fakeplayer.repository.FakePlayerRepository
 import com.coderxi.plugin.fakeplayer.utils.IPGenerator
 import com.coderxi.plugin.fakeplayer.utils.SkinFetcher
 import kotlinx.coroutines.future.await
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
 
@@ -24,6 +27,8 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
     val registry = FakePlayerRegistry()
     override fun fakeplayers() = registry.fakeplayers.values
     override fun fakeplayersCount() = registry.fakeplayers.count()
+    override fun fakeplayersByOwners(): Map<UUID, Collection<UUID>> = registry.fakeplayersByOwnerUuids
+
     override fun fakeplayersByOwnerUuid(ownerUuid: UUID) = registry.fakeplayersByOwnerUuid(ownerUuid)
     override fun get(uuid: UUID): FakePlayer? = registry.fakeplayers[uuid]
     override fun get(name: String): FakePlayer? = registry.fakeplayersByName[name]
@@ -33,6 +38,7 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
     override suspend fun spawnAsync(name: String, senderUuid: UUID, location: Location): FakePlayer? {
         val fakePlayer = repository.findByName(name) ?: buildAsync(name,senderUuid)
         mainRun {
+            fakePlayer.spawnerUuid = senderUuid
             FakePlayerPreparingEvent(fakePlayer).callEvent()
             val nmsPlayer =  plugin.nmsServer.newPlayer(fakePlayer.uuid, fakePlayer.name).apply {
                 disableAdvancements()
@@ -54,12 +60,12 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
         return fakePlayer
     }
 
-    @EventHandler
-    private fun unregisterOnQuit(event: FakePlayerQuitEvent) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    private fun unregisterOnQuit(event: FakePlayerQuitedEvent) {
         registry.unregister(event.fakePlayer.uuid)
     }
 
-    private suspend fun buildAsync(name: String, senderUuid: UUID): FakePlayer {
+    private fun buildAsync(name: String, senderUuid: UUID): FakePlayer {
         val fakePlayer = StandardFakePlayer(name,uuid(name),listOf(senderUuid))
         repository.save(fakePlayer, saveOwners = true, saveSkin = false)
         return fakePlayer
@@ -72,6 +78,7 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
     override suspend fun setSkinAsync(fakePlayer: FakePlayer, targetName: String): Boolean {
         val skin = SkinFetcher.getPlayerSkinInfoByName(targetName)
         mainRun { fakePlayer.skin = skin }
+        repository.updateSkinAsync(fakePlayer)
         return skin != null
     }
 

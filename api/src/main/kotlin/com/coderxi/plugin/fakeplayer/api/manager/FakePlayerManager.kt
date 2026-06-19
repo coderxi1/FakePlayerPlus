@@ -13,6 +13,8 @@ interface FakePlayerManager {
 
     fun fakeplayersCount(): Int
 
+    fun fakeplayersByOwners(): Map<UUID, Collection<UUID>>
+
     fun fakeplayersByOwnerUuid(ownerUuid: UUID): Collection<FakePlayer>
 
     fun get(uuid: UUID): FakePlayer?

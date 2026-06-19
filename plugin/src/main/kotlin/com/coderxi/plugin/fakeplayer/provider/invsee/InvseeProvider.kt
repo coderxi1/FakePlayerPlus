@@ -11,7 +11,7 @@ interface InvseeProvider {
     companion object : PluginComponent {
         private var _current: InvseeProvider? = null
 
-        val current: InvseeProvider get() = _current ?: plugin.config.invsee.providerClass.getConstructor().newInstance().also { _current = it }
+        val current: InvseeProvider get() = _current ?: plugin.config.behavior.invseeType.providerClass.getConstructor().newInstance().also { _current = it }
 
         init { onPluginReload { _current = null } }
     }

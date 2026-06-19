@@ -2,7 +2,3 @@ name: FakePlayerPlus
 version: {version}
 main: com.coderxi.plugin.fakeplayer.FakePlayerPlusPlugin
 api-version: '1.21.11'
-commands:
-  fakeplayer:
-    description: Plugin's main command
-    aliases: [ fp ]

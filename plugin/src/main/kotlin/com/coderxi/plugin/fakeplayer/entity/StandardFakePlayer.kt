@@ -11,8 +11,10 @@ class StandardFakePlayer(
     override val name: String,
     override val uuid: UUID,
     override var ownerUuids: Collection<UUID> = emptyList(),
-    private var _skin: SkinInfo? = null
+    private var _skin: SkinInfo? = null,
 ) : FakePlayer {
+
+    override lateinit var spawnerUuid: UUID
 
     override var skin: SkinInfo?
         get() = _skin;
