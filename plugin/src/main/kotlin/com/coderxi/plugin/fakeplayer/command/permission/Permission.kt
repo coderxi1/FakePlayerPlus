@@ -17,5 +17,8 @@ enum class Permission(val value: String) {
     TP("fakeplayer.tp"),
     SKIN("fakeplayer.skin"),
     CMD("fakeplayer.command"),
+    CHAT("fakeplayer.chat"),
+
+    SETTINGS("fakeplayer.settings"),
 
 }

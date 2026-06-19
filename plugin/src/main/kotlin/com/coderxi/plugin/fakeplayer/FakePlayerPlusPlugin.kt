@@ -16,6 +16,7 @@ import com.coderxi.plugin.fakeplayer.command.annotaion.SelectReplacer
 import com.coderxi.plugin.fakeplayer.event.FakePlayerBehaviorImplementListener
 import com.coderxi.plugin.fakeplayer.event.FakePlayerLifecycleCommandListener
 import com.coderxi.plugin.fakeplayer.component.FakePlayerLimiter
+import com.coderxi.plugin.fakeplayer.component.FakePlayerNametagScheduler
 import com.coderxi.plugin.fakeplayer.component.FakePlayerTicker
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerManagerImpl
 import com.coderxi.plugin.fakeplayer.component.FakePlayerPingUpdater
@@ -79,6 +80,7 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
             fakePlayerLimiter = FakePlayerLimiter(fpm).apply { registerMyEvents(); start() }
             FakePlayerPingUpdater(fpm).start()
             FakePlayerSelector.registerMyEvents()
+            FakePlayerNametagScheduler(fpm).registerMyEvents()
             fpm.registerMyEvents()
         }
         lamp = BukkitLamp.builder(this)

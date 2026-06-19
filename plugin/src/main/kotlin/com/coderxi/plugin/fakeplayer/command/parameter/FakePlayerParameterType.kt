@@ -23,7 +23,7 @@ class FakePlayerParameterType : ParameterType<BukkitCommandActor, FakePlayer> {
         private val fpm get() = plugin.fakePlayerManager
         fun checked(sender: CommandSender, fakePlayer: FakePlayer) : FakePlayer {
             if (sender !is Player) throw SenderNotPlayerException()
-            if (!fpm.isOwned(sender,fakePlayer)) throw NotOwnerException(fakePlayer.name)
+            if (!fpm.isOwned(sender.uniqueId,fakePlayer.uuid)) throw NotOwnerException(fakePlayer.name)
             return fakePlayer
         }
     }

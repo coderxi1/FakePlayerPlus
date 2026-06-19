@@ -4,11 +4,10 @@ import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import java.util.UUID
-import java.util.concurrent.CompletableFuture
 
 interface FakePlayerManager {
 
-    // 假人列表
+    // 假人列表(仅在线)
     fun fakeplayers(): Collection<FakePlayer>
 
     fun fakeplayersCount(): Int
@@ -21,9 +20,12 @@ interface FakePlayerManager {
 
     fun get(name: String): FakePlayer?
 
-    fun isOwned(uniqueId: UUID, uuid: UUID): Boolean
+    // 判断(先查在线 再查数据库) 务必异步执行
+    fun isFakePlayer(name: String): Boolean
 
-    fun isOwned(player: Player, fakePlayer: FakePlayer) = isOwned(player.uniqueId, fakePlayer.uuid)
+    fun isOwned(playerUuid: UUID, fakePlayerUuid: UUID): Boolean
+
+    fun isOwned(playerUuid: UUID, fakePlayerName: String): Boolean
 
     // 操作假人
     suspend fun spawnAsync(name: String, senderUuid: UUID, location: Location): FakePlayer?

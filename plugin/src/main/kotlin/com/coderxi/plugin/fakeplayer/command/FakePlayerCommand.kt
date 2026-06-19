@@ -9,6 +9,7 @@ import com.coderxi.plugin.fakeplayer.command.annotaion.PluginPermission as Permi
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.*
 import com.coderxi.plugin.fakeplayer.command.permission.Permission.*
 import com.coderxi.plugin.fakeplayer.component.FakePlayerLimiter
+import com.coderxi.plugin.fakeplayer.component.FakePlayerDialog
 import com.coderxi.plugin.fakeplayer.provider.invsee.InvseeProvider
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -19,6 +20,7 @@ import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Cooldown
 import revxrsal.commands.annotation.Dependency
 import revxrsal.commands.annotation.Named
+import revxrsal.commands.annotation.Optional
 import revxrsal.commands.annotation.Subcommand
 import java.util.concurrent.TimeUnit
 
@@ -39,19 +41,46 @@ class FakePlayerCommand: PluginComponent {
 
     @Subcommand("spawn")
     @Permission(SPAWN, BASIC)
-    fun Player.spawn(@Named("name") name: String) {
-        if (fpm.get(name)!=null) throw SpawnAlreadyExistsException(name)
-        if (fpl.isServerLimited()) throw SpawnServerLimitedException()
-        if (fpl.isPlayerLimited(this)) throw SpawnPlayerLimitedException()
-        if (fpl.isIpLimited(this)) throw SpawnIpLimitedException()
-        if (fpl.isTpsAdaptiveLimited(this)) throw SpawnTpsAdaptiveLimitedException()
-        if (Bukkit.getOnlinePlayers().find { it.name == name } != null || Bukkit.getOfflinePlayer(name).hasPlayedBefore()) throw SpawnNameAlreadyUsedException(name)
+    fun Player.spawn(@Optional @Named("name") name: String?) {
+        var name = name
+        if (name != null && fpm.get(name)!=null) throw SpawnAlreadyExistsException(name)
+        if (name == null) name = nextFakePlayerName() ?: throw SpawnException()
+        if (fpl.isServerLimited()&&!hasPermission(ADMIN.value)) throw SpawnServerLimitedException()
+        if (fpl.isPlayerLimited(this)&&!hasPermission(ADMIN.value)) throw SpawnPlayerLimitedException()
+        if (fpl.isIpLimited(this)&&!hasPermission(ADMIN.value)) throw SpawnIpLimitedException()
+        if (fpl.isTpsAdaptiveLimited(this)&&!hasPermission(ADMIN.value)) throw SpawnTpsAdaptiveLimitedException()
+        if (Bukkit.getOnlinePlayers().find{it.name==name}!=null||Bukkit.getOfflinePlayer(name).hasPlayedBefore()) throw SpawnNameAlreadyUsedException(name)
         asyncRun {
             val fakePlayer = fpm.spawnAsync(name, uniqueId, location) ?: return@asyncRun
             val locationText = "%.2f, %.2f, %.2f".format(location.x, location.y, location.z)
             sendMessage(tlp("fakeplayer.spawn.success", name, fakePlayer.world.name, locationText))
             selected = fakePlayer
         }
+    }
+
+    private fun Player.nextFakePlayerName(): String? {
+        val template = plugin.config.name.spawn.template
+        if (!template.contains("{amount}")) {
+            return template.replace("{spawner_name}", name)
+        }
+        val regex = Regex("^" + template
+            .replace("{spawner_name}", Regex.escape(name))
+            .replace("{amount}", "(\\d+)") + "$")
+        val existingAmounts = fpm.fakeplayersByOwnerUuid(uniqueId)
+            .map(FakePlayer::name)
+            .mapNotNull { regex.matchEntire(it)?.groupValues?.get(1)?.toIntOrNull() }
+            .toSet()
+        var finalName: String? = null
+        for (i in 1..99) {
+            if (existingAmounts.contains(i)) continue
+            val checkName = template.replace("{spawner_name}", name).replace("{amount}", i.toString())
+            if (!Bukkit.getOfflinePlayer(checkName).hasPlayedBefore()
+                || fpm.isOwned(uniqueId, checkName)) {
+                finalName = checkName
+                break
+            }
+        }
+        return finalName
     }
 
     @Subcommand("select")
@@ -115,6 +144,20 @@ class FakePlayerCommand: PluginComponent {
     @Permission(CMD,BASIC)
     fun Player.cmd(@Named("command") command: String, @Select fakePlayer: FakePlayer) {
         Bukkit.dispatchCommand(fakePlayer.player, command.removePrefix("/"))
+    }
+
+    @Subcommand("chat")
+    @Permission(CHAT,BASIC)
+    fun Player.message(@Named("message") message: String, @Select fakePlayer: FakePlayer) {
+        fakePlayer.chat(message)
+    }
+
+    @Subcommand("settings")
+    @Permission(SETTINGS,BASIC)
+    fun Player.settings(@Select fakePlayer: FakePlayer) {
+        showDialog(FakePlayerDialog.settingsDialog(fakePlayer) {
+            sendMessage(tlp("fakeplayer.gui.settings.submit.success", fakePlayer.name))
+        })
     }
 
 }

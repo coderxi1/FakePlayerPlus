@@ -21,7 +21,7 @@ class FakePlayerBehaviorImplementListener(private val fpm: FakePlayerManager): L
     fun implementInteractedInvsee(event: FakePlayerInteractedEvent) {
         if (event.hand != EquipmentSlot.HAND) return
         if (!event.player.hasPermission(Permission.INVSEE.value)) return
-        if (!fpm.isOwned(event.player,event.fakePlayer)) return
+        if (!fpm.isOwned(event.player.uniqueId,event.fakePlayer.uuid)) return
         InvseeProvider.current.openInventory(event.player, event.fakePlayer.player)
         event.fakePlayer.world.playSound(event.fakePlayer.location, Sound.BLOCK_CHEST_OPEN, 1f, 1f)
     }
@@ -34,11 +34,11 @@ class FakePlayerBehaviorImplementListener(private val fpm: FakePlayerManager): L
                 event.fakePlayer.quit()
             }
             DeathEventAction.RESPAWN -> {
-                event.fakePlayer.requestRespawn()
+                event.fakePlayer.respawn()
             }
             DeathEventAction.RESPAWN_BACK -> {
                 plugin.server.scheduler.runTaskLater( plugin, Runnable {
-                    event.fakePlayer.requestRespawn()
+                    event.fakePlayer.respawn()
                     event.fakePlayer.player.lastDeathLocation?.let(event.fakePlayer::teleportAsync)
                 },20)
             }

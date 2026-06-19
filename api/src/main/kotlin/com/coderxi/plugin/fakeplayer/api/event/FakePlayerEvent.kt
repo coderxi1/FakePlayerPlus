@@ -75,3 +75,9 @@ data class FakePlayerWatchedEvent(override val fakePlayer: FakePlayer, val playe
     companion object { @JvmStatic val HANDLERS = HandlerList() ; @JvmStatic fun getHandlerList() = HANDLERS }
     override fun getHandlers() = HANDLERS
 }
+
+// 自定义的事件
+class FakePlayerSettingsChangedEvent(override val fakePlayer: FakePlayer): FakePlayerEvent() {
+    companion object { @JvmStatic val HANDLERS = HandlerList() ; @JvmStatic fun getHandlerList() = HANDLERS }
+    override fun getHandlers() = HANDLERS
+}

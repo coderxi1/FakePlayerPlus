@@ -12,14 +12,13 @@ import com.coderxi.plugin.fakeplayer.repository.FakePlayerRepository
 import com.coderxi.plugin.fakeplayer.utils.IPGenerator
 import com.coderxi.plugin.fakeplayer.utils.SkinFetcher
 import kotlinx.coroutines.future.await
-import org.bukkit.Bukkit
+import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 
 class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
 
@@ -32,6 +31,8 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
     override fun fakeplayersByOwnerUuid(ownerUuid: UUID) = registry.fakeplayersByOwnerUuid(ownerUuid)
     override fun get(uuid: UUID): FakePlayer? = registry.fakeplayers[uuid]
     override fun get(name: String): FakePlayer? = registry.fakeplayersByName[name]
+
+    override fun isFakePlayer(name: String) = get(name)!=null || repository.findByName(name) != null
 
     private fun uuid(name: String) = UUID.nameUUIDFromBytes("${plugin.name}:$name".toByteArray())
 
@@ -82,8 +83,13 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
         return skin != null
     }
 
-    override fun isOwned(uniqueId: UUID, uuid: UUID): Boolean {
-        return registry.fakeplayersByOwnerUuid(uniqueId).find{ it.uuid == uuid } != null
+    override fun isOwned(playerUuid: UUID, fakePlayerUuid: UUID): Boolean {
+        return registry.fakeplayersByOwnerUuid(playerUuid).find{ it.uuid == fakePlayerUuid } != null
+                || repository.findByUuid(fakePlayerUuid)?.ownerUuids?.contains(playerUuid) ?: false
     }
 
+    override fun isOwned(playerUuid: UUID, fakePlayerName: String): Boolean {
+        return registry.fakeplayersByOwnerUuid(playerUuid).find{ it.name == fakePlayerName } != null
+                || repository.findByName(fakePlayerName)?.ownerUuids?.contains(playerUuid) ?: false
+    }
 }

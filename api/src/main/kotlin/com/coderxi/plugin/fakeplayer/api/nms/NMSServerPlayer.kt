@@ -67,7 +67,10 @@ interface NMSServerPlayer {
     fun resetLastActionTime()
 
     // 虚拟名称标签
-    fun showVirtualNametag(player: Player, content: Component)
-    fun updateVirtualNametag(player: Player, content: Component)
-    fun hideVirtualNametag(player: Player)
+    fun showVirtualNametag(targets: Collection<Player>, content: Component)
+    fun updateVirtualNametag(targets: Collection<Player>, content: Component)
+    fun hideVirtualNametag(targets: Collection<Player>)
+
+    // 发送碰撞体积更新包
+    fun updateCollidable(targets: Collection<Player>, collidable: Boolean, nametag: Boolean)
 }

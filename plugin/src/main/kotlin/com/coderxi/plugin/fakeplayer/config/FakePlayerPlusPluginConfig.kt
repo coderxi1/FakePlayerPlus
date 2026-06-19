@@ -1,5 +1,6 @@
 package com.coderxi.plugin.fakeplayer.config
 
+import com.coderxi.plugin.fakeplayer.api.config.FakePlayerSettings
 import eu.okaeri.configs.OkaeriConfig
 import eu.okaeri.configs.annotation.*
 
@@ -77,7 +78,7 @@ class FakePlayerPlusPluginConfig : OkaeriConfig() {
             var unlimited = true
             @CustomKey("unlimited-template-lines")
             var unlimitedTemplateLines: List<String> = arrayListOf(
-                "血量:{fakeplayer_health_sprites}<red>[{fakeplayer_health}]",
+                "血量:<red>{fakeplayer_health}",
                 "等级:<green>{fakeplayer_level} <white>经验:<green>{fakeplayer_expToLevel} <white>状态:{fakeplayer_status_sprites}",
                 "{fakeplayer_name}"
             )
@@ -109,15 +110,16 @@ class FakePlayerPlusPluginConfig : OkaeriConfig() {
 
     @Comment("假人默认设置")
     @CustomKey("default-settings")
-    var defaultSettings = FakePlayerDefaultSettings()
-    class FakePlayerDefaultSettings : OkaeriConfig() {
-        @Comment("是否开启碰撞箱")
+    var defaultSettings = FakePlayerSettingsConfig()
+    class FakePlayerSettingsConfig : OkaeriConfig() {
+        @Comment("是否开启实体碰撞")
         var collidable: Boolean = true
-        @Comment("是否允许捡起物品")
+        @Comment("是否开启拾取物品")
         @CustomKey("pickup-items")
         var pickupItems: Boolean = true
-        @Comment("是否无敌")
+        @Comment("是否开启无敌状态")
         var invulnerable: Boolean = false
+        fun clone() = FakePlayerSettings(collidable, pickupItems, invulnerable)
     }
 
     @Comment(

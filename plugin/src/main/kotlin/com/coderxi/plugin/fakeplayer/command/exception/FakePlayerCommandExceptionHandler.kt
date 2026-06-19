@@ -34,6 +34,7 @@ class FakePlayerCommandExceptionHandler : BukkitExceptionHandler(), PluginCompon
             is NotExitsException         -> tlp("fakeplayer.command.not-exists", e.name)
             is NotOwnerException         -> tlp("fakeplayer.command.not-owner", e.name)
             is NoSelectedException       -> tlp("fakeplayer.command.no-selected")
+            is SpawnException            -> tlp("fakeplayer.spawn.failed")
             is SpawnServerLimitedException -> tlp("fakeplayer.spawn.failed.server-limited")
             is SpawnPlayerLimitedException -> tlp("fakeplayer.spawn.failed.player-limited")
             is SpawnIpLimitedException -> tlp("fakeplayer.spawn.failed.ip-limited")
