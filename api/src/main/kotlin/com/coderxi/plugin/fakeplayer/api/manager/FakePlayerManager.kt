@@ -32,8 +32,10 @@ interface FakePlayerManager {
 
     suspend fun spawnAsync(name: String, sender: Player) = spawnAsync(name,sender.uniqueId, sender.location)
 
-    fun select(name: String, sender: Player): FakePlayer?
+    // 持久化保存假人信息 (到数据库) 务必异步执行
 
-    suspend fun setSkinAsync(fakePlayer: FakePlayer, targetName: String): Boolean
+    suspend fun saveSkin(fakePlayer: FakePlayer)
+
+    suspend fun saveSettings(fakePlayer: FakePlayer)
 
 }

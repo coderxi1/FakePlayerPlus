@@ -6,11 +6,16 @@ import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
-class FakePlayerNamer(private val fpm: FakePlayerManager) : PluginComponent.AutoRegister() {
+class FakePlayerNamer(private val fpm: FakePlayerManager) : PluginComponent {
 
     var spawnPatternRegex: Regex? = null
 
-    override fun onload() {
+    init {
+        onload()
+        onPluginReload { onload() }
+    }
+
+    fun onload() {
         spawnPatternRegex = Regex(plugin.config.name.spawnPattern)
     }
 

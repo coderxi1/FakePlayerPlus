@@ -10,11 +10,8 @@ import io.papermc.paper.registry.data.dialog.action.DialogAction
 import io.papermc.paper.registry.data.dialog.input.DialogInput.bool as boolInput
 import io.papermc.paper.registry.data.dialog.type.DialogType
 import net.kyori.adventure.dialog.DialogLike
-import net.kyori.adventure.text.Component
 
 import net.kyori.adventure.text.event.ClickCallback
-import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.entity.Player
 import java.time.Duration
 
 @Suppress("UnstableApiUsage")
@@ -25,14 +22,16 @@ object FakePlayerDialog: PluginComponent {
         val inputs = listOf(
             boolInput("collidable", tl("fakeplayer.gui.settings.collidable")).initial(settings.collidable).build(),
             boolInput("pickupItems", tl("fakeplayer.gui.settings.pickup-items")).initial(settings.pickupItems).build(),
-            boolInput("invulnerable", tl("fakeplayer.gui.settings.invulnerable")).initial(settings.invulnerable).build()
+            boolInput("invulnerable", tl("fakeplayer.gui.settings.invulnerable")).initial(settings.invulnerable).build(),
+            boolInput("autoReplenish", tl("fakeplayer.gui.settings.auto-replenish")).initial(settings.autoReplenish).build()
         )
         val onSubmitClick = DialogAction.customClick(
             { view, _ ->
                 fakePlayer.settings = FakePlayerSettings(
                     view.getBoolean("collidable") ?: settings.collidable,
                     view.getBoolean("pickupItems") ?: settings.pickupItems,
-                    view.getBoolean("invulnerable") ?: settings.invulnerable
+                    view.getBoolean("invulnerable") ?: settings.invulnerable,
+                    view.getBoolean("autoReplenish") ?: settings.autoReplenish
                 )
                 onSubmit.invoke()
             },

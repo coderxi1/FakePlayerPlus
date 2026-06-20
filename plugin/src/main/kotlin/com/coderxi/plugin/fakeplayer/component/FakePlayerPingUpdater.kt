@@ -11,7 +11,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ThreadLocalRandom
 
-class FakePlayerPingUpdater(private val fpm: FakePlayerManager) : PluginComponent.AutoRegister(), Listener {
+class FakePlayerPingUpdater(private val fpm: FakePlayerManager) : PluginComponent, Listener {
 
     private val firstPingMap = ConcurrentHashMap<UUID, Int>()
 
@@ -20,7 +20,13 @@ class FakePlayerPingUpdater(private val fpm: FakePlayerManager) : PluginComponen
     private var pingInitMin = -1
     private var pingInitMax = -1
 
-    override fun onload() {
+    init {
+        onload()
+        onPluginReload { onload() }
+        onPluginDisable { dispose() }
+    }
+
+    fun onload() {
         val b = plugin.config.behavior
         val pingInit = b.pingInit
         val pingInitRange = pingInit.split(',').mapNotNull { it.toIntOrNull() }
@@ -40,12 +46,10 @@ class FakePlayerPingUpdater(private val fpm: FakePlayerManager) : PluginComponen
 
     @EventHandler
     fun onFakePlayerConnectedEvent(event: FakePlayerConnectedEvent) {
-        event.fakePlayer.ping = if (pingInitIsFixed) {
+        firstPingMap[event.fakePlayer.uuid] = if (pingInitIsFixed) {
             pingInitMin
         } else {
             ThreadLocalRandom.current().nextInt(pingInitMin, pingInitMax+1)
-        }.also {
-            firstPingMap[event.fakePlayer.uuid] = it
         }
     }
 
@@ -77,7 +81,7 @@ class FakePlayerPingUpdater(private val fpm: FakePlayerManager) : PluginComponen
         }
     }
 
-    override fun destroy() {
+    fun dispose() {
         pingJitterTask?.cancel()
         pingJitterTask = null
     }

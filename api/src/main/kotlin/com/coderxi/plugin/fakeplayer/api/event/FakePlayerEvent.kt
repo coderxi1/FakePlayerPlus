@@ -7,7 +7,6 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
 import org.bukkit.inventory.EquipmentSlot
-import java.util.UUID
 
 sealed class FakePlayerEvent: Event() {
     abstract val fakePlayer : FakePlayer
@@ -72,12 +71,6 @@ data class FakePlayerInteractedEvent(override val fakePlayer: FakePlayer, val pl
     override fun getHandlers() = HANDLERS
 }
 data class FakePlayerWatchedEvent(override val fakePlayer: FakePlayer, val player: Player) : FakePlayerEvent() {
-    companion object { @JvmStatic val HANDLERS = HandlerList() ; @JvmStatic fun getHandlerList() = HANDLERS }
-    override fun getHandlers() = HANDLERS
-}
-
-// 自定义的事件
-class FakePlayerSettingsChangedEvent(override val fakePlayer: FakePlayer): FakePlayerEvent() {
     companion object { @JvmStatic val HANDLERS = HandlerList() ; @JvmStatic fun getHandlerList() = HANDLERS }
     override fun getHandlers() = HANDLERS
 }

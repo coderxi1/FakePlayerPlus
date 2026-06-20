@@ -1,8 +1,9 @@
 CREATE TABLE IF NOT EXISTS fakeplayer (
-  id     INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  name   TEXT NOT NULL UNIQUE,
-  uuid   TEXT NOT NULL UNIQUE,
-  skin   TEXT
+  id       INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name     TEXT NOT NULL UNIQUE,
+  uuid     TEXT NOT NULL UNIQUE,
+  skin     TEXT,
+  settings TEXT
 );
 
 CREATE TABLE IF NOT EXISTS ref_fakeplayer_owner (

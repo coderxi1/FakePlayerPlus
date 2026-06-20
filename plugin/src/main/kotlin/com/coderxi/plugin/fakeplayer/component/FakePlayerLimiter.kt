@@ -12,7 +12,7 @@ import org.bukkit.event.Listener
 import org.bukkit.scheduler.BukkitTask
 import java.util.concurrent.ConcurrentHashMap
 
-class FakePlayerLimiter(private val fpm: FakePlayerManager) : PluginComponent.AutoRegister(), Listener {
+class FakePlayerLimiter(private val fpm: FakePlayerManager) : PluginComponent, Listener {
 
     private val ip2Count = ConcurrentHashMap<String, Int>()
 
@@ -25,7 +25,13 @@ class FakePlayerLimiter(private val fpm: FakePlayerManager) : PluginComponent.Au
     // 当TPS降低时，该值增高（例如变为 1），玩家的创建数量上限将减1
     private var tpsLimitReduction = 0
 
-    override fun onload() {
+    init {
+        onload()
+        onPluginReload { onload() }
+        onPluginDisable { dispose() }
+    }
+
+    fun onload() {
         val tpsLimit = limit.tpsAdaptive
         tpsLimitThreshold = tpsLimit.threshold
         tpsLimitMinCount = tpsLimit.minCount
@@ -97,7 +103,7 @@ class FakePlayerLimiter(private val fpm: FakePlayerManager) : PluginComponent.Au
         }
     }
 
-    override fun destroy() {
+    fun dispose() {
         tpsLimitTask?.cancel()
         tpsLimitTask = null
     }

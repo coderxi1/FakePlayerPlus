@@ -12,6 +12,7 @@ import com.coderxi.plugin.fakeplayer.component.FakePlayerLimiter
 import com.coderxi.plugin.fakeplayer.component.FakePlayerDialog
 import com.coderxi.plugin.fakeplayer.component.FakePlayerNamer
 import com.coderxi.plugin.fakeplayer.provider.invsee.InvseeProvider
+import com.coderxi.plugin.fakeplayer.utils.SkinFetcher
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Sound
@@ -112,11 +113,13 @@ class FakePlayerCommand: PluginComponent {
     @Subcommand("skin")
     @Permission(SKIN,BASIC)
     @Cooldown(value = 1, unit = TimeUnit.MINUTES)
-    fun Player.skin(@Named("name") targetName: String, @Select fakePlayer: FakePlayer) {
-        asyncRun {
-            fpm.setSkinAsync(fakePlayer, targetName)
-            mainRun { fakePlayer.world.playSound(fakePlayer.location, Sound.ITEM_ARMOR_EQUIP_GENERIC, 1f, 1f) }
+    fun Player.skin(@Named("name") targetName: String, @Select fakePlayer: FakePlayer) = asyncRun {
+        val skin = SkinFetcher.getPlayerSkinInfoByName(targetName)
+        mainRun {
+            fakePlayer.skin = skin
+            fakePlayer.world.playSound(fakePlayer.location, Sound.ITEM_ARMOR_EQUIP_GENERIC, 1f, 1f)
         }
+        fpm.saveSkin(fakePlayer)
     }
 
     @Subcommand("cmd")
@@ -136,6 +139,7 @@ class FakePlayerCommand: PluginComponent {
     fun Player.settings(@Select fakePlayer: FakePlayer) {
         showDialog(FakePlayerDialog.settingsDialog(fakePlayer) {
             sendMessage(tlp("fakeplayer.gui.settings.submit.success", fakePlayer.name))
+            asyncRun { fpm.saveSettings(fakePlayer) }
         })
     }
 

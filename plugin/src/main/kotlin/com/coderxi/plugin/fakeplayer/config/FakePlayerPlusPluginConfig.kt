@@ -43,7 +43,7 @@ class FakePlayerPlusPluginConfig : OkaeriConfig() {
     @Comment("假人名称功能")
     var name = NameConfig()
     class NameConfig : OkaeriConfig() {
-        @Comment("创建假人时未手动设置名称时通过此模板生成", " 变量: 创建者名称{spawner_name} 自增数字{amount}")
+        @Comment("创建假人时未手动设置名称时通过此模板生成", "变量: 创建者名称{spawner_name} 自增数字{amount}")
         @CustomKey("spawn-template")
         var spawnTemplate = "{spawner_name}_{amount}"
         @Comment("假人名称允许的字符(正则表达式)")
@@ -57,7 +57,7 @@ class FakePlayerPlusPluginConfig : OkaeriConfig() {
         @Comment("假人背包查看器")
         @CustomKey("invsee-type")
         var invseeType =  InvseeProviderType.VANILLA
-        @Comment("假人死亡时动作")
+        @Comment("假人死亡时动作","NONE:无操作 QUIT:退出 RESPAWN:重生 RESPAWN_BACK:重生并返回上一次死亡地点")
         @CustomKey("death-action")
         var deathAction = DeathEventAction.RESPAWN_BACK
         @Comment("跟随玩家退出")
@@ -66,7 +66,7 @@ class FakePlayerPlusPluginConfig : OkaeriConfig() {
         @Comment("延迟x秒再跟随退出(若玩家在x秒内重新上线则假人不会被删除)")
         @CustomKey("follow-quiting-delay")
         var followQuitingDelay = 30
-        @Comment("假人ping初始值"," 可以设置固定值 或者用20,50表示在20-50范围内的随机值")
+        @Comment("假人ping初始值","可以设置固定值 或者用20,50表示在20-50范围内的随机值")
         @CustomKey("ping-init")
         var pingInit = "20,50"
         @Comment("模拟真实ping抖动")
@@ -88,20 +88,32 @@ class FakePlayerPlusPluginConfig : OkaeriConfig() {
         var pickupItems: Boolean = true
         @Comment("是否开启无敌状态")
         var invulnerable: Boolean = false
-        fun clone() = FakePlayerSettings(collidable, pickupItems, invulnerable)
+        @Comment("是否开启自动补货")
+        var autoReplenish: Boolean = false
+        fun clone() = FakePlayerSettings(
+            collidable,
+            pickupItems,
+            invulnerable,
+            autoReplenish
+        )
+        fun equals2(that: FakePlayerSettings): Boolean =
+            collidable==that.collidable &&
+            pickupItems==that.pickupItems &&
+            invulnerable==that.invulnerable &&
+            autoReplenish==that.autoReplenish
     }
 
     @Comment(
         "假人生命周期指令绑定",
-        " (无前缀)假人自身执行 变量 {uuid} {name} {spawner_uuid} {spawner_name}",
-        " [CONSOLE]控制台执行 变量同上",
-        " [SPAWNER]创建者执行 变量同上",
-        " [OWNERS]全部所有者都会执行 额外变量 {owner_uuid} {owner_name}"
+        "(无前缀)假人自身执行 变量 {uuid} {name} {spawner_uuid} {spawner_name}",
+        "[CONSOLE]控制台执行 变量同上",
+        "[SPAWNER]创建者执行 变量同上",
+        "[OWNERS]全部所有者都会执行 额外变量 {owner_uuid} {owner_name}"
     )
     @CustomKey("lifecycle-commands")
     var lifecycleCommands = LifecycleCommandsConfig()
     class LifecycleCommandsConfig : OkaeriConfig() {
-        @Comment("假人刚被初始化 (尚未建立网络连接) "," 此时无法通过假人自身执行(必须带前缀)")
+        @Comment("假人刚被初始化 (尚未建立网络连接) ","此时无法通过假人自身执行(必须带前缀)")
         var preparing: List<String> = arrayListOf(
             "[CONSOLE] /lp user {uuid} parent set bot"
         )
@@ -118,7 +130,7 @@ class FakePlayerPlusPluginConfig : OkaeriConfig() {
             "/tell {spawner_name} 再见，我要退出啦！"
         )
         @CustomKey("post-quit")
-        @Comment("假人完全退出"," 此时无法通过假人自身执行(必须带前缀)")
+        @Comment("假人完全退出","此时无法通过假人自身执行(必须带前缀)")
         var quited: List<String> = arrayListOf(
             "[CONSOLE] /tell {spawner_name} 你创建的假人{name}已被移除"
         )

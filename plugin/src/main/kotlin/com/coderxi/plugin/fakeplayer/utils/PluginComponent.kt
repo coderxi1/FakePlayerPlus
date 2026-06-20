@@ -31,16 +31,6 @@ interface PluginComponent {
     fun asyncRun(action: suspend CoroutineScope.() -> Unit) = coroutineScope.launch(Dispatchers.IO, CoroutineStart.DEFAULT,action)
     suspend fun <T> mainRun(action: () -> T): T = withContext(bukkitDispatcher){action()}
 
-    abstract class AutoRegister: PluginComponent {
-        init {
-            onload()
-            onPluginReload(0, this::onload)
-            onPluginDisable(0, this::destroy)
-        }
-        abstract fun onload()
-        open fun destroy() {}
-    }
-
     companion object {
         val plugin by lazy { JavaPlugin.getPlugin(FakePlayerPlusPlugin::class.java) }
         private data class Hook(val action: () -> Unit, val priority: Int)

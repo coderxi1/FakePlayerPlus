@@ -10,11 +10,9 @@ import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import com.coderxi.plugin.fakeplayer.entity.StandardFakePlayer
 import com.coderxi.plugin.fakeplayer.repository.FakePlayerRepository
 import com.coderxi.plugin.fakeplayer.utils.IPGenerator
-import com.coderxi.plugin.fakeplayer.utils.SkinFetcher
 import kotlinx.coroutines.future.await
 import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -68,20 +66,9 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
     }
 
     private fun buildAsync(name: String, senderUuid: UUID): FakePlayer {
-        val fakePlayer = StandardFakePlayer(name,uuid(name),listOf(senderUuid))
-        repository.save(fakePlayer, saveOwners = true, saveSkin = false)
+        val fakePlayer = StandardFakePlayer(name,uuid(name),listOf(senderUuid),null, plugin.config.defaultSettings.clone())
+        repository.save(fakePlayer, true)
         return fakePlayer
-    }
-
-    override fun select(name: String, sender: Player): FakePlayer? {
-        return null;
-    }
-
-    override suspend fun setSkinAsync(fakePlayer: FakePlayer, targetName: String): Boolean {
-        val skin = SkinFetcher.getPlayerSkinInfoByName(targetName)
-        mainRun { fakePlayer.skin = skin }
-        repository.updateSkinAsync(fakePlayer)
-        return skin != null
     }
 
     override fun isOwned(playerUuid: UUID, fakePlayerUuid: UUID): Boolean {
@@ -93,4 +80,13 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
         return registry.fakeplayersByOwnerUuid(playerUuid).find{ it.name == fakePlayerName } != null
                 || repository.findByName(fakePlayerName)?.ownerUuids?.contains(playerUuid) ?: false
     }
+
+    override suspend fun saveSkin(fakePlayer: FakePlayer) {
+        repository.saveSkin(fakePlayer)
+    }
+
+    override suspend fun saveSettings(fakePlayer: FakePlayer) {
+        repository.saveSettings(fakePlayer)
+    }
+
 }
