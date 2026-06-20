@@ -14,6 +14,7 @@ abstract class FakePlayerCommandException : CommandErrorException() {
     class SpawnIpLimitedException : FakePlayerCommandException()
     class SpawnTpsAdaptiveLimitedException : FakePlayerCommandException()
     class SpawnAlreadyExistsException(val name: String) : FakePlayerCommandException()
+    class SpawnNameInvalid(val name: String) : FakePlayerCommandException()
     class SpawnNameAlreadyUsedException(val name: String) : FakePlayerCommandException()
 
 }

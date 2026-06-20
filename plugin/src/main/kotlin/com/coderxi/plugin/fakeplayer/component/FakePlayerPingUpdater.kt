@@ -1,34 +1,56 @@
 package com.coderxi.plugin.fakeplayer.component
 
 import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
+import com.coderxi.plugin.fakeplayer.api.event.FakePlayerConnectedEvent
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
 import org.bukkit.scheduler.BukkitTask
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ThreadLocalRandom
 
-class FakePlayerPingUpdater(private val fpm: FakePlayerManager) : PluginComponent {
+class FakePlayerPingUpdater(private val fpm: FakePlayerManager) : PluginComponent.AutoRegister(), Listener {
 
-    private val fakePlayerFirstPings = ConcurrentHashMap<UUID, Int>()
-
-    private val behaviorConfig get() = plugin.config.behavior
+    private val firstPingMap = ConcurrentHashMap<UUID, Int>()
 
     private var pingJitterTask: BukkitTask? = null
+    private var pingInitIsFixed = true
+    private var pingInitMin = -1
+    private var pingInitMax = -1
 
-    fun start() {
-        if (!behaviorConfig.pingJitter || behaviorConfig.pingJitterInterval <= 0) return
-        val intervalTicks = (behaviorConfig.pingJitterInterval * 20).toLong()
-        pingJitterTask = scheduler.runTaskTimer(plugin, this::run, intervalTicks, intervalTicks)
+    override fun onload() {
+        val b = plugin.config.behavior
+        val pingInit = b.pingInit
+        val pingInitRange = pingInit.split(',').mapNotNull { it.toIntOrNull() }
+        pingInitMin = pingInitRange.min()
+        pingInitMax = pingInitRange.max()
+        pingInitIsFixed = pingInitMin == pingInitMax
+        val pingJitter = b.pingJitter
+        val pingJitterInterval = b.pingJitterInterval
+        if (!pingJitter||pingJitterInterval <= 0) {
+            pingJitterTask?.cancel()
+            pingJitterTask = null
+            return
+        }
+        val ticks = pingJitterInterval.toLong() * 20
+        pingJitterTask = scheduler.runTaskTimer(plugin,Runnable{fpm.fakeplayers().forEach{it.pingJitter()}}, ticks, ticks)
     }
 
-    fun run() {
-        fpm.fakeplayers().forEach{ it.pingJitter() }
+    @EventHandler
+    fun onFakePlayerConnectedEvent(event: FakePlayerConnectedEvent) {
+        event.fakePlayer.ping = if (pingInitIsFixed) {
+            pingInitMin
+        } else {
+            ThreadLocalRandom.current().nextInt(pingInitMin, pingInitMax+1)
+        }.also {
+            firstPingMap[event.fakePlayer.uuid] = it
+        }
     }
-
-    val FakePlayer.firstPing: Int get() = fakePlayerFirstPings.getOrPut(uuid) { ping }
 
     fun FakePlayer.pingJitter() {
+        val firstPing = firstPingMap[uuid] ?: return
         if (firstPing < 0) return
         val random = ThreadLocalRandom.current()
         val chance = random.nextInt(100)
@@ -53,6 +75,11 @@ class FakePlayerPingUpdater(private val fpm: FakePlayerManager) : PluginComponen
             if (ping < firstPing - 8) ping = firstPing - 8
             if (ping < 0) ping = 0
         }
+    }
+
+    override fun destroy() {
+        pingJitterTask?.cancel()
+        pingJitterTask = null
     }
 
 }

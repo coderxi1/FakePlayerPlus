@@ -66,11 +66,9 @@ interface NMSServerPlayer {
     /** 重设最后活跃时间 */
     fun resetLastActionTime()
 
-    // 虚拟名称标签
-    fun showVirtualNametag(targets: Collection<Player>, content: Component)
-    fun updateVirtualNametag(targets: Collection<Player>, content: Component)
-    fun hideVirtualNametag(targets: Collection<Player>)
-
-    // 发送碰撞体积更新包
-    fun updateCollidable(targets: Collection<Player>, collidable: Boolean, nametag: Boolean)
+    // 基于数据包的属性
+    var dummyNametagVisibility : Boolean
+    var dummyCollidable : Boolean
+    // 若修改基于数据包的属性,必须使用此方法手动通知
+    fun dummyNotify(targets: Collection<Player>)
 }

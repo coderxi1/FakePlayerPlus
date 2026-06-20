@@ -33,7 +33,7 @@ class FakePlayerPlusPluginConfig : OkaeriConfig() {
             @Comment("检测间隔 (单位:秒)")
             var interval = 120
             @Comment("检测阈值 (检测TPS低于此值时，将逐步降低假人上限，高于此值则恢复)")
-            var threshold = 17.0f
+            var threshold = 17.0
             @Comment("最低假人上限")
             @CustomKey("min-count")
             var minCount = 1
@@ -43,46 +43,12 @@ class FakePlayerPlusPluginConfig : OkaeriConfig() {
     @Comment("假人名称功能")
     var name = NameConfig()
     class NameConfig : OkaeriConfig() {
-
-        @Comment("创建假人时的名称设置")
-        var spawn = NameSpawnConfig()
-        class NameSpawnConfig : OkaeriConfig() {
-            @Comment("创建假人时未手动设置名称时通过此模板生成", " 变量: 创建者名称{spawner_name} 自增数字{amount}")
-            var template = "{spawner_name}_{amount}"
-            @Comment("假人名称允许的字符(正则表达式)")
-            var pattern = "^[a-zA-Z0-9_]+\\$"
-        }
-
-        @Comment("TAB的名称样式")
-        @CustomKey("tab")
-        var tab = NameTabConfig()
-        class NameTabConfig : OkaeriConfig() {
-            @Comment("是否启用(如果与其他TAB插件冲突可关闭此功能)")
-            var enable = true
-            @Comment("名称模板")
-            var template = "<gray><italic>{name}"
-            @Comment("在ping图标前面的文本")
-            @CustomKey("playerlist-objective-fancy-value")
-            var playerlistObjectiveFancyValue = "{ping}<#E67E22>🤖"
-        }
-
-        @Comment("TAG的名称样式")
-        @CustomKey("tag")
-        var tag = NameTagConfig()
-        class NameTagConfig : OkaeriConfig() {
-            @Comment("是否启用")
-            var enable = true
-            @Comment("名称模板")
-            var template = "<gray>{name}</gray>"
-            @Comment("是否启用高级名称标签, 支持换行")
-            var unlimited = true
-            @CustomKey("unlimited-template-lines")
-            var unlimitedTemplateLines: List<String> = arrayListOf(
-                "血量:<red>{fakeplayer_health}",
-                "等级:<green>{fakeplayer_level} <white>经验:<green>{fakeplayer_expToLevel} <white>状态:{fakeplayer_status_sprites}",
-                "{fakeplayer_name}"
-            )
-        }
+        @Comment("创建假人时未手动设置名称时通过此模板生成", " 变量: 创建者名称{spawner_name} 自增数字{amount}")
+        @CustomKey("spawn-template")
+        var spawnTemplate = "{spawner_name}_{amount}"
+        @Comment("假人名称允许的字符(正则表达式)")
+        @CustomKey("spawn-pattern")
+        var spawnPattern = "^[a-zA-Z0-9_]+$"
     }
 
     @Comment("假人行为设置")
@@ -100,6 +66,9 @@ class FakePlayerPlusPluginConfig : OkaeriConfig() {
         @Comment("延迟x秒再跟随退出(若玩家在x秒内重新上线则假人不会被删除)")
         @CustomKey("follow-quiting-delay")
         var followQuitingDelay = 30
+        @Comment("假人ping初始值"," 可以设置固定值 或者用20,50表示在20-50范围内的随机值")
+        @CustomKey("ping-init")
+        var pingInit = "20,50"
         @Comment("模拟真实ping抖动")
         @CustomKey("ping-jitter")
         var pingJitter = true

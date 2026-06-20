@@ -39,6 +39,7 @@ class FakePlayerCommandExceptionHandler : BukkitExceptionHandler(), PluginCompon
             is SpawnPlayerLimitedException -> tlp("fakeplayer.spawn.failed.player-limited")
             is SpawnIpLimitedException -> tlp("fakeplayer.spawn.failed.ip-limited")
             is SpawnAlreadyExistsException -> tlp("fakeplayer.spawn.failed.already-exists", e.name)
+            is SpawnNameInvalid -> tlp("fakeplayer.spawn.failed.name-invalid", e.name)
             is SpawnNameAlreadyUsedException -> tlp("fakeplayer.spawn.failed.name-already-used", e.name)
             is SpawnTpsAdaptiveLimitedException -> tlp("fakeplayer.spawn.failed.tps-adaptive-limited")
             else -> return e.printStackTrace()

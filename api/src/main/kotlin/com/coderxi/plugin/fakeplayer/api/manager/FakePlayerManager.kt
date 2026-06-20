@@ -20,7 +20,7 @@ interface FakePlayerManager {
 
     fun get(name: String): FakePlayer?
 
-    // 判断(先查在线 再查数据库) 务必异步执行
+    // 判断(先查在线 再查数据库) 最好异步执行
     fun isFakePlayer(name: String): Boolean
 
     fun isOwned(playerUuid: UUID, fakePlayerUuid: UUID): Boolean

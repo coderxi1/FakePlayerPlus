@@ -10,6 +10,7 @@ import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandExceptio
 import com.coderxi.plugin.fakeplayer.command.permission.Permission.*
 import com.coderxi.plugin.fakeplayer.component.FakePlayerLimiter
 import com.coderxi.plugin.fakeplayer.component.FakePlayerDialog
+import com.coderxi.plugin.fakeplayer.component.FakePlayerNamer
 import com.coderxi.plugin.fakeplayer.provider.invsee.InvseeProvider
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -31,6 +32,8 @@ class FakePlayerCommand: PluginComponent {
     lateinit var fpm: FakePlayerManager
     @Dependency
     lateinit var fpl: FakePlayerLimiter
+    @Dependency
+    lateinit var fpn : FakePlayerNamer
 
     @Subcommand("reload")
     @Permission(RELOAD,ADMIN)
@@ -44,7 +47,8 @@ class FakePlayerCommand: PluginComponent {
     fun Player.spawn(@Optional @Named("name") name: String?) {
         var name = name
         if (name != null && fpm.get(name)!=null) throw SpawnAlreadyExistsException(name)
-        if (name == null) name = nextFakePlayerName() ?: throw SpawnException()
+        if (name == null) name = fpn.nextFakePlayerName(this) ?: throw SpawnException()
+        if (!fpn.checkPattern(name)) throw SpawnNameInvalid(name)
         if (fpl.isServerLimited()&&!hasPermission(ADMIN.value)) throw SpawnServerLimitedException()
         if (fpl.isPlayerLimited(this)&&!hasPermission(ADMIN.value)) throw SpawnPlayerLimitedException()
         if (fpl.isIpLimited(this)&&!hasPermission(ADMIN.value)) throw SpawnIpLimitedException()
@@ -56,31 +60,6 @@ class FakePlayerCommand: PluginComponent {
             sendMessage(tlp("fakeplayer.spawn.success", name, fakePlayer.world.name, locationText))
             selected = fakePlayer
         }
-    }
-
-    private fun Player.nextFakePlayerName(): String? {
-        val template = plugin.config.name.spawn.template
-        if (!template.contains("{amount}")) {
-            return template.replace("{spawner_name}", name)
-        }
-        val regex = Regex("^" + template
-            .replace("{spawner_name}", Regex.escape(name))
-            .replace("{amount}", "(\\d+)") + "$")
-        val existingAmounts = fpm.fakeplayersByOwnerUuid(uniqueId)
-            .map(FakePlayer::name)
-            .mapNotNull { regex.matchEntire(it)?.groupValues?.get(1)?.toIntOrNull() }
-            .toSet()
-        var finalName: String? = null
-        for (i in 1..99) {
-            if (existingAmounts.contains(i)) continue
-            val checkName = template.replace("{spawner_name}", name).replace("{amount}", i.toString())
-            if (!Bukkit.getOfflinePlayer(checkName).hasPlayedBefore()
-                || fpm.isOwned(uniqueId, checkName)) {
-                finalName = checkName
-                break
-            }
-        }
-        return finalName
     }
 
     @Subcommand("select")

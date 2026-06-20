@@ -1,25 +1,18 @@
 package com.coderxi.plugin.fakeplayer.nms.v1_21_11
 
-import com.coderxi.plugin.fakeplayer.api.FakePlayerPlusPluginApi
-import com.coderxi.plugin.fakeplayer.api.nms.NMSServerGamePacketListener
+import com.coderxi.plugin.fakeplayer.api.FakePlayerPlusPluginApi.Companion.javaPlugin as plugin
 import com.coderxi.plugin.fakeplayer.api.nms.NMSServerPlayer
 import com.coderxi.plugin.fakeplayer.server.FakePlayerAdvancements
 import com.destroystokyo.paper.profile.ProfileProperty
-import io.netty.buffer.Unpooled
-import io.papermc.paper.adventure.PaperAdventure
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
-import net.minecraft.network.syncher.EntityDataSerializers
-import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.PlayerAdvancements
 import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ParticleStatus
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.HumanoidArm
 import net.minecraft.world.entity.player.ChatVisiblity
 import net.minecraft.world.phys.Vec3
@@ -32,10 +25,8 @@ import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
-import org.joml.Vector3f
 import java.lang.reflect.Field
 import java.nio.file.Paths
-import java.util.*
 
 class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
 
@@ -93,65 +84,26 @@ class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
 
     override fun resetLastActionTime() = handle.resetLastActionTime()
 
-    private var nametagEntityId = net.minecraft.world.entity.Entity.nextEntityId()
+    private val playerTeam by lazy { PlayerTeam(dummyScoreboard, "${plugin.name}_${player.uniqueId}").apply { players.add(player.name) } }
+    private var playerTeamPacket: Packet<*>? = null
 
-    override fun showVirtualNametag(targets: Collection<Player>, content: net.kyori.adventure.text.Component) {
-        val loc = player.location
-        // 创建TextDisplay实体包
-        val addPacket = ClientboundAddEntityPacket(nametagEntityId, UUID.randomUUID(), loc.x, loc.y, loc.z, 0f, 0f, EntityType.TEXT_DISPLAY, 0, Vec3.ZERO, 0.0)
-        // TextDisplay元数据包
-        val metadataPacket = ClientboundSetEntityDataPacket(nametagEntityId, listOf(
-            // 索引 11: 文本位置
-            SynchedEntityData.DataValue(11, EntityDataSerializers.VECTOR3, Vector3f(0f, 0.3f, 0f)),
-            // 索引 23: 文本内容 (Component)
-            SynchedEntityData.DataValue(23, EntityDataSerializers.COMPONENT, PaperAdventure.asVanilla(content)),
-            // 索引 25: 背景颜色 (Int) -> 0 为全透明
-            SynchedEntityData.DataValue(25, EntityDataSerializers.INT, 0x40000000),
-            // 索引 15: 看板模式 (Byte) -> 3 为 Center (始终面向玩家)
-            SynchedEntityData.DataValue(15, EntityDataSerializers.BYTE, 3.toByte()),
-            // 索引 27: 文本设置 (Byte) -> 1 开启阴影效果，效果更像原版 ID
-            SynchedEntityData.DataValue(27, EntityDataSerializers.BYTE, 1.toByte())
-        ))
-        // 骑乘绑定包
-        val passengerPacket = ClientboundSetPassengersPacket.STREAM_CODEC.decode(FriendlyByteBuf(Unpooled.buffer()).apply {
-            writeVarInt(player.entityId) // 载具ID
-            writeVarInt(1)               // 乘客数量
-            writeVarInt(nametagEntityId) // 乘客 ID (NameTag)
-        })
-        // 发送数据包
-        targets.forEach { target ->
-            target.sendPacket(addPacket)
-            target.sendPacket(metadataPacket)
-            target.sendPacket(passengerPacket)
+    override var dummyNametagVisibility: Boolean
+        get() = playerTeam.nameTagVisibility == Team.Visibility.ALWAYS
+        set(b) {
+            playerTeam.nameTagVisibility = if (b) Team.Visibility.ALWAYS else Team.Visibility.NEVER
+            playerTeamPacket = ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(playerTeam, true)
         }
-    }
 
-    override fun updateVirtualNametag(targets: Collection<Player>, content: net.kyori.adventure.text.Component) {
-        val metadataPacket = ClientboundSetEntityDataPacket(nametagEntityId, listOf(
-            SynchedEntityData.DataValue(23, EntityDataSerializers.COMPONENT, PaperAdventure.asVanilla(content)),
-        ))
-        targets.forEach { target -> target.sendPacket(metadataPacket) }
-    }
-
-    override fun hideVirtualNametag(targets: Collection<Player>) {
-        val destroyPacket = ClientboundRemoveEntitiesPacket(nametagEntityId)
-        targets.forEach { target -> target.sendPacket(destroyPacket) }
-        nametagEntityId = -1
-    }
-
-    override fun updateCollidable(targets: Collection<Player>, collidable: Boolean, nametag: Boolean) {
-        val dummyScoreboard = Scoreboard()
-        val team = PlayerTeam(dummyScoreboard, "fp_collision_team_${player.uniqueId}")
-        val packet = if (!collidable) {
-            team.collisionRule = Team.CollisionRule.NEVER
-            team.nameTagVisibility = if (nametag) Team.Visibility.ALWAYS else Team.Visibility.NEVER
-            team.players.add(player.name)
-            ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true)
-        } else {
-            ClientboundSetPlayerTeamPacket.createRemovePacket(team)
+    override var dummyCollidable: Boolean
+        get() = playerTeam.collisionRule == Team.CollisionRule.ALWAYS
+        set(b) {
+            player.isCollidable = b
+            playerTeam.collisionRule = if (b) Team.CollisionRule.ALWAYS else Team.CollisionRule.NEVER
+            playerTeamPacket = ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(playerTeam, true)
         }
-        player.isCollidable = collidable
-        targets.forEach { target -> target.sendPacket(packet) }
+
+    override fun dummyNotify(targets: Collection<Player>) {
+        if (playerTeamPacket!=null) targets.forEach { target ->  target.sendPacket(playerTeamPacket!!) }
     }
 
     companion object {
@@ -164,5 +116,6 @@ class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
         private fun Player.sendPacket(packet: Packet<*>) {
             (this as CraftPlayer).handle.connection.send(packet)
         }
+        private val dummyScoreboard  = Scoreboard()
     }
 }

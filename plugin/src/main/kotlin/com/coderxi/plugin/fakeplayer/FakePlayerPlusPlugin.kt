@@ -16,7 +16,7 @@ import com.coderxi.plugin.fakeplayer.command.annotaion.SelectReplacer
 import com.coderxi.plugin.fakeplayer.event.FakePlayerBehaviorImplementListener
 import com.coderxi.plugin.fakeplayer.event.FakePlayerLifecycleCommandListener
 import com.coderxi.plugin.fakeplayer.component.FakePlayerLimiter
-import com.coderxi.plugin.fakeplayer.component.FakePlayerNametagScheduler
+import com.coderxi.plugin.fakeplayer.component.FakePlayerNamer
 import com.coderxi.plugin.fakeplayer.component.FakePlayerTicker
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerManagerImpl
 import com.coderxi.plugin.fakeplayer.component.FakePlayerPingUpdater
@@ -72,15 +72,16 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
             sql2o.open().use { conn -> sqlStatements.forEach { sql -> conn.createQuery(sql).executeUpdate() } }
         }
         var fakePlayerLimiter : FakePlayerLimiter
+        var fakePlayerNamer : FakePlayerNamer
         fakePlayerManager = FakePlayerManagerImpl().also { fpm ->
             FakePlayerTicker(fpm).start()
             FakePlayerEventDispatcher(fpm).registerMyEvents()
             FakePlayerBehaviorImplementListener(fpm).registerMyEvents()
             FakePlayerLifecycleCommandListener(fpm).registerMyEvents()
-            fakePlayerLimiter = FakePlayerLimiter(fpm).apply { registerMyEvents(); start() }
-            FakePlayerPingUpdater(fpm).start()
+            fakePlayerLimiter = FakePlayerLimiter(fpm).apply { registerMyEvents() }
+            fakePlayerNamer = FakePlayerNamer(fpm)
+            FakePlayerPingUpdater(fpm).registerMyEvents()
             FakePlayerSelector.registerMyEvents()
-            FakePlayerNametagScheduler(fpm).registerMyEvents()
             fpm.registerMyEvents()
         }
         lamp = BukkitLamp.builder(this)
@@ -88,6 +89,7 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
             .annotationReplacer(Select::class.java, SelectReplacer())
             .dependency(FakePlayerManager::class.java,fakePlayerManager)
             .dependency(FakePlayerLimiter::class.java,fakePlayerLimiter)
+            .dependency(FakePlayerNamer::class.java,fakePlayerNamer)
             .parameterTypes { parameters -> parameters.addParameterType(FakePlayer::class.java, FakePlayerParameterType()) }
             .exceptionHandler(FakePlayerCommandExceptionHandler())
             .build()

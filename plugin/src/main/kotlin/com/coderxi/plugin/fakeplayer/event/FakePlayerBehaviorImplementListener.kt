@@ -7,6 +7,7 @@ import com.coderxi.plugin.fakeplayer.command.permission.Permission
 import com.coderxi.plugin.fakeplayer.config.DeathEventAction
 import com.coderxi.plugin.fakeplayer.provider.invsee.InvseeProvider
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
+import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -49,6 +50,7 @@ class FakePlayerBehaviorImplementListener(private val fpm: FakePlayerManager): L
     fun implementFollowQuiting(event: PlayerQuitEvent) {
         if (!config.behavior.followQuiting) return
         scheduler.runTaskLater(plugin, Runnable {
+            if (Bukkit.getPlayer(event.player.uniqueId)!=null) return@Runnable
             fpm.fakeplayersByOwnerUuid(event.player.uniqueId).forEach { fakePlayer ->
                 fakePlayer.quit("Follow Quiting")
             }

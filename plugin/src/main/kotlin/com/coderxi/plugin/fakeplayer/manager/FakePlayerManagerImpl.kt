@@ -12,7 +12,7 @@ import com.coderxi.plugin.fakeplayer.repository.FakePlayerRepository
 import com.coderxi.plugin.fakeplayer.utils.IPGenerator
 import com.coderxi.plugin.fakeplayer.utils.SkinFetcher
 import kotlinx.coroutines.future.await
-import net.kyori.adventure.text.minimessage.MiniMessage
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -40,6 +40,7 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
         val fakePlayer = repository.findByName(name) ?: buildAsync(name,senderUuid)
         mainRun {
             fakePlayer.spawnerUuid = senderUuid
+            fakePlayer.spawnerIp = Bukkit.getPlayer(senderUuid)?.address?.address?.hostAddress ?: ""
             FakePlayerPreparingEvent(fakePlayer).callEvent()
             val nmsPlayer =  plugin.nmsServer.newPlayer(fakePlayer.uuid, fakePlayer.name).apply {
                 disableAdvancements()

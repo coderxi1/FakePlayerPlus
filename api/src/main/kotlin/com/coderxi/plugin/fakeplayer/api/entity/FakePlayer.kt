@@ -25,7 +25,7 @@ interface FakePlayer {
     val owners get() = ownerUuids.mapNotNull(Bukkit::getPlayer)
 
     var spawnerUuid: UUID
-    val spawner get() = Bukkit.getPlayer(spawnerUuid)!!
+    var spawnerIp: String
 
     // 完成网络连接时进行的操作
     fun onConnected(nmsPlayer: NMSServerPlayer ,nmsConnection: NMSServerGamePacketListener)
@@ -44,10 +44,4 @@ interface FakePlayer {
     fun quit(cause: String = "") = player.kick(Component.text(cause))
     fun teleportAsync(location: Location) = player.teleportAsync(location)
     fun respawn()
-
-    // 额外功能
-    fun showVirtualNametag(targets: Collection<Player>, nametag: Component)
-    fun updateVirtualNametag(targets: Collection<Player>, nametag: Component)
-    fun hideVirtualNametag(targets: Collection<Player>)
-    var collidable : Boolean
 }
