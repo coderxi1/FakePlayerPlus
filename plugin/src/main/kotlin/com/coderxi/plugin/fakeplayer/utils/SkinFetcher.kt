@@ -1,9 +1,9 @@
 package com.coderxi.plugin.fakeplayer.utils
 
 import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer.SkinInfo
-import com.google.common.cache.Cache
-import com.google.common.cache.CacheBuilder
 import com.google.gson.JsonParser
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -11,11 +11,6 @@ import java.net.http.HttpResponse
 import java.time.Duration
 
 object SkinFetcher {
-
-    private val skinCache: Cache<String, SkinInfo> = CacheBuilder.newBuilder()
-        .maximumSize(999)
-        .expireAfterWrite(Duration.ofHours(1))
-        .build()
 
     private val httpClient: HttpClient = HttpClient.newBuilder()
         .connectTimeout(Duration.ofSeconds(10))
@@ -43,17 +38,10 @@ object SkinFetcher {
         return SkinInfo(value, signature)
     }
 
-    fun getPlayerSkinInfoByName(name: String): SkinInfo? {
-        val cacheKey = name.lowercase()
-        val cachedInfo = skinCache.getIfPresent(cacheKey)
-        if (cachedInfo != null) {
-            return cachedInfo
+    suspend fun getPlayerSkinInfoByName(name: String): SkinInfo? {
+        return withContext(Dispatchers.IO) {
+            getOnlinePlayerIdByName(name)?.let { getOnlinePlayerSkinInfoById(it) }
         }
-        val freshInfo = getOnlinePlayerIdByName(name)?.let { getOnlinePlayerSkinInfoById(it) }
-        if (freshInfo != null) {
-            skinCache.put(cacheKey, freshInfo)
-        }
-        return freshInfo
     }
 
 }

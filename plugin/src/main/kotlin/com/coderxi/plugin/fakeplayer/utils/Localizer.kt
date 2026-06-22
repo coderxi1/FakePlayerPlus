@@ -2,12 +2,13 @@ package com.coderxi.plugin.fakeplayer.utils
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
+import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.text.MessageFormat
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
-class Localizer: PluginComponent {
+class Localizer(private val plugin: JavaPlugin) {
     private val bundleName = "messages"
     private var currentLocale = Locale.getDefault()
     

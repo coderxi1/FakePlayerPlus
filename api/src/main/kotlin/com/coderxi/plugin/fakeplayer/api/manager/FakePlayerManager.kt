@@ -2,12 +2,14 @@ package com.coderxi.plugin.fakeplayer.api.manager
 
 import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
 import org.bukkit.Location
+import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import java.util.UUID
 
 interface FakePlayerManager {
 
     // 假人列表(仅在线)
+
     fun fakeplayers(): Collection<FakePlayer>
 
     fun fakeplayersCount(): Int
@@ -20,19 +22,23 @@ interface FakePlayerManager {
 
     fun get(name: String): FakePlayer?
 
-    // 判断(先查在线 再查数据库) 最好异步执行
-    fun isFakePlayer(name: String): Boolean
+    // 假人信息获取(数据库)
 
-    fun isOwned(playerUuid: UUID, fakePlayerUuid: UUID): Boolean
+    suspend fun getFromRepository(uuid: UUID): FakePlayer?
 
-    fun isOwned(playerUuid: UUID, fakePlayerName: String): Boolean
+    suspend fun getFromRepository(name: String): FakePlayer?
 
-    // 操作假人
-    suspend fun spawnAsync(name: String, senderUuid: UUID, location: Location): FakePlayer?
+    // 假人判断(本地API)
 
-    suspend fun spawnAsync(name: String, sender: Player) = spawnAsync(name,sender.uniqueId, sender.location)
+    fun isNameUsed(name: String): Boolean
 
-    // 持久化保存假人信息 (到数据库) 务必异步执行
+    // 生成假人(先查数据库再生成)
+
+    suspend fun spawn(name: String, spawner: CommandSender, location: Location? = null): FakePlayer?
+
+    suspend fun sequenceName(spawner: Player, reservedSequenceLength: Int = 1): String
+
+    // 持久化假人信息(数据库)
 
     suspend fun saveSkin(fakePlayer: FakePlayer)
 

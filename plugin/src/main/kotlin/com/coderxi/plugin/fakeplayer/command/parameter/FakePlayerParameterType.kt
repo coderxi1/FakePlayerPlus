@@ -5,41 +5,36 @@ import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandExceptio
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.NotOwnerException
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.NoSelectedException
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerSelector.selected
-import com.coderxi.plugin.fakeplayer.utils.PluginComponent
-import org.bukkit.command.CommandSender
+import com.coderxi.plugin.fakeplayer.utils.PluginComponent.Companion.plugin
+import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Player
 import revxrsal.commands.autocomplete.SuggestionProvider
 import revxrsal.commands.bukkit.actor.BukkitCommandActor
-import revxrsal.commands.bukkit.exception.SenderNotPlayerException
 import revxrsal.commands.node.ExecutionContext
 import revxrsal.commands.parameter.ParameterType
 import revxrsal.commands.stream.MutableStringStream
 
 class FakePlayerParameterType : ParameterType<BukkitCommandActor, FakePlayer> {
 
-    override fun isGreedy() = true
+    private val fpm get() = plugin.fakePlayerManager
 
-    companion object: PluginComponent {
-        private val fpm get() = plugin.fakePlayerManager
-        fun checked(sender: CommandSender, fakePlayer: FakePlayer) : FakePlayer {
-            if (sender !is Player) throw SenderNotPlayerException()
-            if (!fpm.isOwned(sender.uniqueId,fakePlayer.uuid)) throw NotOwnerException(fakePlayer.name)
-            return fakePlayer
-        }
-    }
+    override fun isGreedy() = true
 
     override fun parse(input: MutableStringStream, context: ExecutionContext<BukkitCommandActor>): FakePlayer? {
         val name = input.readString()
-        if (context.actor().isConsole) {
+        val sender = context.actor().sender()
+        if (sender is ConsoleCommandSender) {
             return fpm.get(name) ?: throw NotExitsException(name)
-        } else if (context.actor().isPlayer) {
-            val player = context.actor().asPlayer()!!
-            val fakePlayer : FakePlayer = if (name.isNotEmpty()) {
-                fpm.get(name) ?: throw NotExitsException(name)
-            } else {
-                player.selected ?: throw NoSelectedException()
+        }
+        if (sender is Player) {
+            if (name.isEmpty()) {
+                return sender.selected ?: throw NoSelectedException()
             }
-            return checked(player, fakePlayer)
+            val selected = fpm.get(name) ?: throw NoSelectedException()
+            if (!selected.ownerUuids.contains(sender.uniqueId)) {
+                throw NotOwnerException(selected.name)
+            }
+            return selected
         }
         return null
     }

@@ -5,14 +5,17 @@ import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
 import com.coderxi.plugin.fakeplayer.command.annotaion.Select
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerSelector.selected
-import com.coderxi.plugin.fakeplayer.command.annotaion.PluginPermission as Permission
+import com.coderxi.plugin.fakeplayer.command.annotaion.PluginCommandPermission as Permission
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.*
+import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandExceptionHandler.CommandContext
 import com.coderxi.plugin.fakeplayer.command.permission.Permission.*
 import com.coderxi.plugin.fakeplayer.component.FakePlayerLimiter
 import com.coderxi.plugin.fakeplayer.component.FakePlayerDialog
-import com.coderxi.plugin.fakeplayer.component.FakePlayerNamer
 import com.coderxi.plugin.fakeplayer.provider.invsee.InvseeProvider
+import com.coderxi.plugin.fakeplayer.utils.BukkitMain
 import com.coderxi.plugin.fakeplayer.utils.SkinFetcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Sound
@@ -22,19 +25,15 @@ import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Cooldown
 import revxrsal.commands.annotation.Dependency
 import revxrsal.commands.annotation.Named
-import revxrsal.commands.annotation.Optional
 import revxrsal.commands.annotation.Subcommand
 import java.util.concurrent.TimeUnit
+import kotlin.math.ceil
 
 @Command("fakeplayer","fp")
 class FakePlayerCommand: PluginComponent {
 
-    @Dependency
-    lateinit var fpm: FakePlayerManager
-    @Dependency
-    lateinit var fpl: FakePlayerLimiter
-    @Dependency
-    lateinit var fpn : FakePlayerNamer
+    @Dependency lateinit var fpm: FakePlayerManager
+    @Dependency lateinit var fpl: FakePlayerLimiter
 
     @Subcommand("reload")
     @Permission(RELOAD,ADMIN)
@@ -45,22 +44,47 @@ class FakePlayerCommand: PluginComponent {
 
     @Subcommand("spawn")
     @Permission(SPAWN, BASIC)
-    fun Player.spawn(@Optional @Named("name") name: String?) {
-        var name = name
-        if (name != null && fpm.get(name)!=null) throw SpawnAlreadyExistsException(name)
-        if (name == null) name = fpn.nextFakePlayerName(this) ?: throw SpawnException()
-        if (!fpn.checkPattern(name)) throw SpawnNameInvalid(name)
-        if (fpl.isServerLimited()&&!hasPermission(ADMIN.value)) throw SpawnServerLimitedException()
-        if (fpl.isPlayerLimited(this)&&!hasPermission(ADMIN.value)) throw SpawnPlayerLimitedException()
-        if (fpl.isIpLimited(this)&&!hasPermission(ADMIN.value)) throw SpawnIpLimitedException()
-        if (fpl.isTpsAdaptiveLimited(this)&&!hasPermission(ADMIN.value)) throw SpawnTpsAdaptiveLimitedException()
-        if (Bukkit.getOnlinePlayers().find{it.name==name}!=null||Bukkit.getOfflinePlayer(name).hasPlayedBefore()) throw SpawnNameAlreadyUsedException(name)
-        asyncRun {
-            val fakePlayer = fpm.spawnAsync(name, uniqueId, location) ?: return@asyncRun
-            val locationText = "%.2f, %.2f, %.2f".format(location.x, location.y, location.z)
-            sendMessage(tlp("fakeplayer.spawn.success", name, fakePlayer.world.name, locationText))
-            selected = fakePlayer
+    fun Player.spawn(commandContext: CommandContext) {
+        val player = this
+        assertNoSpawnLimited()
+        launch(commandContext) {
+            val name = fpm.sequenceName(player, ceil((fpl.getPlayerSpawnLimit(player)/10.0)).toInt())
+            executeSpawn(name)
         }
+    }
+
+
+    @Subcommand("spawn")
+    @Permission(SPAWN_WITH_NAME, ADMIN)
+    fun CommandSender.spawn(@Named("name") name: String, commandContext: CommandContext) {
+        val player = this as? Player
+        if (!plugin.config.name.pattern.matches(name)) throw SpawnNameInvalidException(name)
+        assertNoSpawnLimited()
+        launch(commandContext) {
+            if (fpm.get(name) != null) throw SpawnAlreadyExistsException(name)
+            if (player != null && fpm.isNameUsed(name)) {
+                val fakePlayer = fpm.getFromRepository(name)
+                if (fakePlayer != null && fakePlayer.ownerUuids.isNotEmpty() && !fakePlayer.ownerUuids.contains(player.uniqueId)) {
+                    throw SpawnNameAlreadyUsedException(name)
+                }
+            }
+            executeSpawn(name)
+        }
+    }
+
+    fun CommandSender.assertNoSpawnLimited() {
+        if (this !is Player) return
+        if (hasPermission(ADMIN.value)) return
+        if (fpl.isServerLimited()) throw SpawnServerLimitedException()
+        if (fpl.isPlayerLimited(this)) throw SpawnPlayerLimitedException()
+        if (fpl.isIpLimited(this)) throw SpawnIpLimitedException()
+        if (fpl.isTpsAdaptiveLimited(this)) throw SpawnTpsAdaptiveLimitedException()
+    }
+
+    suspend fun CommandSender.executeSpawn(name: String) {
+        val fakePlayer = fpm.spawn(name, this) ?: throw SpawnUnknownException()
+        val locationText = "%.2f, %.2f, %.2f".format(fakePlayer.location.x, fakePlayer.location.y, fakePlayer.location.z)
+        sendMessage(tlp("fakeplayer.spawn.success", name, fakePlayer.world.name, locationText))
     }
 
     @Subcommand("select")
@@ -113,13 +137,15 @@ class FakePlayerCommand: PluginComponent {
     @Subcommand("skin")
     @Permission(SKIN,BASIC)
     @Cooldown(value = 1, unit = TimeUnit.MINUTES)
-    fun Player.skin(@Named("name") targetName: String, @Select fakePlayer: FakePlayer) = asyncRun {
-        val skin = SkinFetcher.getPlayerSkinInfoByName(targetName)
-        mainRun {
-            fakePlayer.skin = skin
-            fakePlayer.world.playSound(fakePlayer.location, Sound.ITEM_ARMOR_EQUIP_GENERIC, 1f, 1f)
+    fun Player.skin(@Named("name") targetName: String, @Select fakePlayer: FakePlayer) {
+        launch {
+            val skin = SkinFetcher.getPlayerSkinInfoByName(targetName)
+            withContext(Dispatchers.BukkitMain) {
+                fakePlayer.skin = skin
+                fakePlayer.world.playSound(fakePlayer.location, Sound.ITEM_ARMOR_EQUIP_GENERIC, 1f, 1f)
+            }
+            fpm.saveSkin(fakePlayer)
         }
-        fpm.saveSkin(fakePlayer)
     }
 
     @Subcommand("cmd")
@@ -139,7 +165,9 @@ class FakePlayerCommand: PluginComponent {
     fun Player.settings(@Select fakePlayer: FakePlayer) {
         showDialog(FakePlayerDialog.settingsDialog(fakePlayer) {
             sendMessage(tlp("fakeplayer.gui.settings.submit.success", fakePlayer.name))
-            asyncRun { fpm.saveSettings(fakePlayer) }
+            launch {
+                fpm.saveSettings(fakePlayer)
+            }
         })
     }
 

@@ -32,14 +32,15 @@ class FakePlayerRepository : PluginComponent {
         mapToEntity(po, findOwnerUuidsById(conn, po.id))
     }
 
-    private fun findOwnerUuidsById(conn: Connection, fakePlayerId: Int): List<UUID> {
+    private fun findOwnerUuidsById(conn: Connection, fakePlayerId: Int): MutableSet<UUID> {
         return conn.createQuery("SELECT owner_uuid FROM ref_fakeplayer_owner WHERE fakeplayer_id = :playerId")
             .addParameter("playerId", fakePlayerId)
             .executeAndFetch(String::class.java)
             .map { UUID.fromString(it) }
+            .toMutableSet()
     }
 
-    private fun mapToEntity(po: FakePlayerPO, owners: List<UUID>): FakePlayer {
+    private fun mapToEntity(po: FakePlayerPO, owners: MutableSet<UUID>): FakePlayer {
         val skinSplit = po.skin?.split("|")
         val skin = if (skinSplit != null && skinSplit .size > 1) { FakePlayer.SkinInfo(skinSplit[0],skinSplit[1]) } else null
         val settings = if (po.settings != null) gson.fromJson(po.settings, FakePlayerSettings::class.java) else plugin.config.defaultSettings.clone()

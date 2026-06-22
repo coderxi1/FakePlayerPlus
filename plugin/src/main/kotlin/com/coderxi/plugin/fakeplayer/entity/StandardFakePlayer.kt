@@ -11,7 +11,7 @@ import java.util.UUID
 class StandardFakePlayer(
     override val name: String,
     override val uuid: UUID,
-    override var ownerUuids: Collection<UUID> = emptyList(),
+    override var ownerUuids: MutableSet<UUID> = mutableSetOf(),
     private var _skin: SkinInfo? = null,
     private var _settings: FakePlayerSettings
 ) : FakePlayer {

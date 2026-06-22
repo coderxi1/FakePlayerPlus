@@ -10,21 +10,21 @@ import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandExceptio
 import com.coderxi.plugin.fakeplayer.config.FakePlayerPlusPluginConfig
 import com.coderxi.plugin.fakeplayer.event.FakePlayerEventDispatcher
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
-import com.coderxi.plugin.fakeplayer.command.annotaion.PluginPermissionFactory
+import com.coderxi.plugin.fakeplayer.command.annotaion.PluginCommandPermissionFactory
 import com.coderxi.plugin.fakeplayer.command.annotaion.Select
 import com.coderxi.plugin.fakeplayer.command.annotaion.SelectReplacer
 import com.coderxi.plugin.fakeplayer.event.FakePlayerBehaviorImplementListener
 import com.coderxi.plugin.fakeplayer.event.FakePlayerLifecycleCommandListener
 import com.coderxi.plugin.fakeplayer.component.FakePlayerLimiter
-import com.coderxi.plugin.fakeplayer.component.FakePlayerNamer
 import com.coderxi.plugin.fakeplayer.component.FakePlayerTicker
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerManagerImpl
 import com.coderxi.plugin.fakeplayer.component.FakePlayerPingUpdater
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerSelector
 import com.coderxi.plugin.fakeplayer.nms.v1_21_11.NMSBridgeImpl
-import com.coderxi.plugin.fakeplayer.utils.ListenerExtensions.registerMyEvents
+import com.coderxi.plugin.fakeplayer.utils.registerEvents
 import com.coderxi.plugin.fakeplayer.utils.Localizer
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
+import com.coderxi.plugin.fakeplayer.utils.RegexTransformer
 import eu.okaeri.configs.ConfigManager
 import eu.okaeri.configs.yaml.bukkit.YamlBukkitConfigurer
 import org.bukkit.event.HandlerList
@@ -32,6 +32,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.sql2o.Sql2o
 import revxrsal.commands.Lamp
 import revxrsal.commands.bukkit.BukkitLamp
+import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import java.io.File
 
 class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
@@ -43,7 +44,7 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
     lateinit var messages : Localizer private set
 
     lateinit var sql2o: Sql2o private set
-    lateinit var lamp: Lamp<*> private set
+    lateinit var lamp: Lamp<BukkitCommandActor> private set
 
     override lateinit var fakePlayerManager: FakePlayerManager
 
@@ -52,13 +53,15 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
         nmsServer = nms.fromServer(server)
         config = ConfigManager.create(FakePlayerPlusPluginConfig::class.java).apply {
             configure { opt ->
-                opt.configurer(YamlBukkitConfigurer())
+                opt.configurer(YamlBukkitConfigurer().apply {
+                    register(RegexTransformer())
+                })
                 opt.bindFile(File(dataFolder, "config.yml"))
                 opt.removeOrphans(true)
             }
             saveDefaults().load(true)
         }
-        messages = Localizer().apply {
+        messages = Localizer(this).apply {
             locale(config.language)
         }
         sql2o = Sql2o("jdbc:sqlite:${File(dataFolder, "$name.db").absolutePath}", null, null).also { sql2o ->
@@ -72,24 +75,21 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
             sql2o.open().use { conn -> sqlStatements.forEach { sql -> conn.createQuery(sql).executeUpdate() } }
         }
         var fakePlayerLimiter : FakePlayerLimiter
-        var fakePlayerNamer : FakePlayerNamer
         fakePlayerManager = FakePlayerManagerImpl().also { fpm ->
             FakePlayerTicker(fpm).start()
-            FakePlayerEventDispatcher(fpm).registerMyEvents()
-            FakePlayerBehaviorImplementListener(fpm).registerMyEvents()
-            FakePlayerLifecycleCommandListener(fpm).registerMyEvents()
-            fakePlayerLimiter = FakePlayerLimiter(fpm).apply { registerMyEvents() }
-            fakePlayerNamer = FakePlayerNamer(fpm)
-            FakePlayerPingUpdater(fpm).registerMyEvents()
-            FakePlayerSelector.registerMyEvents()
-            fpm.registerMyEvents()
+            FakePlayerEventDispatcher(fpm).registerEvents()
+            FakePlayerBehaviorImplementListener(fpm).registerEvents()
+            FakePlayerLifecycleCommandListener(fpm).registerEvents()
+            fakePlayerLimiter = FakePlayerLimiter(fpm).apply { registerEvents() }
+            FakePlayerPingUpdater(fpm).registerEvents()
+            FakePlayerSelector.registerEvents()
+            fpm.registerEvents()
         }
         lamp = BukkitLamp.builder(this)
-            .permissionFactory(PluginPermissionFactory())
+            .permissionFactory(PluginCommandPermissionFactory())
             .annotationReplacer(Select::class.java, SelectReplacer())
             .dependency(FakePlayerManager::class.java,fakePlayerManager)
             .dependency(FakePlayerLimiter::class.java,fakePlayerLimiter)
-            .dependency(FakePlayerNamer::class.java,fakePlayerNamer)
             .parameterTypes { parameters -> parameters.addParameterType(FakePlayer::class.java, FakePlayerParameterType()) }
             .exceptionHandler(FakePlayerCommandExceptionHandler())
             .build()

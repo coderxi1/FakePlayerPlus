@@ -52,7 +52,7 @@ class FakePlayerLimiter(private val fpm: FakePlayerManager) : PluginComponent, L
         return fpm.fakeplayersByOwnerUuid(player.uniqueId).count() >= getPlayerSpawnLimit(player)
     }
 
-    private fun getPlayerSpawnLimit(player: Player): Int {
+    fun getPlayerSpawnLimit(player: Player): Int {
         return limit.customSpawn.filter { (node) ->
             player.hasPermission(Permission.SPAWN_LIMIT_CUSTOM.value.replace("{node}",node))
         }.values.maxOrNull() ?: limit.playerSpawn

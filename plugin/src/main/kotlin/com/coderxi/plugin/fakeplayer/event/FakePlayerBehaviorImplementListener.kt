@@ -6,7 +6,10 @@ import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
 import com.coderxi.plugin.fakeplayer.command.permission.Permission
 import com.coderxi.plugin.fakeplayer.config.DeathEventAction
 import com.coderxi.plugin.fakeplayer.provider.invsee.InvseeProvider
+import com.coderxi.plugin.fakeplayer.utils.BukkitMain
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.event.EventHandler
@@ -22,9 +25,13 @@ class FakePlayerBehaviorImplementListener(private val fpm: FakePlayerManager): L
     fun implementInteractedInvsee(event: FakePlayerInteractedEvent) {
         if (event.hand != EquipmentSlot.HAND) return
         if (!event.player.hasPermission(Permission.INVSEE.value)) return
-        if (!fpm.isOwned(event.player.uniqueId,event.fakePlayer.uuid)) return
-        InvseeProvider.current.openInventory(event.player, event.fakePlayer.player)
-        event.fakePlayer.world.playSound(event.fakePlayer.location, Sound.BLOCK_CHEST_OPEN, 1f, 1f)
+        launch {
+            if (!event.fakePlayer.ownerUuids.contains(event.player.uniqueId)) return@launch
+            withContext(Dispatchers.BukkitMain) {
+                InvseeProvider.current.openInventory(event.player, event.fakePlayer.player)
+                event.fakePlayer.world.playSound(event.fakePlayer.location, Sound.BLOCK_CHEST_OPEN, 1f, 1f)
+            }
+        }
     }
 
     @EventHandler

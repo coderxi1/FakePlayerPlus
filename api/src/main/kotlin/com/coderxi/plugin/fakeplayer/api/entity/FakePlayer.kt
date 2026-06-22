@@ -21,7 +21,7 @@ interface FakePlayer {
     )
     var settings: FakePlayerSettings
     // 关联信息
-    var ownerUuids: Collection<UUID>
+    var ownerUuids: MutableSet<UUID>
     val owners get() = ownerUuids.mapNotNull(Bukkit::getPlayer)
 
     var spawnerUuid: UUID

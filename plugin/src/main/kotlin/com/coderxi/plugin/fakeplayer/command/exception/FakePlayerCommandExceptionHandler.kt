@@ -8,9 +8,12 @@ import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandExceptio
 import revxrsal.commands.exception.CooldownException
 import revxrsal.commands.exception.NoPermissionException
 import revxrsal.commands.exception.UnknownCommandException
+import revxrsal.commands.node.ExecutionContext
 import java.util.concurrent.TimeUnit
 
 class FakePlayerCommandExceptionHandler : BukkitExceptionHandler(), PluginComponent  {
+
+    typealias CommandContext = ExecutionContext<BukkitCommandActor>
 
     override fun onUnknownCommand(e: UnknownCommandException, actor: BukkitCommandActor) {
         actor.sender().sendMessage(tlp("fakeplayer.command.unknown-command"))
@@ -34,13 +37,14 @@ class FakePlayerCommandExceptionHandler : BukkitExceptionHandler(), PluginCompon
             is NotExitsException         -> tlp("fakeplayer.command.not-exists", e.name)
             is NotOwnerException         -> tlp("fakeplayer.command.not-owner", e.name)
             is NoSelectedException       -> tlp("fakeplayer.command.no-selected")
-            is SpawnException            -> tlp("fakeplayer.spawn.failed")
+            is SpawnUnknownException     -> tlp("fakeplayer.spawn.failed")
             is SpawnServerLimitedException -> tlp("fakeplayer.spawn.failed.server-limited")
             is SpawnPlayerLimitedException -> tlp("fakeplayer.spawn.failed.player-limited")
             is SpawnIpLimitedException -> tlp("fakeplayer.spawn.failed.ip-limited")
             is SpawnAlreadyExistsException -> tlp("fakeplayer.spawn.failed.already-exists", e.name)
-            is SpawnNameInvalid -> tlp("fakeplayer.spawn.failed.name-invalid", e.name)
+            is SpawnNameInvalidException -> tlp("fakeplayer.spawn.failed.name-invalid", e.name)
             is SpawnNameAlreadyUsedException -> tlp("fakeplayer.spawn.failed.name-already-used", e.name)
+            is SpawnNoAvailableSequenceNameException -> tlp("fakeplayer.spawn.failed.no-available-sequence-name")
             is SpawnTpsAdaptiveLimitedException -> tlp("fakeplayer.spawn.failed.tps-adaptive-limited")
             else -> return e.printStackTrace()
         }

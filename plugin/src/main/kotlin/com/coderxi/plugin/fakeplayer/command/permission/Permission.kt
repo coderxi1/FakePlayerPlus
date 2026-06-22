@@ -8,6 +8,7 @@ enum class Permission(val value: String) {
     RELOAD("fakeplayer.reload"),
 
     SPAWN("fakeplayer.spawn"),
+    SPAWN_WITH_NAME("fakeplayer.spawn.name"),
     SPAWN_LIMIT_CUSTOM("fakeplayer.spawn.limit.{node}"),
 
     SELECT("fakeplayer.select"),

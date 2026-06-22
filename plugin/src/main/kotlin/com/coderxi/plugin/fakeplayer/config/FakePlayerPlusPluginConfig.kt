@@ -43,12 +43,9 @@ class FakePlayerPlusPluginConfig : OkaeriConfig() {
     @Comment("假人名称功能")
     var name = NameConfig()
     class NameConfig : OkaeriConfig() {
-        @Comment("创建假人时未手动设置名称时通过此模板生成", "变量: 创建者名称{spawner_name} 自增数字{amount}")
-        @CustomKey("spawn-template")
-        var spawnTemplate = "{spawner_name}_{amount}"
         @Comment("假人名称允许的字符(正则表达式)")
         @CustomKey("spawn-pattern")
-        var spawnPattern = "^[a-zA-Z0-9_]+$"
+        var pattern = Regex("^[a-zA-Z0-9_]+$")
     }
 
     @Comment("假人行为设置")
