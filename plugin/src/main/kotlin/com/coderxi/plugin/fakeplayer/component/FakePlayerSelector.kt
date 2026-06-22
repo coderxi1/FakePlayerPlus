@@ -1,4 +1,4 @@
-package com.coderxi.plugin.fakeplayer.manager
+package com.coderxi.plugin.fakeplayer.component
 
 import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
 import com.coderxi.plugin.fakeplayer.api.event.FakePlayerQuitedEvent

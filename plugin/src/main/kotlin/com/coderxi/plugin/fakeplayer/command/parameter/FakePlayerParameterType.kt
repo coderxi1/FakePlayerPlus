@@ -4,7 +4,7 @@ import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.NotExitsException
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.NotOwnerException
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.NoSelectedException
-import com.coderxi.plugin.fakeplayer.manager.FakePlayerSelector.selected
+import com.coderxi.plugin.fakeplayer.component.FakePlayerSelector.selected
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent.Companion.plugin
 import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Player

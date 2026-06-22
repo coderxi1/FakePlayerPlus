@@ -19,7 +19,7 @@ import com.coderxi.plugin.fakeplayer.component.FakePlayerLimiter
 import com.coderxi.plugin.fakeplayer.component.FakePlayerTicker
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerManagerImpl
 import com.coderxi.plugin.fakeplayer.component.FakePlayerPingUpdater
-import com.coderxi.plugin.fakeplayer.manager.FakePlayerSelector
+import com.coderxi.plugin.fakeplayer.component.FakePlayerSelector
 import com.coderxi.plugin.fakeplayer.nms.v1_21_11.NMSBridgeImpl
 import com.coderxi.plugin.fakeplayer.utils.registerEvents
 import com.coderxi.plugin.fakeplayer.utils.Localizer
