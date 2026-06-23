@@ -1,8 +1,10 @@
 package com.coderxi.plugin.fakeplayer.api.nms
 
-import net.kyori.adventure.text.Component
+import org.bukkit.block.Block
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
+import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
 
 interface NMSServerPlayer {
@@ -30,6 +32,14 @@ interface NMSServerPlayer {
     val onGround: Boolean
     /** 是否在使用物品 */
     val isUsingItem: Boolean
+    /** 主手物品 */
+    val mainHandItem: ItemStack
+    /** 副手物品 */
+    val offHandItem: ItemStack
+    /** 方块触及距离 */
+    val blockReachDistance: Double
+    /** 实体触及距离 */
+    val entityReachDistance: Double
     /** 执行刻运算 */
     fun doTick()
     /** 移动玩家 */
@@ -48,9 +58,9 @@ interface NMSServerPlayer {
     fun drop(allStack: Boolean): Boolean
 
     /** 重生 */
-    fun requestRespawn()
+    fun respawn()
     /** 交换主副手物品 */
-    fun requestSwapItemWithOffhand()
+    fun swapItemWithOffhand()
 
     /** 从地面跳起 */
     fun jumpFromGround()
@@ -66,9 +76,16 @@ interface NMSServerPlayer {
     /** 重设最后活跃时间 */
     fun resetLastActionTime()
 
-    // 基于数据包的属性
+    // 基于数据包的属性, 若修改基于数据包的属性,必须调用dummyNotify方法手动通知
     var dummyNametagVisibility : Boolean
     var dummyCollidable : Boolean
-    // 若修改基于数据包的属性,必须使用此方法手动通知
     fun dummyNotify(targets: Collection<Player>)
+
+    // 协助完成动作的方法
+    fun getDestroyProgress(target: Block): Float
+    fun doBlockBreakAction(target: Block, type: BlockBreakActionType)
+    enum class BlockBreakActionType { START, ABORT, STOP }
+    fun useItem(type: EquipmentSlot, onSuccess: (() -> Unit)? = null)
+    fun releaseUsingItem()
+
 }

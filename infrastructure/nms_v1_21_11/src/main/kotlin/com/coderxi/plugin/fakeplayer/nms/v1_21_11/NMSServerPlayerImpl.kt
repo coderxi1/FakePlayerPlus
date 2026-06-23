@@ -1,7 +1,7 @@
 package com.coderxi.plugin.fakeplayer.nms.v1_21_11
 
-import com.coderxi.plugin.fakeplayer.api.FakePlayerPlusPluginApi.Companion.javaPlugin as plugin
 import com.coderxi.plugin.fakeplayer.api.nms.NMSServerPlayer
+import com.coderxi.plugin.fakeplayer.api.nms.NMSServerPlayer.BlockBreakActionType
 import com.coderxi.plugin.fakeplayer.server.FakePlayerAdvancements
 import com.destroystokyo.paper.profile.ProfileProperty
 import net.minecraft.core.BlockPos
@@ -13,20 +13,31 @@ import net.minecraft.server.PlayerAdvancements
 import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ParticleStatus
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.HumanoidArm
+import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.entity.player.ChatVisiblity
+import net.minecraft.world.level.ClipContext
+import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.phys.EntityHitResult
+import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.Team
 import org.bukkit.Bukkit
+import org.bukkit.block.Block
+import org.bukkit.craftbukkit.block.CraftBlock
 import org.bukkit.craftbukkit.entity.CraftEntity
 import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
+import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
 import java.lang.reflect.Field
 import java.nio.file.Paths
+import com.coderxi.plugin.fakeplayer.api.FakePlayerPlusPluginApi.Companion.javaPlugin as plugin
 
 class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
 
@@ -48,6 +59,10 @@ class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
     override val tickCount: Int get() = handle.tickCount
     override val onGround: Boolean get() = handle.onGround
     override val isUsingItem: Boolean get() = handle.isUsingItem
+    override val mainHandItem: ItemStack get() = handle.mainHandItem.asBukkitMirror()
+    override val offHandItem: ItemStack get() =  handle.offhandItem.asBukkitMirror()
+    override val blockReachDistance: Double get() = handle.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE)
+    override val entityReachDistance: Double get() = handle.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE)
 
     override fun doTick() = handle.doTick()
     override fun absMoveTo(x: Double, y: Double, z: Double, yRot: Float, xRot: Float) = handle.absSnapTo(x, y, z, yRot, xRot)
@@ -58,8 +73,8 @@ class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
     override fun drop(slot: Int, throwRandomly: Boolean, retainOwnership: Boolean) { handle.drop(handle.inventory.removeItem(slot, handle.inventory.getItem(slot).count), throwRandomly, retainOwnership) }
     override fun jumpFromGround() = handle.jumpFromGround()
     override fun setJumping(jumping: Boolean) { handle.isJumping = jumping }
-    override fun requestRespawn() { handle.connection.handleClientCommand(ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN)) }
-    override fun requestSwapItemWithOffhand() { handle.connection.handlePlayerAction(ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND,BlockPos(0, 0, 0),Direction.DOWN)) }
+    override fun respawn() { handle.connection.handleClientCommand(ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN)) }
+    override fun swapItemWithOffhand() { handle.connection.handlePlayerAction(ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND,BlockPos(0, 0, 0),Direction.DOWN)) }
     override fun disableAdvancements() { advancements = FakePlayerAdvancements(server.fixerUpper, server.playerList, server.advancements, Paths.get(System.getProperty("java.io.tmpdir")), handle) }
     override fun setupClientOptions() { handle.updateOptions(ClientInformation(
             "en_us",
@@ -104,6 +119,71 @@ class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
 
     override fun dummyNotify(targets: Collection<Player>) {
         if (playerTeamPacket!=null) targets.forEach { target ->  target.sendPacket(playerTeamPacket!!) }
+    }
+
+    override fun getDestroyProgress(target: Block): Float {
+        val block = target as CraftBlock
+        return block.nms.getDestroyProgress(handle,handle.level(), block.position)
+    }
+
+    override fun doBlockBreakAction(target: Block, type: BlockBreakActionType) {
+        val block = target as CraftBlock
+        val nmsAction = when (type) {
+            BlockBreakActionType.START -> ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK
+            BlockBreakActionType.ABORT -> ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK
+            BlockBreakActionType.STOP -> ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK
+        }
+        handle.gameMode.handleBlockBreakAction(
+            block.position,
+            nmsAction,
+            Direction.UP,
+            handle.level().maxY,
+            -1
+        )
+    }
+
+    override fun useItem(type: EquipmentSlot, onSuccess: (() -> Unit)?) {
+        val hand = when (type) { EquipmentSlot.HAND -> InteractionHand.MAIN_HAND; EquipmentSlot.OFF_HAND -> InteractionHand.OFF_HAND else -> throw Exception("Invalid equipment slot (Only HAND/OFF_HAND).") }
+        val stack = handle.getItemInHand(hand)
+        if (stack.isEmpty) return
+        val level = handle.level()
+        val hitResult = handle.getRayTrace(entityReachDistance.toInt(), ClipContext.Fluid.NONE)
+        when (hitResult.type) {
+            HitResult.Type.MISS -> {}
+            HitResult.Type.BLOCK -> {
+                val blockHit = hitResult as BlockHitResult
+                val isTooHigh = blockHit.blockPos.y >= level.maxY - (if (blockHit.direction == Direction.UP) 1 else 0)
+                if (isTooHigh || !level.mayInteract(handle, blockHit.blockPos)) return
+                if (handle.gameMode.useItemOn(handle,level,stack, hand ,blockHit).consumesAction()) {
+                    handle.swing(hand)
+                    onSuccess?.invoke()
+                    return
+                }
+            }
+            HitResult.Type.ENTITY -> {
+                val entityHit = hitResult as EntityHitResult
+                val entity = entityHit.entity
+                val relativePos = entityHit.location.subtract(entity.x, entity.y, entity.z)
+                if (entity.interactAt(handle, relativePos, hand).consumesAction()) {
+                    handle.swing(hand)
+                    onSuccess?.invoke()
+                    return
+                }
+                if (handle.interactOn(entity, hand).consumesAction()) {
+                    handle.swing(hand)
+                    onSuccess?.invoke()
+                    return
+                }
+            }
+        }
+        if (handle.gameMode.useItem(handle,level,stack, hand).consumesAction()) {
+            handle.swing(hand)
+            onSuccess?.invoke()
+        }
+    }
+
+    override fun releaseUsingItem() {
+        handle.releaseUsingItem()
     }
 
     companion object {

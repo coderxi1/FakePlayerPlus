@@ -11,6 +11,7 @@ import com.coderxi.plugin.fakeplayer.command.permission.Permission
 import com.coderxi.plugin.fakeplayer.entity.StandardFakePlayer
 import com.coderxi.plugin.fakeplayer.repository.FakePlayerRepository
 import com.coderxi.plugin.fakeplayer.utils.BukkitMain
+import com.coderxi.plugin.fakeplayer.utils.EMPTY_UUID
 import com.coderxi.plugin.fakeplayer.utils.IPGenerator
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import kotlinx.coroutines.Dispatchers
@@ -50,7 +51,7 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
 
     override suspend fun spawn(name: String, spawner: CommandSender, location: Location?) : FakePlayer? {
         val spawnerAsPlayer = spawner as? Player
-        val spawnerUuid = spawnerAsPlayer?.uniqueId ?: UUID(0L, 0L)
+        val spawnerUuid = spawnerAsPlayer?.uniqueId ?: EMPTY_UUID
         val spawnerIp = spawnerAsPlayer?.address?.address?.hostAddress ?: "127.0.0.1"
         val spawnLocation = location ?: spawnerAsPlayer?.location ?: plugin.server.worlds.first().spawnLocation
         val fakePlayer = withContext(Dispatchers.IO) {
@@ -73,7 +74,7 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
             fakePlayer.onConnected(nmsPlayer, nmsConnection)
             FakePlayerConnectedEvent(fakePlayer).callEvent()
         }
-        val spawned = fakePlayer.teleportAsync(spawnLocation).await()
+        val spawned = fakePlayer.player.teleportAsync(spawnLocation).await()
         if (!spawned) {
             fakePlayer.quit("Spawn failed")
             return null

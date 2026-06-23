@@ -1,19 +1,18 @@
 package com.coderxi.plugin.fakeplayer.api.entity
 
+import com.coderxi.plugin.fakeplayer.api.action.ActionHandler
 import com.coderxi.plugin.fakeplayer.api.config.FakePlayerSettings
 import com.coderxi.plugin.fakeplayer.api.nms.NMSServerGamePacketListener
 import com.coderxi.plugin.fakeplayer.api.nms.NMSServerPlayer
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
-import org.bukkit.Location
-import org.bukkit.entity.Player
 import java.util.UUID
 
 interface FakePlayer {
 
     // 基础信息
-    val uuid: UUID
     val name: String
+    val uuid: UUID
     var skin: SkinInfo?
     data class SkinInfo (
         val textures: String?,
@@ -23,25 +22,23 @@ interface FakePlayer {
     // 关联信息
     var ownerUuids: MutableSet<UUID>
     val owners get() = ownerUuids.mapNotNull(Bukkit::getPlayer)
-
     var spawnerUuid: UUID
     var spawnerIp: String
+
+    // 动作控制器
+    var actions: ActionHandler
 
     // 完成网络连接时进行的操作
     fun onConnected(nmsPlayer: NMSServerPlayer ,nmsConnection: NMSServerGamePacketListener)
 
-    // 基础属性
-    val player: Player
-    val world get() = player.world
-    val location: Location get() = player.location
+    // 调用桥接
+    val nms: NMSServerPlayer
+    val player get() = nms.player
 
-    // 额外属性
+    // nms属性
     var ping: Int
 
-    // 基础功能
-    fun doTick()
-    fun chat(message: String) = player.chat(message)
+    // 快捷调用
     fun quit(cause: String = "") = player.kick(Component.text(cause))
-    fun teleportAsync(location: Location) = player.teleportAsync(location)
-    fun respawn()
+
 }

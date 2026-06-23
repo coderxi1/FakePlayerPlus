@@ -1,11 +1,12 @@
 package com.coderxi.plugin.fakeplayer.entity
 
+import com.coderxi.plugin.fakeplayer.action.ActionHandlerImpl
+import com.coderxi.plugin.fakeplayer.api.action.ActionHandler
 import com.coderxi.plugin.fakeplayer.api.config.FakePlayerSettings
 import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
 import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer.SkinInfo
 import com.coderxi.plugin.fakeplayer.api.nms.*
 import org.bukkit.Bukkit
-import org.bukkit.entity.Player
 import java.util.UUID
 
 class StandardFakePlayer(
@@ -15,9 +16,6 @@ class StandardFakePlayer(
     private var _skin: SkinInfo? = null,
     private var _settings: FakePlayerSettings
 ) : FakePlayer {
-
-    override lateinit var spawnerUuid: UUID
-    override lateinit var spawnerIp: String
 
     override var skin: SkinInfo?
         get() = _skin;
@@ -39,10 +37,13 @@ class StandardFakePlayer(
             _settings = settings
         }
 
-    lateinit var nmsPlayer: NMSServerPlayer
-    private lateinit var nmsConnection: NMSServerGamePacketListener
-    override val player: Player get() = nmsPlayer.player
+    override lateinit var spawnerUuid: UUID
+    override lateinit var spawnerIp: String
 
+    override var actions : ActionHandler = ActionHandlerImpl(this)
+
+    private lateinit var nmsPlayer: NMSServerPlayer
+    private lateinit var nmsConnection: NMSServerGamePacketListener
     override fun onConnected(nmsPlayer: NMSServerPlayer, nmsConnection: NMSServerGamePacketListener) {
         this.nmsPlayer = nmsPlayer
         this.nmsConnection = nmsConnection
@@ -59,10 +60,9 @@ class StandardFakePlayer(
         }
     }
 
+    override val nms: NMSServerPlayer get() = nmsPlayer
+
     override var ping: Int
         get() = nmsConnection.ping
         set(value) {nmsConnection.ping = value}
-
-    override fun doTick() = nmsPlayer.doTick()
-    override fun respawn() = nmsPlayer.requestRespawn()
 }

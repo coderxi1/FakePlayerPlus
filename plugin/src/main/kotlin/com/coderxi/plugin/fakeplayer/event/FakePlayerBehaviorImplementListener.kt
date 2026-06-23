@@ -29,7 +29,7 @@ class FakePlayerBehaviorImplementListener(private val fpm: FakePlayerManager): L
             if (!event.fakePlayer.ownerUuids.contains(event.player.uniqueId)) return@launch
             withContext(Dispatchers.BukkitMain) {
                 InvseeProvider.current.openInventory(event.player, event.fakePlayer.player)
-                event.fakePlayer.world.playSound(event.fakePlayer.location, Sound.BLOCK_CHEST_OPEN, 1f, 1f)
+                event.fakePlayer.player.world.playSound(event.fakePlayer.player.location, Sound.BLOCK_CHEST_OPEN, 1f, 1f)
             }
         }
     }
@@ -42,12 +42,12 @@ class FakePlayerBehaviorImplementListener(private val fpm: FakePlayerManager): L
                 event.fakePlayer.quit()
             }
             DeathEventAction.RESPAWN -> {
-                event.fakePlayer.respawn()
+                event.fakePlayer.nms.respawn()
             }
             DeathEventAction.RESPAWN_BACK -> {
                 plugin.server.scheduler.runTaskLater( plugin, Runnable {
-                    event.fakePlayer.respawn()
-                    event.fakePlayer.player.lastDeathLocation?.let(event.fakePlayer::teleportAsync)
+                    event.fakePlayer.nms.respawn()
+                    event.fakePlayer.player.lastDeathLocation?.let(event.fakePlayer.player::teleportAsync)
                 },20)
             }
         }

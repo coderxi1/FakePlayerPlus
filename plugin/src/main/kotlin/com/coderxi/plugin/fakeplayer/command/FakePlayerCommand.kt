@@ -1,5 +1,6 @@
 package com.coderxi.plugin.fakeplayer.command
 
+import com.coderxi.plugin.fakeplayer.api.action.UseItemOnce
 import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
@@ -83,13 +84,14 @@ class FakePlayerCommand: PluginComponent {
 
     suspend fun CommandSender.executeSpawn(name: String) {
         val fakePlayer = fpm.spawn(name, this) ?: throw SpawnUnknownException()
-        val locationText = "%.2f, %.2f, %.2f".format(fakePlayer.location.x, fakePlayer.location.y, fakePlayer.location.z)
-        sendMessage(tlp("fakeplayer.spawn.success", name, fakePlayer.world.name, locationText))
+        val locationText = "%.2f, %.2f, %.2f".format(fakePlayer.nms.x, fakePlayer.nms.y, fakePlayer.nms.z)
+        sendMessage(tlp("fakeplayer.spawn.success", name, fakePlayer.player.world.name, locationText))
+        selected = fakePlayer
     }
 
     @Subcommand("select")
     @Permission(SELECT,BASIC)
-    fun Player.select(fakePlayer: FakePlayer) {
+    fun CommandSender.select(fakePlayer: FakePlayer) {
         selected = fakePlayer
         sendMessage(tlp("fakeplayer.select.success", fakePlayer.name))
     }
@@ -111,7 +113,7 @@ class FakePlayerCommand: PluginComponent {
     @Subcommand("tp")
     @Permission(TP,BASIC)
     fun Player.tp(@Select fakePlayer: FakePlayer) {
-        teleportAsync(fakePlayer.location)
+        teleportAsync(fakePlayer.player.location)
     }
 
     @Subcommand("tphere")
@@ -124,7 +126,7 @@ class FakePlayerCommand: PluginComponent {
     @Permission(TP,BASIC)
     fun Player.tpswap(@Select fakePlayer: FakePlayer) {
         val playerLocation = location
-        teleportAsync(fakePlayer.location)
+        teleportAsync(fakePlayer.player.location)
         fakePlayer.player.teleportAsync(playerLocation)
     }
 
@@ -142,7 +144,7 @@ class FakePlayerCommand: PluginComponent {
             val skin = SkinFetcher.getPlayerSkinInfoByName(targetName)
             withContext(Dispatchers.BukkitMain) {
                 fakePlayer.skin = skin
-                fakePlayer.world.playSound(fakePlayer.location, Sound.ITEM_ARMOR_EQUIP_GENERIC, 1f, 1f)
+                fakePlayer.player.world.playSound(fakePlayer.player.location, Sound.ITEM_ARMOR_EQUIP_GENERIC, 1f, 1f)
             }
             fpm.saveSkin(fakePlayer)
         }
@@ -157,7 +159,7 @@ class FakePlayerCommand: PluginComponent {
     @Subcommand("chat")
     @Permission(CHAT,BASIC)
     fun Player.message(@Named("message") message: String, @Select fakePlayer: FakePlayer) {
-        fakePlayer.chat(message)
+        fakePlayer.player.chat(message)
     }
 
     @Subcommand("settings")
@@ -169,6 +171,16 @@ class FakePlayerCommand: PluginComponent {
                 fpm.saveSettings(fakePlayer)
             }
         })
+    }
+
+    @Subcommand("use-item-once")
+    fun Player.useOnce(@Select fakePlayer: FakePlayer) {
+        fakePlayer.actions.dispatch(UseItemOnce)
+    }
+
+    @Subcommand("stop use-item-once")
+    fun Player.stopUseOnce(@Select fakePlayer: FakePlayer) {
+        fakePlayer.actions.stop(UseItemOnce.track)
     }
 
 }
