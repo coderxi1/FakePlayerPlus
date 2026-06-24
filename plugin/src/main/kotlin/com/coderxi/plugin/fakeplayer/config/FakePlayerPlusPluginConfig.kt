@@ -86,7 +86,7 @@ class FakePlayerPlusPluginConfig : OkaeriConfig() {
         @Comment("是否开启无敌状态")
         var invulnerable: Boolean = false
         @Comment("是否开启自动补货")
-        var autoReplenish: Boolean = false
+        var autoReplenish: Boolean = true
         @Comment("是否开启自动钓鱼")
         var autoFish: Boolean = true
         fun clone() = FakePlayerSettings(
