@@ -27,30 +27,36 @@ class FakePlayerPingUpdater(private val fpm: FakePlayerManager) : PluginComponen
     }
 
     fun onload() {
+        firstPingMap.clear()
+        pingJitterTask?.cancel()
+        pingJitterTask = null
         val b = plugin.config.behavior
         val pingInit = b.pingInit
         val pingInitRange = pingInit.split(',').mapNotNull { it.toIntOrNull() }
         pingInitMin = pingInitRange.min()
         pingInitMax = pingInitRange.max()
         pingInitIsFixed = pingInitMin == pingInitMax
+        fpm.fakeplayers().forEach(::registerFirstPing)
         val pingJitter = b.pingJitter
         val pingJitterInterval = b.pingJitterInterval
-        if (!pingJitter||pingJitterInterval <= 0) {
-            pingJitterTask?.cancel()
-            pingJitterTask = null
-            return
-        }
+        if (!pingJitter||pingJitterInterval <= 0) return
         val ticks = pingJitterInterval.toLong() * 20
         pingJitterTask = scheduler.runTaskTimer(plugin,Runnable{fpm.fakeplayers().forEach{it.pingJitter()}}, ticks, ticks)
     }
 
     @EventHandler
     fun onFakePlayerConnectedEvent(event: FakePlayerConnectedEvent) {
-        firstPingMap[event.fakePlayer.uuid] = if (pingInitIsFixed) {
+        registerFirstPing(event.fakePlayer)
+    }
+
+    private fun registerFirstPing(fakePlayer: FakePlayer) {
+        val firstPing = if (pingInitIsFixed) {
             pingInitMin
         } else {
             ThreadLocalRandom.current().nextInt(pingInitMin, pingInitMax+1)
         }
+        firstPingMap[fakePlayer.uuid] = firstPing
+        fakePlayer.ping = firstPing
     }
 
     fun FakePlayer.pingJitter() {
