@@ -31,7 +31,8 @@ object FakePlayerDialog: PluginComponent {
             boolInput("collidable", tl("fakeplayer.gui.settings.collidable")).initial(settings.collidable).build(),
             boolInput("pickupItems", tl("fakeplayer.gui.settings.pickup-items")).initial(settings.pickupItems).build(),
             boolInput("invulnerable", tl("fakeplayer.gui.settings.invulnerable")).initial(settings.invulnerable).build(),
-            boolInput("autoReplenish", tl("fakeplayer.gui.settings.auto-replenish")).initial(settings.autoReplenish).build()
+            boolInput("autoReplenish", tl("fakeplayer.gui.settings.auto-replenish")).initial(settings.autoReplenish).build(),
+            boolInput("autoFish", tl("fakeplayer.gui.settings.auto-fish")).initial(settings.autoFish).build(),
         )
         val onSubmitClick = DialogAction.customClick(
             { view, _ ->
@@ -39,7 +40,8 @@ object FakePlayerDialog: PluginComponent {
                     view.getBoolean("collidable") ?: settings.collidable,
                     view.getBoolean("pickupItems") ?: settings.pickupItems,
                     view.getBoolean("invulnerable") ?: settings.invulnerable,
-                    view.getBoolean("autoReplenish") ?: settings.autoReplenish
+                    view.getBoolean("autoReplenish") ?: settings.autoReplenish,
+                    view.getBoolean("autoFish") ?: settings.autoFish,
                 )
                 onSubmit.invoke()
             },

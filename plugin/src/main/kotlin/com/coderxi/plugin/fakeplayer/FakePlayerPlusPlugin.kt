@@ -81,6 +81,7 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
             FakePlayerSelector.registerEvents()
             FakePlayerReplenishListener(fpm).registerEvents()
             FakePlayerDummyVarsNotifyListener(fpm).registerEvents()
+            FakePlayerAutoFishListener(fpm).registerEvents()
             fpm.registerEvents()
         }
         lamp = BukkitLamp.builder(this)

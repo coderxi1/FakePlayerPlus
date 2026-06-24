@@ -87,17 +87,21 @@ class FakePlayerPlusPluginConfig : OkaeriConfig() {
         var invulnerable: Boolean = false
         @Comment("是否开启自动补货")
         var autoReplenish: Boolean = false
+        @Comment("是否开启自动钓鱼")
+        var autoFish: Boolean = true
         fun clone() = FakePlayerSettings(
             collidable,
             pickupItems,
             invulnerable,
-            autoReplenish
+            autoReplenish,
+            autoFish
         )
         fun equals2(that: FakePlayerSettings): Boolean =
             collidable==that.collidable &&
             pickupItems==that.pickupItems &&
             invulnerable==that.invulnerable &&
-            autoReplenish==that.autoReplenish
+            autoReplenish==that.autoReplenish &&
+            autoFish==that.autoFish
     }
 
     @Comment(
