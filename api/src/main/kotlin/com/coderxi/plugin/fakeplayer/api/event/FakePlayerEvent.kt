@@ -53,24 +53,8 @@ data class FakePlayerRegainHealthEvent(override val fakePlayer: FakePlayer, val 
     companion object { @JvmStatic val HANDLERS = HandlerList() ; @JvmStatic fun getHandlerList() = HANDLERS }
     override fun getHandlers() = HANDLERS
 }
-class FakePlayerExpChangeEvent(override val fakePlayer: FakePlayer): FakePlayerEvent() {
-    companion object { @JvmStatic val HANDLERS = HandlerList() ; @JvmStatic fun getHandlerList() = HANDLERS }
-    override fun getHandlers() = HANDLERS
-}
-class FakePlayerLevelChangeEvent(override val fakePlayer: FakePlayer): FakePlayerEvent() {
-    companion object { @JvmStatic val HANDLERS = HandlerList() ; @JvmStatic fun getHandlerList() = HANDLERS }
-    override fun getHandlers() = HANDLERS
-}
-data class FakePlayerMoveEvent(override val fakePlayer: FakePlayer, val from: Location, val to: Location) : FakePlayerEvent() {
-    companion object { @JvmStatic val HANDLERS = HandlerList() ; @JvmStatic fun getHandlerList() = HANDLERS }
-    override fun getHandlers() = HANDLERS
-}
 // 与Player交互的事件
 data class FakePlayerInteractedEvent(override val fakePlayer: FakePlayer, val player: Player, val hand: EquipmentSlot) : FakePlayerEvent() {
-    companion object { @JvmStatic val HANDLERS = HandlerList() ; @JvmStatic fun getHandlerList() = HANDLERS }
-    override fun getHandlers() = HANDLERS
-}
-data class FakePlayerWatchedEvent(override val fakePlayer: FakePlayer, val player: Player) : FakePlayerEvent() {
     companion object { @JvmStatic val HANDLERS = HandlerList() ; @JvmStatic fun getHandlerList() = HANDLERS }
     override fun getHandlers() = HANDLERS
 }

@@ -3,7 +3,6 @@ package com.coderxi.plugin.fakeplayer.event
 import com.coderxi.plugin.fakeplayer.api.event.*
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
-import io.papermc.paper.event.packet.PlayerChunkLoadEvent
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -38,24 +37,8 @@ class FakePlayerEventDispatcher(private val fpm: FakePlayerManager): Listener, P
         if (event.entity is Player) fpm.get(event.entity.uniqueId)?.let { FakePlayerRegainHealthEvent(it,event.amount).callEvent() }
     }
     @EventHandler
-    fun onFakePlayerLevelChange(event: PlayerLevelChangeEvent) {
-        fpm.get(event.player.uniqueId)?.let { FakePlayerLevelChangeEvent(it).callEvent() }
-    }
-    @EventHandler
-    fun onFakePlayerExpChange(event: PlayerExpChangeEvent) {
-        fpm.get(event.player.uniqueId)?.let { FakePlayerExpChangeEvent(it).callEvent() }
-    }
-
-    @EventHandler
     fun onFakePlayerInteract(event: PlayerInteractEntityEvent) {
-        fpm.get(event.rightClicked.uniqueId)?.let { FakePlayerInteractedEvent(it,event.player,event.hand).callEvent() }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    fun onPlayerChunkLoad(event: PlayerChunkLoadEvent) {
-        event.chunk.entities.filterIsInstance<Player>().forEach { player ->
-            fpm.get(player.uniqueId)?.let { FakePlayerWatchedEvent(it,event.player).callEvent() }
-        }
+        if (event.rightClicked is Player) fpm.get(event.rightClicked.uniqueId)?.let { FakePlayerInteractedEvent(it,event.player,event.hand).callEvent() }
     }
 
 }
