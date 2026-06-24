@@ -78,6 +78,7 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
             fakePlayerLimiter = FakePlayerLimiter(fpm).apply { registerEvents() }
             FakePlayerPingUpdater(fpm).registerEvents()
             FakePlayerSelector.registerEvents()
+            FakePlayerReplenishListener(fpm).registerEvents()
             fpm.registerEvents()
         }
         lamp = BukkitLamp.builder(this)
