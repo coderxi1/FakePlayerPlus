@@ -4,8 +4,11 @@ import com.coderxi.plugin.fakeplayer.api.nms.NMSServerPlayer
 import com.coderxi.plugin.fakeplayer.api.nms.NMSServerPlayer.BlockBreakActionType
 import com.coderxi.plugin.fakeplayer.server.FakePlayerAdvancements
 import com.destroystokyo.paper.profile.ProfileProperty
+import io.papermc.paper.chat.ChatRenderer
+import net.kyori.adventure.text.Component
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.network.chat.PlayerChatMessage
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.server.MinecraftServer
@@ -184,6 +187,15 @@ class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
 
     override fun releaseUsingItem() {
         handle.releaseUsingItem()
+    }
+
+    @Suppress("UnstableApiUsage")
+    override fun chat(msg: String) {
+        val message = Component.text(msg)
+        val signedMessage = PlayerChatMessage.unsigned(handle.uuid, msg).adventureView()
+        val viewers = Bukkit.getOnlinePlayers().plus(Bukkit.getConsoleSender()).toSet()
+        val event = io.papermc.paper.event.player.AsyncChatEvent(true, player, viewers, ChatRenderer.defaultRenderer(), message, message, signedMessage)
+        Bukkit.getAsyncScheduler().runNow(plugin) { event.callEvent() }
     }
 
     companion object {

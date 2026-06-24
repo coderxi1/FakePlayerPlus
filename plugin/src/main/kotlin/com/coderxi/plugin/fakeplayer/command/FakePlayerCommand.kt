@@ -158,7 +158,7 @@ class FakePlayerCommand: PluginComponent {
     @Subcommand("chat")
     @Permission(CHAT,BASIC)
     fun Player.message(@Named("message") message: String, @Select fakePlayer: FakePlayer) {
-        fakePlayer.player.chat(message)
+        fakePlayer.nms.chat(message)
     }
 
     @Subcommand("settings")

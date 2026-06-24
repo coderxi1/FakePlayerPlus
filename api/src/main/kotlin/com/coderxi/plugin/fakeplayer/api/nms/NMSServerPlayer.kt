@@ -47,6 +47,9 @@ interface NMSServerPlayer {
     /** 设置相对移动 */
     fun setDeltaMovement(vector: Vector)
 
+    /** 发送消息 */
+    fun chat(msg: String)
+
     /** 骑乘实体 */
     fun startRiding(entity: Entity, force: Boolean, triggerEvents: Boolean): Boolean
     /** 取消骑乘实体 */
