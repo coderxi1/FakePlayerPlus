@@ -33,7 +33,7 @@ class FakePlayerEventDispatcher(private val fpm: FakePlayerManager): Listener, P
         if (event.entity is Player) fpm.get(event.entity.uniqueId)?.let { FakePlayerDamageEvent(it,event.finalDamage).callEvent() }
     }
     @EventHandler
-    fun onFakePlayerDamage(event: EntityRegainHealthEvent) {
+    fun onFakePlayerRegainHealth(event: EntityRegainHealthEvent) {
         if (event.entity is Player) fpm.get(event.entity.uniqueId)?.let { FakePlayerRegainHealthEvent(it,event.amount).callEvent() }
     }
     @EventHandler
