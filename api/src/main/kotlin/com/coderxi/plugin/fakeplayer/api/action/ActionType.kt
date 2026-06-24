@@ -7,7 +7,5 @@ enum class ActionType {
     USE_ITEM,
     JUMP,
     SNEAK,
-    TURN_AROUND,
-    LOOK_AT
 
 }

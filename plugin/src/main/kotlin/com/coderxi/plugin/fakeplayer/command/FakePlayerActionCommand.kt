@@ -8,11 +8,14 @@ import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import org.bukkit.entity.Player
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Subcommand
+import com.coderxi.plugin.fakeplayer.command.annotaion.PluginCommandPermission as Permission
+import com.coderxi.plugin.fakeplayer.command.permission.Permission.*
 
 @Command("fakeplayer","fp")
 class FakePlayerActionCommand: PluginComponent {
 
     @Subcommand("action")
+    @Permission(ACTION, BASIC)
     fun Player.actionUI(@Select fakePlayer: FakePlayer) {
         showDialog(FakePlayerDialog.actionListDialog(
             fakePlayer,
@@ -26,11 +29,13 @@ class FakePlayerActionCommand: PluginComponent {
     }
 
     @Subcommand("action stop")
+    @Permission(ACTION, BASIC)
     fun stopAction(@Select fakePlayer: FakePlayer) {
         fakePlayer.actions.stopAll()
     }
 
     @Subcommand("action attack")
+    @Permission(ACTION_ATTACK, BASIC)
     fun Player.attackActionUI(@Select fakePlayer: FakePlayer) {
         showDialog(FakePlayerDialog.actionExecuteDialog(fakePlayer,
             onClickOnce = {
@@ -46,6 +51,7 @@ class FakePlayerActionCommand: PluginComponent {
     }
 
     @Subcommand("action mine")
+    @Permission(ACTION_MINE, BASIC)
     fun Player.mineActionUI(@Select fakePlayer: FakePlayer) {
         showDialog(FakePlayerDialog.actionExecuteDialog(fakePlayer,
             onClickContinuous = {
@@ -58,6 +64,7 @@ class FakePlayerActionCommand: PluginComponent {
     }
 
     @Subcommand("action use")
+    @Permission(ACTION_USE_ITEM, BASIC)
     fun Player.useItemActionUI(@Select fakePlayer: FakePlayer) {
         showDialog(FakePlayerDialog.actionExecuteDialog(fakePlayer,
             onClickOnce = {
@@ -76,6 +83,7 @@ class FakePlayerActionCommand: PluginComponent {
     }
 
     @Subcommand("action jump")
+    @Permission(ACTION_JUMP, BASIC)
     fun Player.jumpActionUI(@Select fakePlayer: FakePlayer) {
         showDialog(FakePlayerDialog.actionExecuteDialog(fakePlayer,
             onClickOnce = {
@@ -94,6 +102,7 @@ class FakePlayerActionCommand: PluginComponent {
     }
 
     @Subcommand("action sneak")
+    @Permission(ACTION_SNEAK, BASIC)
     fun Player.sneakActionUI(@Select fakePlayer: FakePlayer) {
         showDialog(FakePlayerDialog.actionExecuteDialog(fakePlayer,
             onClickOnce = {

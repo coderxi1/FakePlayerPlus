@@ -22,4 +22,11 @@ enum class Permission(val value: String) {
 
     SETTINGS("fakeplayer.settings"),
 
+    ACTION("fakeplayer.action"),
+    ACTION_ATTACK("fakeplayer.action.attack"),
+    ACTION_MINE("fakeplayer.action.mine"),
+    ACTION_USE_ITEM("fakeplayer.action.use-item"),
+    ACTION_JUMP("fakeplayer.action.jump"),
+    ACTION_SNEAK("fakeplayer.action.sneak"),
+
 }
