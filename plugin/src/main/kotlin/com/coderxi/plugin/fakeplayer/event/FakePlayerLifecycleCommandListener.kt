@@ -6,15 +6,25 @@ import com.coderxi.plugin.fakeplayer.api.event.FakePlayerPreparingEvent
 import com.coderxi.plugin.fakeplayer.api.event.FakePlayerQuitEvent
 import com.coderxi.plugin.fakeplayer.api.event.FakePlayerQuitedEvent
 import com.coderxi.plugin.fakeplayer.api.event.FakePlayerSpawnedEvent
-import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 
-class FakePlayerLifecycleCommandListener (private val fpm: FakePlayerManager): Listener, PluginComponent {
+class FakePlayerLifecycleCommandListener: Listener, PluginComponent {
 
     val commands get() = plugin.config.lifecycleCommands
+
+    @EventHandler
+    fun onFakePlayerPreparingEvent(event: FakePlayerPreparingEvent) = executeCommands(event.fakePlayer, commands.preparing)
+    @EventHandler
+    fun onFakePlayerConnectedEvent(event: FakePlayerConnectedEvent) = executeCommands(event.fakePlayer, commands.connected)
+    @EventHandler
+    fun onFakePlayerSpawnedEvent(event: FakePlayerSpawnedEvent) = executeCommands(event.fakePlayer, commands.spawned)
+    @EventHandler
+    fun onFakePlayerQuitEvent(event: FakePlayerQuitEvent) = executeCommands(event.fakePlayer, commands.quit)
+    @EventHandler
+    fun onFakePlayerQuitedEvent(event: FakePlayerQuitedEvent) = executeCommands(event.fakePlayer, commands.quited)
 
     private fun executeCommands(fakePlayer: FakePlayer, commands: List<String>) {
         val uuid = fakePlayer.uuid.toString()
@@ -45,11 +55,5 @@ class FakePlayerLifecycleCommandListener (private val fpm: FakePlayerManager): L
             }
         }
     }
-
-    @EventHandler fun onFakePlayerPreparingEvent(event: FakePlayerPreparingEvent) = executeCommands(event.fakePlayer, commands.preparing)
-    @EventHandler fun onFakePlayerConnectedEvent(event: FakePlayerConnectedEvent) = executeCommands(event.fakePlayer, commands.connected)
-    @EventHandler fun onFakePlayerSpawnedEvent(event: FakePlayerSpawnedEvent) = executeCommands(event.fakePlayer, commands.spawned)
-    @EventHandler fun onFakePlayerQuitEvent(event: FakePlayerQuitEvent) = executeCommands(event.fakePlayer, commands.quit)
-    @EventHandler fun onFakePlayerQuitedEvent(event: FakePlayerQuitedEvent) = executeCommands(event.fakePlayer, commands.quited)
 
 }

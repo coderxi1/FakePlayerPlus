@@ -8,18 +8,13 @@ import com.coderxi.plugin.fakeplayer.command.FakePlayerCommand
 import com.coderxi.plugin.fakeplayer.command.parameter.FakePlayerParameterType
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandExceptionHandler
 import com.coderxi.plugin.fakeplayer.config.FakePlayerPlusPluginConfig
-import com.coderxi.plugin.fakeplayer.event.FakePlayerEventDispatcher
+import com.coderxi.plugin.fakeplayer.event.*
+import com.coderxi.plugin.fakeplayer.component.*
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
 import com.coderxi.plugin.fakeplayer.command.annotaion.PluginCommandPermissionFactory
 import com.coderxi.plugin.fakeplayer.command.annotaion.Select
 import com.coderxi.plugin.fakeplayer.command.annotaion.SelectReplacer
-import com.coderxi.plugin.fakeplayer.event.FakePlayerBehaviorImplementListener
-import com.coderxi.plugin.fakeplayer.event.FakePlayerLifecycleCommandListener
-import com.coderxi.plugin.fakeplayer.component.FakePlayerLimiter
-import com.coderxi.plugin.fakeplayer.component.FakePlayerTicker
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerManagerImpl
-import com.coderxi.plugin.fakeplayer.component.FakePlayerPingUpdater
-import com.coderxi.plugin.fakeplayer.component.FakePlayerSelector
 import com.coderxi.plugin.fakeplayer.nms.v1_21_11.NMSBridgeImpl
 import com.coderxi.plugin.fakeplayer.utils.registerEvents
 import com.coderxi.plugin.fakeplayer.utils.Localizer
@@ -79,7 +74,7 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
             FakePlayerTicker(fpm).start()
             FakePlayerEventDispatcher(fpm).registerEvents()
             FakePlayerBehaviorImplementListener(fpm).registerEvents()
-            FakePlayerLifecycleCommandListener(fpm).registerEvents()
+            FakePlayerLifecycleCommandListener().registerEvents()
             fakePlayerLimiter = FakePlayerLimiter(fpm).apply { registerEvents() }
             FakePlayerPingUpdater(fpm).registerEvents()
             FakePlayerSelector.registerEvents()
