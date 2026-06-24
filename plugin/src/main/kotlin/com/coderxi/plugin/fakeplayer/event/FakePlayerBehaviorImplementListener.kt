@@ -24,7 +24,7 @@ class FakePlayerBehaviorImplementListener(private val fpm: FakePlayerManager): L
     @EventHandler
     fun implementInteractedInvsee(event: FakePlayerInteractedEvent) {
         if (event.hand != EquipmentSlot.HAND) return
-        if (!event.player.hasPermission(Permission.INVSEE.value)) return
+        if (!event.player.hasPermission(Permission.INVSEE.value) && !event.player.hasPermission(Permission.BASIC.value)) return
         launch {
             if (!event.fakePlayer.ownerUuids.contains(event.player.uniqueId)) return@launch
             withContext(Dispatchers.BukkitMain) {
