@@ -1,5 +1,5 @@
 name: FakePlayerPlus
-version: {version}
+version: ${version}
 main: com.coderxi.plugin.fakeplayer.FakePlayerPlusPlugin
 api-version: '1.21.11'
 authors: [ coderxi ]
