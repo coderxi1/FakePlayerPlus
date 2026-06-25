@@ -14,6 +14,7 @@ class FakePlayerTicker(private val fpm: FakePlayerManager) : PluginComponent {
         if (fpm.fakeplayersCount() <= 0) return
         fpm.fakeplayers().forEach { fakePlayer ->
             try {
+                if (!fakePlayer.player.isOnline) return
                 fakePlayer.nms.doTick()
                 fakePlayer.actions.doTick()
             } catch (e: Exception) {
