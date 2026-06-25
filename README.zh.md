@@ -1,0 +1,60 @@
+[**English**](./README.md) | **简体中文**
+
+# FakePlayerPlus 假人插件
+
+这个插件模拟了真实玩家，对服务端而言，这个插件生成的假人就是一个真正的“活人”。
+
+> 本插件的灵感源自 [minecraft-fakeplayer](https://github.com/tanyaofei/minecraft-fakeplayer) 插件，随着 Minecraft 版本的快速迭代，原版插件的架构在修复和维护上略显吃力，故基于 Kotlin 对其进行了完全的底层重构。本插件在继承原版插件核心特性的同时，实现了项目架构的高度解耦，使其成为更现代化、更健壮的衍生加强版。
+
+## 功能
+
+- [x] **等同真实玩家**
+- [x] **保持区块加载**：召唤假人帮你保持区块加载、怪物刷新
+- [x] **背包存放物品**：可以使用假人的背包来存放物品。
+- [x] **行为动作控制**：支持控制假人执行攻击、挖掘、跳跃、钓鱼等动作，并支持周期性循环。
+- [x] **开发者API**🚀：已将基本功能抽象成api包，可供插件开发者调用
+- [x] **语言文件**🚀：可自定义语言文件，并支持热重载
+- [x] **动态调整假人数量**🚀：服务器TPS过低时可踢出假人并降低召唤数量限制
+- [x] **假人设置GUI**🚀：可通过Dialog界面快速开关实体碰撞、无敌模式、自动补货等功能。
+- [x] **假人动作GUI**🚀：可通过Dialog界面快速执行假人动作
+- [x] **假人聊天功能**🚀：可通过/fp chat让假人发送聊天消息
+- [x] **假人PING设置**🚀：可配置假人ping值，也可模拟ping抖动伪装活人
+- [x] **多人管理**🚀：玩家可以互相分享假人使用权
+
+## 配置
+
+请参考插件目录下的 `config.yml` 配置文件
+
+## 命令
+
+> [!IMPORTANT]
+> 如果不限制玩家的各种命令，可以直接给玩家 `fakeplayer.basic`，这个权限包含了所有安全的权限
+
+| 命令 | 作用 | 权限 | 备注 |
+| :--- | :--- | :--- | :--- |
+| **/fp spawn** | 召唤假人 | fakeplayer.spawn | 可在配置文件中配置召唤数量限制 |
+| | | fakeplayer.spawn.limit.\<node\> | 在配置文件中配置 node 来实现为玩家/权限组单独配置召唤数量限制 |
+| /fp spawn \<name\> | 召唤假人时指定名称 | fakeplayer.spawn.name | 不建议给一般玩家权限 因为会占用未注册的真实玩家名额 |
+| /fp select \<name\> | 选中假人 | fakeplayer.select | 任何操作假人的命令都可以通过在**指令最后添加 `--select` 指定假人** |
+| /fp remove | 移除假人 | fakeplayer.remove | **`--all` 移除全部假人** |
+| /fp invsee | 查看假人背包 | fakeplayer.invsee | 玩家对假人右键也可打开 |
+| /fp tp | 传送到假人身边 | fakeplayer.tp | |
+| /fp tphere | 让假人传送到身边 | fakeplayer.tp | |
+| /fp tpswap | 与假人交换位置 | fakeplayer.tp | |
+| /fp tppos | 让假人传送到指定位置 | fakeplayer.tp | |
+| /fp skin \<name\> | 给假人设置正版玩家皮肤 | fakeplayer.skin | 此指令有 60 秒冷却 |
+| /fp cmd | 让假人执行命令 | fakeplayer.cmd | 命令有空格时或需要 `/` 前缀时需将命令文本使用 `"` 包裹，例如 `/fp cmd "kill @p"` |
+| /fp chat | 让假人发送聊天消息 | fakeplayer.chat | 消息有空格时需将消息文本使用 `"` 包裹 |
+| **/fp settings** | 打开假人设置 GUI | fakeplayer.settings | |
+| **/fp action** | 打开假人动作列表 GUI | fakeplayer.action | 有对应的动作权限（如下）才能显示动作按钮 |
+| **/fp action \<action\>** | 打开假人动作执行 GUI | fakeplayer.action.\<action\> | |
+| /fp reload | 重载配置 | fakeplayer.reload | |
+
+## PlaceholderAPI
+
+| 变量名 | 变量类型 | 作用说明 | 示例输出 |
+| :--- | :---: | :--- | :--- |
+| `%fakeplayer_total%` | 全局 | 获取当前全服在线的假人总数量 | `5` |
+| `%fakeplayer_isfake%` | 玩家 | 判断当前玩家是否为假人 | `true` / `false` |
+| `%fakeplayer_spawner%` | 假人 | 获取该假人的召唤者名称 | `Steve` |
+| `%fakeplayer_actions%` | 假人 | 获取该假人当前正在执行的动作列表 *(已本地化)* | `攻击\|挖掘` |
