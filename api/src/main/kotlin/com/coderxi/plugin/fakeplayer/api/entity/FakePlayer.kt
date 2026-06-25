@@ -23,6 +23,7 @@ interface FakePlayer {
     var creatorUuid: UUID?
     var ownerUuids: MutableSet<UUID>
     val owners get() = ownerUuids.mapNotNull(Bukkit::getPlayer)
+    var spawnerName: String
     var spawnerUuid: UUID
     var spawnerIp: String
 

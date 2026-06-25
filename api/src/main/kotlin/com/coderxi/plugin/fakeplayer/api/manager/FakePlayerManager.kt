@@ -32,6 +32,10 @@ interface FakePlayerManager {
 
     fun isNameUsed(name: String): Boolean
 
+    // 假人判断(先在线 后数据库)
+
+    fun isFake(uuid: UUID, queryFromRepository: Boolean = false): Boolean
+
     // 生成假人(先查数据库再生成)
 
     suspend fun spawn(name: String, spawner: CommandSender, location: Location? = null): FakePlayer?

@@ -51,6 +51,7 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
 
     override suspend fun spawn(name: String, spawner: CommandSender, location: Location?) : FakePlayer? {
         val spawnerAsPlayer = spawner as? Player
+        val spawnerName = spawnerAsPlayer?.name ?: "system"
         val spawnerUuid = spawnerAsPlayer?.uniqueId ?: EMPTY_UUID
         val spawnerIp = spawnerAsPlayer?.address?.address?.hostAddress ?: "127.0.0.1"
         val spawnLocation = location ?: spawnerAsPlayer?.location ?: plugin.server.worlds.first().spawnLocation
@@ -60,6 +61,7 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
             withContext(Dispatchers.IO) { repository.save(it, true) }
         }
         withContext(Dispatchers.BukkitMain) {
+            fakePlayer.spawnerName = spawnerName
             fakePlayer.spawnerUuid = spawnerUuid
             fakePlayer.spawnerIp = spawnerIp
             FakePlayerPreparingEvent(fakePlayer).callEvent()
@@ -133,6 +135,15 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
         // 服务器有name缓存 直接返回未使用过
         val offlineCache = Bukkit.getOfflinePlayerIfCached(name)
         return offlineCache != null && offlineCache.hasPlayedBefore()
+    }
+
+    override fun isFake(uuid: UUID, queryFromRepository: Boolean): Boolean {
+        val onlineResult = get(uuid) != null
+        return if (!queryFromRepository) {
+            onlineResult
+        } else {
+            onlineResult && repository.findByUuid(uuid) != null
+        }
     }
 
     override suspend fun saveSkin(fakePlayer: FakePlayer) {

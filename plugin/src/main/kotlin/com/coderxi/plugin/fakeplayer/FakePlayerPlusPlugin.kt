@@ -17,6 +17,7 @@ import com.coderxi.plugin.fakeplayer.command.annotaion.Select
 import com.coderxi.plugin.fakeplayer.command.annotaion.SelectReplacer
 import com.coderxi.plugin.fakeplayer.command.annotaion.SuggestCommands
 import com.coderxi.plugin.fakeplayer.command.annotaion.SuggestCommandsProvider
+import com.coderxi.plugin.fakeplayer.expansion.FakePlayerPlaceholderExpansion
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerManagerImpl
 import com.coderxi.plugin.fakeplayer.nms.v1_21_11.NMSBridgeImpl
 import com.coderxi.plugin.fakeplayer.utils.registerEvents
@@ -84,6 +85,7 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
             FakePlayerReplenishListener(fpm).registerEvents()
             FakePlayerDummyVarsNotifyListener(fpm).registerEvents()
             FakePlayerAutoFishListener(fpm).registerEvents()
+            FakePlayerPlaceholderExpansion(fpm).tryRegister()
             fpm.registerEvents()
         }
         lamp = BukkitLamp.builder(this)

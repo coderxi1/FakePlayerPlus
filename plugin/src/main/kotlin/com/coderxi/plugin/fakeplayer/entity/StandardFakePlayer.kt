@@ -38,6 +38,7 @@ class StandardFakePlayer(
             _settings = settings
         }
 
+    override lateinit var spawnerName: String
     override lateinit var spawnerUuid: UUID
     override lateinit var spawnerIp: String
 

@@ -27,11 +27,11 @@ class FakePlayerLifecycleCommandListener: Listener, PluginComponent {
     fun onFakePlayerQuitedEvent(event: FakePlayerQuitedEvent) = executeCommands(event.fakePlayer, commands.quited)
 
     private fun executeCommands(fakePlayer: FakePlayer, commands: List<String>) {
-        val uuid = fakePlayer.uuid.toString()
         val name = fakePlayer.name
+        val uuid = fakePlayer.uuid.toString()
+        val spawnerName = fakePlayer.spawnerName
         val spawnerUuid = fakePlayer.spawnerUuid
         val spawner = Bukkit.getPlayer(spawnerUuid)
-        val spawnerName = spawner?.name ?: Bukkit.getOfflinePlayer(spawnerUuid).name!!
         val console = Bukkit.getConsoleSender()
         commands.forEach {
             val command = it
