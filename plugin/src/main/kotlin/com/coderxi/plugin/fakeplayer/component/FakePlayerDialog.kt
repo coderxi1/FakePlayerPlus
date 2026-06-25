@@ -103,7 +103,7 @@ object FakePlayerDialog: PluginComponent {
         }
     }
 
-    fun actionListDialog(fakePlayer: FakePlayer, vararg textAndAction: Pair<Component, () -> Unit>): DialogLike {
+    fun actionListDialog(fakePlayer: FakePlayer, textAndAction: Map<Component, () -> Unit>): DialogLike {
         val actionButtons = textAndAction.map { (text, action) ->
             ActionButton.create(text, null, 100, DialogAction.customClick({ _, _ -> action() }, ACTION_OPTIONS) )
         }

@@ -3,11 +3,13 @@ package com.coderxi.plugin.fakeplayer.event
 import com.coderxi.plugin.fakeplayer.api.event.FakePlayerDeathEvent
 import com.coderxi.plugin.fakeplayer.api.event.FakePlayerInteractedEvent
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
-import com.coderxi.plugin.fakeplayer.command.permission.Permission
+import com.coderxi.plugin.fakeplayer.command.permission.Permission.INVSEE
+import com.coderxi.plugin.fakeplayer.command.permission.Permission.BASIC
 import com.coderxi.plugin.fakeplayer.config.DeathEventAction
 import com.coderxi.plugin.fakeplayer.provider.invsee.InvseeProvider
 import com.coderxi.plugin.fakeplayer.utils.BukkitMain
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
+import com.coderxi.plugin.fakeplayer.utils.hasPermission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
@@ -24,7 +26,7 @@ class FakePlayerBehaviorImplementListener(private val fpm: FakePlayerManager): L
     @EventHandler
     fun implementInteractedInvsee(event: FakePlayerInteractedEvent) {
         if (event.hand != EquipmentSlot.HAND) return
-        if (!event.player.hasPermission(Permission.INVSEE.value) && !event.player.hasPermission(Permission.BASIC.value)) return
+        if (!event.player.hasPermission(INVSEE,BASIC)) return
         launch {
             if (!event.fakePlayer.ownerUuids.contains(event.player.uniqueId)) return@launch
             withContext(Dispatchers.BukkitMain) {

@@ -107,7 +107,7 @@ class FakePlayerCommand: PluginComponent {
         }
     }
 
-    @Subcommand("remove-all")
+    @Subcommand("remove --all")
     @Permission(REMOVE,BASIC)
     fun Player.removeAll() {
         fpm.fakeplayersByOwnerUuid(uniqueId).forEach { fakePlayer ->

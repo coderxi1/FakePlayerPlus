@@ -10,6 +10,8 @@ import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Subcommand
 import com.coderxi.plugin.fakeplayer.command.annotaion.PluginCommandPermission as Permission
 import com.coderxi.plugin.fakeplayer.command.permission.Permission.*
+import com.coderxi.plugin.fakeplayer.utils.hasPermission
+import net.kyori.adventure.text.Component
 
 @Command("fakeplayer","fp")
 class FakePlayerActionCommand: PluginComponent {
@@ -17,15 +19,14 @@ class FakePlayerActionCommand: PluginComponent {
     @Subcommand("action")
     @Permission(ACTION, BASIC)
     fun Player.actionUI(@Select fakePlayer: FakePlayer) {
-        showDialog(FakePlayerDialog.actionListDialog(
-            fakePlayer,
-            tl("fakeplayer.action.attack") to { attackActionUI(fakePlayer) },
-            tl("fakeplayer.action.mine") to { mineActionUI(fakePlayer) },
-            tl("fakeplayer.action.use-item") to { useItemActionUI(fakePlayer) },
-            tl("fakeplayer.action.jump") to { jumpActionUI(fakePlayer) },
-            tl("fakeplayer.action.sneak") to { sneakActionUI(fakePlayer) },
-            tl("fakeplayer.gui.action.stop-all") to { stopAction(fakePlayer) }
-        ))
+        val textAndAction = mutableMapOf<Component,()-> Unit>()
+        if (hasPermission(ACTION_ATTACK,BASIC)) textAndAction[tl("fakeplayer.action.attack")] = {attackActionUI(fakePlayer)}
+        if (hasPermission(ACTION_MINE,BASIC)) textAndAction[tl("fakeplayer.action.mine")] = { mineActionUI(fakePlayer) }
+        if (hasPermission(ACTION_USE_ITEM,BASIC)) textAndAction[tl("fakeplayer.action.use-item")] = {useItemActionUI(fakePlayer)}
+        if (hasPermission(ACTION_JUMP,BASIC)) textAndAction[tl("fakeplayer.action.jump")] = {jumpActionUI(fakePlayer)}
+        if (hasPermission(ACTION_SNEAK,BASIC)) textAndAction[tl("fakeplayer.action.sneak")] = {sneakActionUI(fakePlayer)}
+        if (textAndAction.isNotEmpty()) textAndAction[tl("fakeplayer.gui.action.stop-all")] = {stopAction(fakePlayer)}
+        showDialog(FakePlayerDialog.actionListDialog(fakePlayer,textAndAction))
     }
 
     @Subcommand("action stop")
