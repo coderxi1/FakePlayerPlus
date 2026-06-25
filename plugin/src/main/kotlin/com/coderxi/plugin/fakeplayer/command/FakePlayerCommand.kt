@@ -4,6 +4,7 @@ import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
 import com.coderxi.plugin.fakeplayer.command.annotaion.Select
+import com.coderxi.plugin.fakeplayer.command.annotaion.SuggestCommands
 import com.coderxi.plugin.fakeplayer.component.FakePlayerSelector.selected
 import com.coderxi.plugin.fakeplayer.command.annotaion.PluginCommandPermission as Permission
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.*
@@ -25,6 +26,7 @@ import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Cooldown
 import revxrsal.commands.annotation.Dependency
 import revxrsal.commands.annotation.Named
+import revxrsal.commands.annotation.Single
 import revxrsal.commands.annotation.Subcommand
 import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
@@ -162,7 +164,7 @@ class FakePlayerCommand: PluginComponent {
 
     @Subcommand("cmd")
     @Permission(CMD,BASIC)
-    fun Player.cmd(@Named("command") command: String, @Select fakePlayer: FakePlayer) {
+    fun Player.cmd(@Named("command") @SuggestCommands @Single command: String, @Select fakePlayer: FakePlayer) {
         Bukkit.dispatchCommand(fakePlayer.player, command.removePrefix("/"))
     }
 

@@ -15,6 +15,8 @@ import com.coderxi.plugin.fakeplayer.command.FakePlayerActionCommand
 import com.coderxi.plugin.fakeplayer.command.annotaion.PluginCommandPermissionFactory
 import com.coderxi.plugin.fakeplayer.command.annotaion.Select
 import com.coderxi.plugin.fakeplayer.command.annotaion.SelectReplacer
+import com.coderxi.plugin.fakeplayer.command.annotaion.SuggestCommands
+import com.coderxi.plugin.fakeplayer.command.annotaion.SuggestCommandsProvider
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerManagerImpl
 import com.coderxi.plugin.fakeplayer.nms.v1_21_11.NMSBridgeImpl
 import com.coderxi.plugin.fakeplayer.utils.registerEvents
@@ -90,6 +92,7 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
             .dependency(FakePlayerManager::class.java,fakePlayerManager)
             .dependency(FakePlayerLimiter::class.java,fakePlayerLimiter)
             .parameterTypes { parameters -> parameters.addParameterType(FakePlayer::class.java, FakePlayerParameterType()) }
+            .suggestionProviders { providers -> providers.addProviderForAnnotation(SuggestCommands::class.java, SuggestCommandsProvider()) }
             .exceptionHandler(FakePlayerCommandExceptionHandler())
             .build()
             .apply {
