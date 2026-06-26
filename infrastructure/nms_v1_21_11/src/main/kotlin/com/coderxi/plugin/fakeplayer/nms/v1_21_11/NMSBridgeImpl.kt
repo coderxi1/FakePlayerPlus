@@ -12,7 +12,7 @@ import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import java.net.InetAddress
 
-class NMSBridgeImpl: NMSBridge {
+open class NMSBridgeImpl: NMSBridge {
 
     override fun supportVersion(): String  = "1.21.11"
 

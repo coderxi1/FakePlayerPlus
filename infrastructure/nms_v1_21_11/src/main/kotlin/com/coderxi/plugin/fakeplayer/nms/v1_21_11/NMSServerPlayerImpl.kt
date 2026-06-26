@@ -42,7 +42,7 @@ import java.lang.reflect.Field
 import java.nio.file.Paths
 import com.coderxi.plugin.fakeplayer.api.FakePlayerPlusPluginApi.Companion.javaPlugin as plugin
 
-class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
+open class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
 
     private val handle: ServerPlayer = (player as CraftPlayer).handle
 
