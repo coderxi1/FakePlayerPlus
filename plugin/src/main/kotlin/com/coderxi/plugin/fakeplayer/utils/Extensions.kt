@@ -3,6 +3,8 @@ package com.coderxi.plugin.fakeplayer.utils
 import com.coderxi.plugin.fakeplayer.command.permission.Permission
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent.Companion.bukkitMainDispatcher
 import kotlinx.coroutines.Dispatchers
+import org.bukkit.Location
+import org.bukkit.Sound
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
@@ -20,4 +22,12 @@ val EMPTY_UUID = UUID(0L, 0L)
 
 fun CommandSender.hasPermission(permission: Permission, or: Permission = Permission.ADMIN): Boolean {
     return hasPermission(permission.value) || hasPermission(or.value)
+}
+
+fun Player.teleportAsyncWithSound(location: Location) {
+    teleportAsync(location).thenAccept { success ->
+        if (success) {
+            world.playSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f)
+        }
+    }
 }

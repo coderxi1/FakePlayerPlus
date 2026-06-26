@@ -1,20 +1,20 @@
 package com.coderxi.plugin.fakeplayer.command
 
 import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
-import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
 import com.coderxi.plugin.fakeplayer.command.annotaion.Select
 import com.coderxi.plugin.fakeplayer.command.annotaion.SuggestCommands
-import com.coderxi.plugin.fakeplayer.component.FakePlayerSelector.selected
-import com.coderxi.plugin.fakeplayer.command.annotaion.PluginCommandPermission as Permission
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.*
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandExceptionHandler.CommandContext
 import com.coderxi.plugin.fakeplayer.command.permission.Permission.*
-import com.coderxi.plugin.fakeplayer.component.FakePlayerLimiter
 import com.coderxi.plugin.fakeplayer.component.FakePlayerDialog
+import com.coderxi.plugin.fakeplayer.component.FakePlayerLimiter
+import com.coderxi.plugin.fakeplayer.component.FakePlayerSelector.selected
 import com.coderxi.plugin.fakeplayer.provider.invsee.InvseeProvider
 import com.coderxi.plugin.fakeplayer.utils.BukkitMain
+import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import com.coderxi.plugin.fakeplayer.utils.SkinFetcher
+import com.coderxi.plugin.fakeplayer.utils.teleportAsyncWithSound
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
@@ -22,14 +22,10 @@ import org.bukkit.Location
 import org.bukkit.Sound
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import revxrsal.commands.annotation.Command
-import revxrsal.commands.annotation.Cooldown
-import revxrsal.commands.annotation.Dependency
-import revxrsal.commands.annotation.Named
-import revxrsal.commands.annotation.Single
-import revxrsal.commands.annotation.Subcommand
+import revxrsal.commands.annotation.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
+import com.coderxi.plugin.fakeplayer.command.annotaion.PluginCommandPermission as Permission
 
 @Command("fakeplayer","fp")
 class FakePlayerCommand: PluginComponent {
@@ -88,6 +84,9 @@ class FakePlayerCommand: PluginComponent {
         val locationText = "%.2f, %.2f, %.2f".format(fakePlayer.nms.x, fakePlayer.nms.y, fakePlayer.nms.z)
         sendMessage(tlp("fakeplayer.spawn.success", name, fakePlayer.player.world.name, locationText))
         selected = fakePlayer
+        withContext(Dispatchers.BukkitMain) {
+            fakePlayer.player.apply { world.playSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f) }
+        }
     }
 
     @Subcommand("select")
@@ -132,27 +131,27 @@ class FakePlayerCommand: PluginComponent {
     @Subcommand("tp")
     @Permission(TP,BASIC)
     fun Player.tp(@Select fakePlayer: FakePlayer) {
-        teleportAsync(fakePlayer.player.location)
+        teleportAsyncWithSound(fakePlayer.player.location)
     }
 
     @Subcommand("tphere")
     @Permission(TP,BASIC)
     fun Player.tphere(@Select fakePlayer: FakePlayer) {
-        fakePlayer.player.teleportAsync(location)
+        fakePlayer.player.teleportAsyncWithSound(location)
     }
 
     @Subcommand("tpswap")
     @Permission(TP,BASIC)
     fun Player.tpswap(@Select fakePlayer: FakePlayer) {
         val playerLocation = location
-        teleportAsync(fakePlayer.player.location)
-        fakePlayer.player.teleportAsync(playerLocation)
+        teleportAsyncWithSound(fakePlayer.player.location)
+        fakePlayer.player.teleportAsyncWithSound(playerLocation)
     }
 
     @Subcommand("tppos")
     @Permission(TP,BASIC)
     fun Player.tppos(location: Location, @Select fakePlayer: FakePlayer) {
-        fakePlayer.player.teleportAsync(location)
+        fakePlayer.player.teleportAsyncWithSound(location)
     }
 
     @Subcommand("skin")
