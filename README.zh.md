@@ -55,6 +55,12 @@
 | /fp owner remove | 取消玩家的所有者权限 | fakeplayer.owner.remove | |
 | /fp reload | 重载配置 | fakeplayer.reload | |
 
+## 假人独立设置/动作
+
+请参考 `/fp settings` 和 `/fp action` 指令
+
+![假人UI界面](https://github.com/user-attachments/assets/7fa30b02-50c1-4f8c-8fbd-b2bc38e2ae51)
+
 ## PlaceholderAPI
 
 | 变量名 | 变量类型 | 作用说明 | 示例输出 |

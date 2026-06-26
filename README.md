@@ -55,6 +55,12 @@ Please refer to the `config.yml` configuration file in the plugin directory
 | /fp owner remove | Revoke a player's owner permissions | fakeplayer.owner.remove | |
 | /fp reload | Reload configuration | fakeplayer.reload | |
 
+## Fake Player Independent Settings / Actions
+
+Please refer to the `/fp settings` and `/fp action` commands.
+
+![FakePlayer UI](https://github.com/user-attachments/assets/885a86f3-2c23-48d8-be00-dcedbcc2e9ee)
+
 ## PlaceholderAPI
 
 | Placeholder | Type | Description | Example Output |
@@ -62,4 +68,4 @@ Please refer to the `config.yml` configuration file in the plugin directory
 | `%fakeplayer_total%` | Global | Gets the total number of fake players currently online across the server | `5` |
 | `%fakeplayer_isfake%` | Player | Checks if the current player is a fake player | `true` / `false` |
 | `%fakeplayer_spawner%` | Fake Player | Gets the name of the creator who summoned this fake player | `Steve` |
-| `%fakeplayer_actions%` | Fake Player | Gets the list of actions currently being executed by the fake player *(Localized)* | `ATTACK\|MINING` |
+| `%fakeplayer_actions%` | Fake Player | Gets the list of actions currently being executed by the fake player *(Localized)* | `Attack\|Mine` |
