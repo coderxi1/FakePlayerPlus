@@ -59,7 +59,7 @@ Please refer to the `config.yml` configuration file in the plugin directory
 
 Please refer to the `/fp settings` and `/fp action` commands.
 
-![FakePlayer UI](https://github.com/user-attachments/assets/885a86f3-2c23-48d8-be00-dcedbcc2e9ee)
+![FakePlayer UI](https://github.com/user-attachments/assets/a60189fa-3416-4164-9854-16dedb05b721)
 
 ## PlaceholderAPI
 

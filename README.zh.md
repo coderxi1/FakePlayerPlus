@@ -59,7 +59,7 @@
 
 请参考 `/fp settings` 和 `/fp action` 指令
 
-![假人UI界面](https://github.com/user-attachments/assets/7fa30b02-50c1-4f8c-8fbd-b2bc38e2ae51)
+![假人UI界面](https://github.com/user-attachments/assets/edf2dce7-009a-4b7c-827f-2b10bc432137)
 
 ## PlaceholderAPI
 
