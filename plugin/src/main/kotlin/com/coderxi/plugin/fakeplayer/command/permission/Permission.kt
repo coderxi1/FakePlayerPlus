@@ -31,6 +31,7 @@ enum class Permission(val value: String) {
     ACTION_SNEAK("fakeplayer.action.sneak"),
 
     OWNER_ADD("fakeplayer.owner.add"),
+    OWNER_LIST("fakeplayer.owner.list"),
     OWNER_REMOVE("fakeplayer.owner.remove"),
 
 }

@@ -192,6 +192,19 @@ class FakePlayerCommand: PluginComponent {
         })
     }
 
+    @Subcommand("owner list")
+    @Permission(OWNER_LIST,BASIC)
+    fun Player.ownerList(@Select fakePlayer: FakePlayer) {
+        if (fakePlayer.ownerUuids.size == 1 && fakePlayer.ownerUuids.contains(uniqueId)) {
+            sendMessage(tlp("fakeplayer.owner.list",fakePlayer.name,name))
+            return
+        }
+        launch {
+            val names = withContext(Dispatchers.IO) { fakePlayer.ownerUuids.mapNotNull { Bukkit.getOfflinePlayer(it).name } }
+            sendMessage(tlp("fakeplayer.owner.list",fakePlayer.name,names.joinToString(", ")))
+        }
+    }
+
     @Subcommand("owner add")
     @Permission(OWNER_ADD,BASIC)
     fun Player.addOwner(@Named("player") owner: Player, @Select fakePlayer: FakePlayer) {

@@ -31,7 +31,7 @@ class FakePlayerPlaceholderExpansion(private val fpm: FakePlayerManager) : Place
         if (params == "actions") {
             val actions = fakePlayer.actions.getActiveActions().values
             val actionsTexts = actions.map { tls("fakeplayer.action."+it.type.name.replace("_","-").lowercase()) }
-            return actionsTexts.joinToString(tls("fakeplayer.separator")).trim()
+            return actionsTexts.joinToString(tls("fakeplayer.var.action.separator")).trim()
         }
         return null
     }
