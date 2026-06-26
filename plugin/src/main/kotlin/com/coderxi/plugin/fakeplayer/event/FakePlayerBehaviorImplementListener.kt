@@ -41,7 +41,9 @@ class FakePlayerBehaviorImplementListener(private val fpm: FakePlayerManager): L
         when (config.behavior.deathAction) {
             DeathEventAction.NONE -> { }
             DeathEventAction.QUIT -> {
-                event.fakePlayer.quit()
+                plugin.server.scheduler.runTaskLater( plugin, Runnable {
+                    event.fakePlayer.quit()
+                },1)
             }
             DeathEventAction.RESPAWN -> {
                 event.fakePlayer.nms.respawn()

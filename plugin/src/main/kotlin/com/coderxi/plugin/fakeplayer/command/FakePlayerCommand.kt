@@ -114,6 +114,18 @@ class FakePlayerCommand: PluginComponent {
         }
     }
 
+    @Subcommand("kill")
+    @Permission(KILL,BASIC)
+    fun Player.kill(@Select fakePlayer: FakePlayer) {
+        fakePlayer.player.health = 0.0
+    }
+
+    @Subcommand("kill --all")
+    @Permission(KILL,BASIC)
+    fun Player.killAll() {
+        fpm.fakeplayersByOwnerUuid(uniqueId).forEach { kill(it) }
+    }
+
     @Subcommand("invsee")
     @Permission(INVSEE,BASIC)
     fun Player.invsee(@Select fakePlayer: FakePlayer) {
