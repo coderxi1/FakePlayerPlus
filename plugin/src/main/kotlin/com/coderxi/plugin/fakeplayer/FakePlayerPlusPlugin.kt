@@ -19,9 +19,9 @@ import com.coderxi.plugin.fakeplayer.command.annotaion.SuggestCommands
 import com.coderxi.plugin.fakeplayer.command.annotaion.SuggestCommandsProvider
 import com.coderxi.plugin.fakeplayer.expansion.FakePlayerPlaceholderExpansion
 import com.coderxi.plugin.fakeplayer.manager.FakePlayerManagerImpl
-import com.coderxi.plugin.fakeplayer.nms.v1_21_11.NMSBridgeImpl
 import com.coderxi.plugin.fakeplayer.utils.registerEvents
 import com.coderxi.plugin.fakeplayer.utils.Localizer
+import com.coderxi.plugin.fakeplayer.utils.NMSBridgeLoader
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import com.coderxi.plugin.fakeplayer.utils.RegexTransformer
 import eu.okaeri.configs.ConfigManager
@@ -49,7 +49,7 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
     override lateinit var fakePlayerManager: FakePlayerManager
 
     override fun onEnable() {
-        nms = NMSBridgeImpl()
+        nms = NMSBridgeLoader.load(server.minecraftVersion)
         nmsServer = nms.fromServer(server)
         config = ConfigManager.create(FakePlayerPlusPluginConfig::class.java).apply {
             configure { opt ->

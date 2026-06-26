@@ -9,10 +9,12 @@ repositories {
     maven("https://jitpack.io/")
 }
 
+val nmsProjects = rootProject.subprojects.filter { it.path.startsWith(":infrastructure:nms_") }
+
 dependencies {
     implementation(project(":api"))
     implementation(project(":infrastructure:common"))
-    implementation(project(":infrastructure:nms_v1_21_11"))
+    nmsProjects.forEach(::implementation)
     compileOnly("io.papermc.paper:paper-api:${project.findProperty("paper-api.version.base")}")
     implementation("eu.okaeri:okaeri-configs-yaml-bukkit:6.1.0-beta.1")
     implementation("io.github.revxrsal:lamp.common:4.0.0-rc.16")
@@ -24,19 +26,27 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 }
 
-tasks {
-    runServer {
-        minecraftVersion("1.21.11")
-        jvmArgs("-Xms8G", "-Xmx8G")
-        doFirst {
-            val eulaFile = project.layout.projectDirectory.file("run/eula.txt").asFile
-            if (!eulaFile.exists()) {
-                eulaFile.parentFile.mkdirs()
-                eulaFile.createNewFile()
-            }
-            eulaFile.writeText("eula=true")
-        }
+// Add standalone Minecraft/Paper versions here (e.g., "1.20.4") to
+// test them quickly without creating a local NMS module.
+// Tasks will be registered automatically.
+val testVersions = listOf(
+    "26.1.2"
+)
 
+tasks {
+    nmsProjects.map { it.name.substringAfter("nms_v").replace('_', '.') }.plus(testVersions).forEach { version ->
+        register<xyz.jpenilla.runpaper.task.RunServer>("runServer_$version") {
+            group = "run paper"
+            runDirectory(layout.projectDirectory.dir("run_$version").asFile)
+            minecraftVersion(version)
+            pluginJars(shadowJar.flatMap { it.archiveFile })
+            doFirst {
+                layout.projectDirectory.file("run_$version/eula.txt").asFile.apply {
+                    parentFile.mkdirs()
+                    writeText("eula=true")
+                }
+            }
+        }
     }
 }
 

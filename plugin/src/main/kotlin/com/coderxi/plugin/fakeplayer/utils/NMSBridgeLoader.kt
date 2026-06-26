@@ -1,0 +1,23 @@
+package com.coderxi.plugin.fakeplayer.utils
+
+import com.coderxi.plugin.fakeplayer.api.nms.NMSBridge
+
+object NMSBridgeLoader : PluginComponent {
+
+    // https://docs.papermc.io/paper/dev/internals/#getting-the-current-minecraft-version
+    fun load(minecraftVersion: String): NMSBridge {
+        val mainVersion = minecraftVersion.split(".").firstOrNull()?.toIntOrNull() ?: 0
+        return when {
+            minecraftVersion == "1.21.11" -> {
+                com.coderxi.plugin.fakeplayer.nms.v1_21_11.NMSBridgeImpl()
+            }
+            mainVersion >= 26 -> {
+                com.coderxi.plugin.fakeplayer.nms.v26_1_1.NMSBridgeImpl()
+            }
+            else -> {
+                throw Exception("Running on an unsupported version ($minecraftVersion).")
+            }
+        }
+    }
+
+}

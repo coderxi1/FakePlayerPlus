@@ -42,4 +42,5 @@ bin/
 .DS_Store
 
 ### run-task ###
-/plugin/run/
+/plugin/run
+/plugin/run_*
