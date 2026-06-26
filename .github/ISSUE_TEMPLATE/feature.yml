@@ -1,0 +1,24 @@
+name: Feature Request
+description: Propose a new feature or improvement
+title: '[FEAT] '
+labels: ['enhancement']
+body:
+  - type: checkboxes
+    id: precheck
+    attributes:
+      label: 'I have verified that my request meets the following criteria:'
+      options:
+        - label: I have searched the issue tracker and didn't find any similar feature requests.
+          required: true
+  - type: textarea
+    id: feature_description
+    attributes:
+      label: Description
+      description: Please describe the new feature or improvement clearly and in detail.
+    validations:
+      required: true
+  - type: textarea
+    id: other_info
+    attributes:
+      label: Additional Information (Optional)
+      description: Provide any supplemental information to help clarify your idea, such as config concepts, reference links, temporary workarounds, or examples from other plugins.

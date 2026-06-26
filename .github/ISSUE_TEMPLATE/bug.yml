@@ -1,0 +1,51 @@
+name: Bug Report
+description: Submit a bug report
+title: '[BUG] '
+labels: ['bug']
+body:
+  - type: checkboxes
+    id: precheck
+    attributes:
+      label: 'I have verified that my issue meets the following criteria:'
+      options:
+        - label: I have confirmed that I am using the latest version of this plugin.
+          required: true
+        - label: I have checked and confirmed that this is not caused by conflicts with other plugins.
+          required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin Version
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: server-core
+    attributes:
+      label: Server Software & Version
+      placeholder: Paper 1.21.11
+    validations:
+      required: true
+  - type: input
+    id: description
+    attributes:
+      label: Description
+      placeholder: Please enter a brief description of the issue
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction_steps
+    attributes:
+      label: How to Reproduce (Optional)
+      description: If specific steps are required to reproduce the issue, please describe them here.
+      placeholder: |-
+        1. 
+        2. 
+        3.
+  - type: textarea
+    id: other_info
+    attributes:
+      label: Additional Information (Optional)
+      description: Provide any helpful information to assist in diagnosing the issue, such as console errors or screenshots.
+      placeholder: |-
+        [20:00:00 ERROR]: ...

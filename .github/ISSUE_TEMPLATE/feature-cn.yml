@@ -1,0 +1,24 @@
+name: Feature Request (中文)
+description: 提出新功能或改进建议
+title: '[FEAT] '
+labels: ['enhancement']
+body:
+  - type: checkboxes
+    id: precheck
+    attributes:
+      label: '我的建议已经排除以下情况:'
+      options:
+        - label: 已在Issue列表中搜索过且没有发现类似的功能请求
+          required: true
+  - type: textarea
+    id: feature_description
+    attributes:
+      label: 功能描述
+      description: 请清晰详细地描述希望增加的新功能或改进建议。
+    validations:
+      required: true
+  - type: textarea
+    id: other_info
+    attributes:
+      label: 其他有帮助的信息 [可选]
+      description: 提供补充说明以协助理解你的想法，如配置文件构想、参考链接、你的临时解决方案、其他插件的效果等。
