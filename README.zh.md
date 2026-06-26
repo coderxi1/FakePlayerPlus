@@ -38,6 +38,7 @@
 | /fp select \<name\> | 选中假人 | fakeplayer.select | 任何操作假人的命令都可以通过在**指令最后添加 `--select` 指定假人** |
 | /fp remove | 移除假人 | fakeplayer.remove | **`--all` 移除全部假人** |
 | /fp invsee | 查看假人背包 | fakeplayer.invsee | 玩家对假人右键也可打开 |
+| /fp enderchest | 查看假人末影箱 | fakeplayer.enderchest | 玩家对假人Shift+右键也可打开 |
 | /fp tp | 传送到假人身边 | fakeplayer.tp | |
 | /fp tphere | 让假人传送到身边 | fakeplayer.tp | |
 | /fp tpswap | 与假人交换位置 | fakeplayer.tp | |
@@ -48,6 +49,9 @@
 | **/fp settings** | 打开假人设置 GUI | fakeplayer.settings | |
 | **/fp action** | 打开假人动作列表 GUI | fakeplayer.action | 有对应的动作权限（如下）才能显示动作按钮 |
 | **/fp action \<action\>** | 打开假人动作执行 GUI | fakeplayer.action.\<action\> | |
+| /fp owner list | 列出假人的所有者列表 | fakeplayer.owner.list | |
+| **/fp owner add** | 将一个玩家添加为假人的所有者 | fakeplayer.owner.add | |
+| /fp owner remove | 取消玩家的所有者权限 | fakeplayer.owner.remove | |
 | /fp reload | 重载配置 | fakeplayer.reload | |
 
 ## PlaceholderAPI

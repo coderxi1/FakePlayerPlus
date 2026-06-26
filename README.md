@@ -38,6 +38,7 @@ Please refer to the `config.yml` configuration file in the plugin directory
 | /fp select \<name\> | Select a fake player | fakeplayer.select | Any action command can target a specific fake player by adding `--select` at the end of the command |
 | /fp remove | Remove a fake player | fakeplayer.remove | **`--all` to remove all fake players** |
 | /fp invsee | View fake player inventory | fakeplayer.invsee | Players can also right-click the fake player to open it |
+| /fp enderchest | View fake player enderchest | fakeplayer.enderchest | Players can also shift-right-click the fake player to open it |
 | /fp tp | Teleport to the fake player | fakeplayer.tp | |
 | /fp tphere | Teleport the fake player to you | fakeplayer.tp | |
 | /fp tpswap | Swap positions with the fake player | fakeplayer.tp | |
@@ -48,6 +49,9 @@ Please refer to the `config.yml` configuration file in the plugin directory
 | **/fp settings** | Open the Settings GUI | fakeplayer.settings | |
 | **/fp action** | Open the Action List GUI | fakeplayer.action | The action buttons will only display if the player has the corresponding permission (see below) |
 | **/fp action \<action\>** | Open the Action Execution GUI | fakeplayer.action.\<action\> | |
+| /fp owner list | List the owners of the fake player | fakeplayer.owner.list | |
+| **/fp owner add** | Add a player as an owner of the fake player | fakeplayer.owner.add | |
+| /fp owner remove | Revoke a player's owner permissions | fakeplayer.owner.remove | |
 | /fp reload | Reload configuration | fakeplayer.reload | |
 
 ## PlaceholderAPI
