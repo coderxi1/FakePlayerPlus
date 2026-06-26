@@ -26,6 +26,7 @@ import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import com.coderxi.plugin.fakeplayer.utils.RegexTransformer
 import eu.okaeri.configs.ConfigManager
 import eu.okaeri.configs.yaml.bukkit.YamlBukkitConfigurer
+import org.bukkit.Bukkit
 import org.bukkit.event.HandlerList
 import org.bukkit.plugin.java.JavaPlugin
 import org.sql2o.Sql2o
@@ -85,8 +86,11 @@ class FakePlayerPlusPlugin: FakePlayerPlusPluginApi, JavaPlugin() {
             FakePlayerReplenishListener(fpm).registerEvents()
             FakePlayerDummyVarsNotifyListener(fpm).registerEvents()
             FakePlayerAutoFishListener(fpm).registerEvents()
-            FakePlayerPlaceholderExpansion(fpm).tryRegister()
             fpm.registerEvents()
+        }.also { fpm ->
+            if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+                FakePlayerPlaceholderExpansion(fpm).register()
+            }
         }
         lamp = BukkitLamp.builder(this)
             .permissionFactory(PluginCommandPermissionFactory())

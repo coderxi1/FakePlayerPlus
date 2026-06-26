@@ -3,7 +3,6 @@ package com.coderxi.plugin.fakeplayer.expansion
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
-import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
 class FakePlayerPlaceholderExpansion(private val fpm: FakePlayerManager) : PlaceholderExpansion(), PluginComponent {
@@ -11,7 +10,6 @@ class FakePlayerPlaceholderExpansion(private val fpm: FakePlayerManager) : Place
     override fun getIdentifier() = "fakeplayer"
     override fun getAuthor() = plugin.pluginMeta.authors.joinToString(",")
     override fun getVersion() = plugin.pluginMeta.version
-    fun tryRegister() = if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) register() else false
 
     override fun onPlaceholderRequest(player: Player, params: String): String? {
         val params = params.lowercase()
