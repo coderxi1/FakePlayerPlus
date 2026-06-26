@@ -22,7 +22,7 @@ import java.time.Duration
 object FakePlayerDialog: PluginComponent {
 
     private val CANCEL_BTN by lazy { ActionButton.create(tl("fakeplayer.gui.cancel"),null, 100, null) }
-    private val ACTION_OPTIONS by lazy { ClickCallback.Options.builder().uses(1).lifetime(Duration.ofHours(1)).build() }
+    private val ACTION_OPTIONS by lazy { ClickCallback.Options.builder().uses(1).lifetime(Duration.ofMinutes(5)).build() }
     private val EMPTY_TEXT by lazy { DialogBody.plainMessage(Component.text(" ")) }
 
     fun settingsDialog(fakePlayer: FakePlayer, onSubmit: () -> Unit = {}): DialogLike {
