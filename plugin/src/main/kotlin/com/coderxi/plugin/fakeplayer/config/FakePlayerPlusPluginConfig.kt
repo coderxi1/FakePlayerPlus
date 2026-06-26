@@ -7,7 +7,7 @@ import eu.okaeri.configs.annotation.*
 class FakePlayerPlusPluginConfig : OkaeriConfig() {
 
     @Comment("插件语言设置")
-    var language: String = "zh_CN"
+    var language: String = "en"
 
     @Comment("插件限制设置")
     var limit = LimitConfig()
