@@ -15,6 +15,7 @@ enum class Permission(val value: String) {
 
     REMOVE("fakeplayer.remove"),
     INVSEE("fakeplayer.invsee"),
+    ENDER_CHEST("fakeplayer.enderchest"),
     TP("fakeplayer.tp"),
     SKIN("fakeplayer.skin"),
     CMD("fakeplayer.command"),

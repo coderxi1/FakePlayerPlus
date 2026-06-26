@@ -8,6 +8,8 @@ interface InvseeProvider {
 
     fun openInventory(viewer: Player, whom: Player): InventoryView?
 
+    fun openEnderChest(viewer: Player, whom: Player): InventoryView?
+
     companion object : PluginComponent {
         private var _current: InvseeProvider? = null
 

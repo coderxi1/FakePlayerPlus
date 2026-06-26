@@ -15,4 +15,9 @@ class OpenInvInvseeProvider: InvseeProvider, PluginComponent {
         }
     }
 
+    override fun openEnderChest(viewer: Player, whom: Player): InventoryView? {
+        return openInvAPI?.let { openInv ->
+            openInv.openInventory(viewer,openInv.getSpecialEnderChest(whom, true),false)
+        }
+    }
 }

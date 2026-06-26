@@ -13,4 +13,10 @@ class VanillaInvseeProvider: InvseeProvider, PluginComponent {
         }
     }
 
+    override fun openEnderChest(viewer: Player, whom: Player): InventoryView? {
+        return viewer.openInventory(whom.enderChest)?.apply {
+            @Suppress("DEPRECATION")
+            title = tls("fakeplayer.enderchest.title",whom.name)
+        }
+    }
 }

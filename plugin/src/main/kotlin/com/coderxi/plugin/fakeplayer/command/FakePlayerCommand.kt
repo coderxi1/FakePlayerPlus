@@ -122,6 +122,13 @@ class FakePlayerCommand: PluginComponent {
         playSound(location, Sound.BLOCK_CHEST_OPEN, 1f, 1f)
     }
 
+    @Subcommand("enderchest")
+    @Permission(ENDER_CHEST,BASIC)
+    fun Player.enderchest(@Select fakePlayer: FakePlayer) {
+        InvseeProvider.current.openEnderChest(this,fakePlayer.player)
+        playSound(location, Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 1f)
+    }
+
     @Subcommand("tp")
     @Permission(TP,BASIC)
     fun Player.tp(@Select fakePlayer: FakePlayer) {

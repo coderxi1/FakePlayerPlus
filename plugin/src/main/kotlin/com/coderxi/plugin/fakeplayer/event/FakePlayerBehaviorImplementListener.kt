@@ -5,13 +5,11 @@ import com.coderxi.plugin.fakeplayer.api.event.FakePlayerInteractedEvent
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
 import com.coderxi.plugin.fakeplayer.command.permission.Permission.INVSEE
 import com.coderxi.plugin.fakeplayer.command.permission.Permission.BASIC
+import com.coderxi.plugin.fakeplayer.command.permission.Permission.ENDER_CHEST
 import com.coderxi.plugin.fakeplayer.config.DeathEventAction
 import com.coderxi.plugin.fakeplayer.provider.invsee.InvseeProvider
-import com.coderxi.plugin.fakeplayer.utils.BukkitMain
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import com.coderxi.plugin.fakeplayer.utils.hasPermission
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.event.EventHandler
@@ -26,13 +24,15 @@ class FakePlayerBehaviorImplementListener(private val fpm: FakePlayerManager): L
     @EventHandler
     fun implementInteractedInvsee(event: FakePlayerInteractedEvent) {
         if (event.hand != EquipmentSlot.HAND) return
-        if (!event.player.hasPermission(INVSEE,BASIC)) return
-        launch {
-            if (!event.fakePlayer.ownerUuids.contains(event.player.uniqueId)) return@launch
-            withContext(Dispatchers.BukkitMain) {
-                InvseeProvider.current.openInventory(event.player, event.fakePlayer.player)
-                event.fakePlayer.player.world.playSound(event.fakePlayer.player.location, Sound.BLOCK_CHEST_OPEN, 1f, 1f)
-            }
+        if (!event.fakePlayer.ownerUuids.contains(event.player.uniqueId)) return
+        if (!event.player.isSneaking) {
+            if (!event.player.hasPermission(INVSEE,BASIC)) return
+            InvseeProvider.current.openInventory(event.player, event.fakePlayer.player)
+            event.fakePlayer.player.world.playSound(event.fakePlayer.player.location, Sound.BLOCK_CHEST_OPEN, 1f, 1f)
+        } else {
+            if (!event.player.hasPermission(ENDER_CHEST,BASIC)) return
+            InvseeProvider.current.openEnderChest(event.player, event.fakePlayer.player)
+            event.fakePlayer.player.world.playSound(event.fakePlayer.player.location, Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 1f)
         }
     }
 
