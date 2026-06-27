@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.4](https://github.com/xiplugin/FakePlayerPlus/compare/v1.1.3...v1.1.4) (2026-06-27)
+
+
+### Bug Fixes
+
+* admin cannot open unowned fakeplayer inventory ([65b5a86](https://github.com/xiplugin/FakePlayerPlus/commit/65b5a8657331b75d00a60d997b4c28b060919242))
+
 ## [1.1.3](https://github.com/xiplugin/FakePlayerPlus/compare/v1.1.2...v1.1.3) (2026-06-27)
 
 
