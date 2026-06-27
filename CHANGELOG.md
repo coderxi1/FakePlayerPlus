@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/xiplugin/FakePlayerPlus/compare/v1.1.2...v1.1.3) (2026-06-27)
+
+
+### Bug Fixes
+
+* remove unused code ([d8aaf0d](https://github.com/xiplugin/FakePlayerPlus/commit/d8aaf0d86d2e312b836aa8ed9c777bdeb8b99c12))
+
 ## [1.1.2](https://github.com/xiplugin/FakePlayerPlus/compare/v1.1.1...v1.1.2) (2026-06-27)
 
 
