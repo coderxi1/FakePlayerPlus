@@ -44,7 +44,7 @@ import com.coderxi.plugin.fakeplayer.api.FakePlayerPlusPluginApi.Companion.javaP
 
 open class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
 
-    private val handle: ServerPlayer = (player as CraftPlayer).handle
+    protected val handle: ServerPlayer get() = (player as CraftPlayer).handle
 
     override val x: Double get() = handle.x
     override val y: Double get() = handle.y
