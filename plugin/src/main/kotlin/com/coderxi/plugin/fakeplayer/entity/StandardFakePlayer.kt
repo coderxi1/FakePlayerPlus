@@ -34,7 +34,6 @@ class StandardFakePlayer(
             nmsPlayer.dummyNotify(Bukkit.getOnlinePlayers())
             player.canPickupItems = settings.pickupItems
             player.isInvulnerable = settings.invulnerable
-            settings.autoReplenish
             _settings = settings
         }
 
