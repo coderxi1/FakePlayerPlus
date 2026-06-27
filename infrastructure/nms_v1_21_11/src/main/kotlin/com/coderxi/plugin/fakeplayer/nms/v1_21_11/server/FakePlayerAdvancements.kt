@@ -1,4 +1,4 @@
-package com.coderxi.plugin.fakeplayer.server
+package com.coderxi.plugin.fakeplayer.nms.v1_21_11.server
 
 import com.mojang.datafixers.DataFixer
 import net.minecraft.advancements.AdvancementHolder

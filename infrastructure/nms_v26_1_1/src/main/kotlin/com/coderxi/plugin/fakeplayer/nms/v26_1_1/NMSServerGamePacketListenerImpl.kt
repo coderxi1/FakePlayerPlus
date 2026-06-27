@@ -1,7 +1,7 @@
 package com.coderxi.plugin.fakeplayer.nms.v26_1_1
 
 import com.coderxi.plugin.fakeplayer.api.FakePlayerPlusPluginApi.Companion.javaPlugin as plugin
-import com.coderxi.plugin.fakeplayer.network.FakeConnection
+import com.coderxi.plugin.fakeplayer.nms.v1_21_11.network.FakeConnection
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket
 import net.minecraft.server.dedicated.DedicatedServer
 import net.minecraft.server.level.ServerPlayer

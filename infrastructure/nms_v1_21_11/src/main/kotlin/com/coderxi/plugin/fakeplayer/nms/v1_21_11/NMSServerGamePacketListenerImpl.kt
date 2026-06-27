@@ -1,7 +1,7 @@
 package com.coderxi.plugin.fakeplayer.nms.v1_21_11
 
 import com.coderxi.plugin.fakeplayer.api.nms.NMSServerGamePacketListener
-import com.coderxi.plugin.fakeplayer.network.FakeConnection
+import com.coderxi.plugin.fakeplayer.nms.v1_21_11.network.FakeConnection
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket

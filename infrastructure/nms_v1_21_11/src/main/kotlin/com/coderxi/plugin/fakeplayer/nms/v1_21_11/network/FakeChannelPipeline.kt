@@ -1,4 +1,4 @@
-package com.coderxi.plugin.fakeplayer.network
+package com.coderxi.plugin.fakeplayer.nms.v1_21_11.network
 
 import io.netty.channel.*
 import io.netty.util.ReferenceCountUtil
@@ -11,25 +11,25 @@ class FakeChannelPipeline(private val channel: Channel) : ChannelPipeline {
     override fun names(): MutableList<String?> = mutableListOf()
     override fun toMap(): MutableMap<String?, ChannelHandler?> = mutableMapOf()
     override fun iterator() = toMap().entries.iterator()
-    private fun release(msg: Any?): ChannelPipeline {ReferenceCountUtil.release(msg);return this}
+    private fun release(msg: Any?): ChannelPipeline { ReferenceCountUtil.release(msg);return this}
     override fun fireChannelRead(msg: Any?) = release(msg)
-    override fun write(msg: Any?) = newSucceededFuture().also { ReferenceCountUtil.release(msg) }
-    override fun write(msg: Any?, promise: ChannelPromise): ChannelPromise? = promise.setSuccess().also { ReferenceCountUtil.release(msg) }
+    override fun write(msg: Any?) = succeededFuture.also { ReferenceCountUtil.release(msg) }
+    override fun write(msg: Any?, promise: ChannelPromise): ChannelPromise = promise.setSuccess().also { ReferenceCountUtil.release(msg) }
     override fun writeAndFlush(msg: Any?) = write(msg)
     override fun writeAndFlush(msg: Any?, promise: ChannelPromise) = write(msg, promise)
-    private fun success(): ChannelFuture = DefaultChannelPromise(channel).apply { setSuccess() }
-    override fun bind(local: SocketAddress?) = success()
-    override fun connect(remote: SocketAddress?) = success()
-    override fun connect(remote: SocketAddress?, local: SocketAddress?) = success()
-    override fun disconnect() = success()
-    override fun close() = success()
-    override fun deregister() = success()
-    override fun bind(l: SocketAddress?, p: ChannelPromise): ChannelPromise? = p.setSuccess()
-    override fun connect(r: SocketAddress?, p: ChannelPromise): ChannelPromise? = p.setSuccess()
-    override fun connect(r: SocketAddress?, l: SocketAddress?, p: ChannelPromise): ChannelPromise? = p.setSuccess()
-    override fun disconnect(p: ChannelPromise): ChannelPromise? = p.setSuccess()
-    override fun close(p: ChannelPromise): ChannelPromise? = p.setSuccess()
-    override fun deregister(p: ChannelPromise): ChannelPromise? = p.setSuccess()
+    private val succeededFuture: ChannelFuture = DefaultChannelPromise(channel).apply { setSuccess() }
+    override fun bind(local: SocketAddress?) = succeededFuture
+    override fun connect(remote: SocketAddress?) = succeededFuture
+    override fun connect(remote: SocketAddress?, local: SocketAddress?) = succeededFuture
+    override fun disconnect() = succeededFuture
+    override fun close() = succeededFuture
+    override fun deregister() = succeededFuture
+    override fun bind(l: SocketAddress?, p: ChannelPromise): ChannelPromise = p.setSuccess()
+    override fun connect(r: SocketAddress?, p: ChannelPromise): ChannelPromise = p.setSuccess()
+    override fun connect(r: SocketAddress?, l: SocketAddress?, p: ChannelPromise): ChannelPromise = p.setSuccess()
+    override fun disconnect(p: ChannelPromise): ChannelPromise = p.setSuccess()
+    override fun close(p: ChannelPromise): ChannelPromise = p.setSuccess()
+    override fun deregister(p: ChannelPromise): ChannelPromise = p.setSuccess()
     override fun addFirst(name: String?, handler: ChannelHandler?) = this
     override fun addFirst(group: EventExecutorGroup?, name: String?, handler: ChannelHandler?) = this
     override fun addFirst(vararg handlers: ChannelHandler?) = this
@@ -71,7 +71,7 @@ class FakeChannelPipeline(private val channel: Channel) : ChannelPipeline {
     override fun read(): ChannelOutboundInvoker = this
     override fun newPromise(): ChannelPromise = DefaultChannelPromise(channel)
     override fun newProgressivePromise(): ChannelProgressivePromise = DefaultChannelProgressivePromise(channel)
-    override fun newSucceededFuture(): ChannelFuture = success()
+    override fun newSucceededFuture(): ChannelFuture = succeededFuture
     override fun newFailedFuture(cause: Throwable?): ChannelFuture = DefaultChannelPromise(channel).apply { setFailure(cause) }
-    override fun voidPromise(): ChannelPromise = success() as ChannelPromise
+    override fun voidPromise(): ChannelPromise = channel.voidPromise()
 }

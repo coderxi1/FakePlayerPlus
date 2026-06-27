@@ -2,7 +2,7 @@ package com.coderxi.plugin.fakeplayer.nms.v1_21_11
 
 import com.coderxi.plugin.fakeplayer.api.nms.NMSServerPlayer
 import com.coderxi.plugin.fakeplayer.api.nms.NMSServerPlayer.BlockBreakActionType
-import com.coderxi.plugin.fakeplayer.server.FakePlayerAdvancements
+import com.coderxi.plugin.fakeplayer.nms.v1_21_11.server.FakePlayerAdvancements
 import com.destroystokyo.paper.profile.ProfileProperty
 import io.papermc.paper.chat.ChatRenderer
 import net.kyori.adventure.text.Component

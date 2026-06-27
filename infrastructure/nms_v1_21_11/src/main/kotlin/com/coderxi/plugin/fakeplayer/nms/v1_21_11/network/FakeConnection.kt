@@ -1,4 +1,4 @@
-package com.coderxi.plugin.fakeplayer.network
+package com.coderxi.plugin.fakeplayer.nms.v1_21_11.network
 
 import io.netty.channel.ChannelFutureListener
 import net.minecraft.network.Connection

@@ -13,7 +13,6 @@ val nmsProjects = rootProject.subprojects.filter { it.path.startsWith(":infrastr
 
 dependencies {
     implementation(project(":api"))
-    implementation(project(":infrastructure:common"))
     nmsProjects.forEach(::implementation)
     compileOnly("io.papermc.paper:paper-api:${project.findProperty("paper-api.version.base")}")
     implementation("eu.okaeri:okaeri-configs-yaml-bukkit:6.1.0-beta.1")
