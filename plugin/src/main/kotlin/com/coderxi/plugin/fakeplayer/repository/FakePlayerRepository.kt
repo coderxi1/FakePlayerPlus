@@ -2,11 +2,16 @@ package com.coderxi.plugin.fakeplayer.repository
 
 import com.coderxi.plugin.fakeplayer.api.config.FakePlayerSettings
 import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
+import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import com.coderxi.plugin.fakeplayer.entity.StandardFakePlayer
 import com.coderxi.plugin.fakeplayer.repository.po.FakePlayerPO
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.sql2o.Connection
+import org.sql2o.Sql2o
+import java.io.File
 import java.util.UUID
 
 class FakePlayerRepository : PluginComponent {
@@ -111,6 +116,38 @@ class FakePlayerRepository : PluginComponent {
                 .addParameter("uuid", fakePlayer.uuid.toString())
                 .addParameter("settings", if (plugin.config.defaultSettings.equals2(fakePlayer.settings)) null else gson.toJson(fakePlayer.settings))
                 .executeUpdate()
+        }
+    }
+
+    suspend fun importFakePlayerData(databaseFile: File, tableName: String) : Int {
+        val fakePlayers = withContext(Dispatchers.IO) {
+            val database = Sql2o("jdbc:sqlite:${databaseFile.absolutePath}", null, null)
+            database.open().use { conn1 ->
+                val tableExists = conn1.createQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name=:name").addParameter("name", tableName).executeScalar(Int::class.java) > 0
+                if (!tableExists) {
+                    throw FakePlayerCommandException.NoSuchTableException(tableName)
+                }
+                @Suppress("SqlSourceToSinkFlow")
+                conn1.createQuery("SELECT * FROM $tableName").executeAndFetch(FakePlayerPO::class.java)
+            }
+        }
+        return insertFakePlayers(fakePlayers)
+    }
+
+    private fun insertFakePlayers(fakePlayers: Collection<FakePlayerPO>): Int {
+        val sql = "INSERT INTO fakeplayer (name, uuid, creator_uuid, skin, settings) VALUES (:name, :uuid, :creatorUuid, :skin, :settings)" +
+                "ON CONFLICT(uuid) DO UPDATE SET name = excluded.name, creator_uuid = excluded.creator_uuid, skin = excluded.skin, settings = excluded.settings"
+        return open().use { conn ->
+            val query = conn.createQuery(sql)
+            for (player in fakePlayers) {
+                query.addParameter("name", player.name)
+                    .addParameter("uuid", player.uuid)
+                    .addParameter("creatorUuid", player.creatorUuid)
+                    .addParameter("skin", player.skin)
+                    .addParameter("settings", player.settings)
+                    .addToBatch()
+            }
+            query.executeBatch().batchResult.sum()
         }
     }
 

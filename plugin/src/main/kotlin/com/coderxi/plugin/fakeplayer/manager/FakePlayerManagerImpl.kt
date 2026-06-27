@@ -24,6 +24,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import java.io.File
 import java.util.*
 import kotlin.math.pow
 
@@ -165,4 +166,9 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
         registry.register(fakePlayer)
         withContext(Dispatchers.IO) {repository.save(fakePlayer, true)}
     }
+
+    override suspend fun importFakePlayerData(databaseFile: File, tableName: String): Int {
+        return repository.importFakePlayerData(databaseFile, tableName)
+    }
+
 }

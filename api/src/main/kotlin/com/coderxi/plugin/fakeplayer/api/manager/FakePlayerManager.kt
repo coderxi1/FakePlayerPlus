@@ -4,6 +4,7 @@ import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
 import org.bukkit.Location
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import java.io.File
 import java.util.UUID
 
 interface FakePlayerManager {
@@ -51,5 +52,9 @@ interface FakePlayerManager {
     suspend fun addOwner(fakePlayer: FakePlayer, ownerUuid: UUID)
 
     suspend fun removeOwner(fakePlayer: FakePlayer, ownerUuid: UUID)
+
+    // 导入假人信息(数据库)
+
+    suspend fun importFakePlayerData(databaseFile: File, tableName: String): Int
 
 }

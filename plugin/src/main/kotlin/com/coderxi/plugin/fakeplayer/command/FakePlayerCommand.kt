@@ -23,6 +23,7 @@ import org.bukkit.Sound
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import revxrsal.commands.annotation.*
+import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
 import com.coderxi.plugin.fakeplayer.command.annotaion.PluginCommandPermission as Permission
@@ -238,5 +239,15 @@ class FakePlayerCommand: PluginComponent {
         }
     }
 
+    @Subcommand("import")
+    @Permission(ADMIN)
+    fun Player.importFakePlayerData(@Named("database") databaseName: String, @Named("table") tableName: String, commandContext: CommandContext) {
+        val databaseFile = File(plugin.dataFolder, databaseName)
+        if (!databaseFile.exists()) throw MissingDatabaseFileException(databaseName)
+        launch(commandContext) {
+            val result = fpm.importFakePlayerData(databaseFile, tableName)
+            sendMessage(tlp("fakeplayer.database.import-data.success", result))
+        }
+    }
 
 }

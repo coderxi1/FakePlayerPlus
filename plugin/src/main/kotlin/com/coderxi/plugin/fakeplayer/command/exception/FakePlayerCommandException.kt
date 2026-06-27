@@ -23,4 +23,7 @@ abstract class FakePlayerCommandException : CommandErrorException() {
     class OwnerIsCreatorCannotBeRemovedException(val ownerName: String, val fakePlayerName: String) : FakePlayerCommandException()
     class OwnerNotBoundCannotBeRemovedException(val ownerName: String, val fakePlayerName: String) : FakePlayerCommandException()
 
+    class MissingDatabaseFileException(val name: String) : FakePlayerCommandException()
+    class NoSuchTableException(val name: String) : FakePlayerCommandException()
+
 }

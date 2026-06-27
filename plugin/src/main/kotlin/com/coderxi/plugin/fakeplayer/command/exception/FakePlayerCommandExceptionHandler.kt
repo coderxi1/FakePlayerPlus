@@ -50,6 +50,8 @@ class FakePlayerCommandExceptionHandler : BukkitExceptionHandler(), PluginCompon
             is OwnerAlreadyBoundException -> tlp("fakeplayer.owner.add.failed.already-bound", e.ownerName, e.fakePlayerName)
             is OwnerIsCreatorCannotBeRemovedException -> tlp("fakeplayer.owner.remove.failed.is-creator", e.ownerName, e.fakePlayerName)
             is OwnerNotBoundCannotBeRemovedException -> tlp("fakeplayer.owner.remove.failed.not-bound", e.ownerName, e.fakePlayerName)
+            is MissingDatabaseFileException -> tlp("fakeplayer.database.missing-file", e.name)
+            is NoSuchTableException -> tlp("fakeplayer.database.no-such-table", e.name)
             else -> return e.printStackTrace()
         }
         actor.sender().sendMessage(message)
