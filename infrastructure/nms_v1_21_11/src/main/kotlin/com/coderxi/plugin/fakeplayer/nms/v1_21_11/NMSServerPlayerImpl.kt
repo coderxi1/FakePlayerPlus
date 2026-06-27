@@ -189,13 +189,24 @@ open class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
         handle.releaseUsingItem()
     }
 
-    @Suppress("UnstableApiUsage")
+    @Suppress("UnstableApiUsage", "OverrideOnly")
     override fun chat(msg: String) {
         val message = Component.text(msg)
         val signedMessage = PlayerChatMessage.unsigned(handle.uuid, msg).adventureView()
         val viewers = Bukkit.getOnlinePlayers().plus(Bukkit.getConsoleSender()).toSet()
         val event = io.papermc.paper.event.player.AsyncChatEvent(true, player, viewers, ChatRenderer.defaultRenderer(), message, message, signedMessage)
-        Bukkit.getAsyncScheduler().runNow(plugin) { event.callEvent() }
+        Bukkit.getAsyncScheduler().runNow(plugin) {
+            val isAllowed = event.callEvent()
+            if (isAllowed && !event.isCancelled) {
+                val renderer = event.renderer()
+                val finalMessage = event.message()
+                val displayName = event.player.displayName()
+                for (audience in event.viewers()) {
+                    val renderedComponent = renderer.render(player, displayName, finalMessage, audience)
+                    audience.sendMessage(renderedComponent)
+                }
+            }
+        }
     }
 
     companion object {
