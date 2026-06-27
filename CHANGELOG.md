@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/xiplugin/FakePlayerPlus/compare/v1.1.1...v1.2.0) (2026-06-27)
+
+
+### Features
+
+* **nms:** add support for 26.2 ([3752fd6](https://github.com/xiplugin/FakePlayerPlus/commit/3752fd6a3b7369cd1ee44134bbe050c7ec03b342))
+
 ## [1.1.1](https://github.com/xiplugin/FakePlayerPlus/compare/v1.1.0...v1.1.1) (2026-06-27)
 
 
