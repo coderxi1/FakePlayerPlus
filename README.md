@@ -6,6 +6,13 @@ This plugin generates fake players that act as real ones. To the server, they ar
 
 > This plugin is inspired by [minecraft-fakeplayer](https://github.com/tanyaofei/minecraft-fakeplayer) plugin. With the rapid iteration of Minecraft versions, the original plugin's architecture is slightly struggling in patching and maintenance, so it was completely refactored from the ground up based on Kotlin. While inheriting the core features of the original plugin, this plugin achieves a high degree of decoupling in project architecture, making it a more modern, robust, and enhanced derivative version.
 
+## Migration
+
+> To facilitate a seamless transition from `minecraft-fakeplayer`, this plugin provides a data migration command to import SQLite data from the original plugin, preventing the loss of fake player NBT data.
+
+- **Note**: Before performing the migration, **please make sure to back up your original data files** to prevent irreversible data loss.
+- **Steps**: Copy the `minecraft-fakeplayer` database file from `plugins/fakeplayer/data.db` into the `plugins/FakeplayerPlus` directory. Then, execute `/fp import data.db fake_player_profile` to import the data.
+
 ## Features
 
 - [x] **Identical to Real Players**

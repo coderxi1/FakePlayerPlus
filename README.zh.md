@@ -6,6 +6,14 @@
 
 > 本插件的灵感源自 [minecraft-fakeplayer](https://github.com/tanyaofei/minecraft-fakeplayer) 插件，随着 Minecraft 版本的快速迭代，原版插件的架构在修复和维护上略显吃力，故基于 Kotlin 对其进行了完全的底层重构。本插件在继承原版插件核心特性的同时，实现了项目架构的高度解耦，使其成为更现代化、更健壮的衍生加强版。
 
+## 迁移
+
+> 为了方便从 minecraft-fakeplayer 无缝过渡。本插件提供了数据迁移指令将原版插件的 SQLite 数据导入到此插件中，防止假人nbt信息丢失。
+
+- **注意**: 在进行迁移操作前，**请务必备份原有的数据文件**，防止不可逆的数据丢失
+- **步骤**: 将minecraft-fakeplayer的数据库文件 `plugins/fakeplayer/data.db` 复制到 `plugins/FakeplayerPlus` 目录中。执行 `/fp import data.db fake_player_profile` 进行导入。
+
+
 ## 功能
 
 - [x] **等同真实玩家**
