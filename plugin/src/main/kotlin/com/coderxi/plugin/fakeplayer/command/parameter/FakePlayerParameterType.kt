@@ -4,8 +4,10 @@ import com.coderxi.plugin.fakeplayer.api.entity.FakePlayer
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.NotExitsException
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.NotOwnerException
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.NoSelectedException
+import com.coderxi.plugin.fakeplayer.command.permission.Permission.ADMIN
 import com.coderxi.plugin.fakeplayer.component.FakePlayerSelector.selected
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent.Companion.plugin
+import com.coderxi.plugin.fakeplayer.utils.hasPermission
 import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Player
 import revxrsal.commands.autocomplete.SuggestionProvider
@@ -31,7 +33,7 @@ class FakePlayerParameterType : ParameterType<BukkitCommandActor, FakePlayer> {
                 return sender.selected ?: throw NoSelectedException()
             }
             val selected = fpm.get(name) ?: throw NoSelectedException()
-            if (!selected.ownerUuids.contains(sender.uniqueId)) {
+            if (!selected.ownerUuids.contains(sender.uniqueId) && !sender.hasPermission(ADMIN)) {
                 throw NotOwnerException(selected.name)
             }
             return selected
@@ -41,7 +43,7 @@ class FakePlayerParameterType : ParameterType<BukkitCommandActor, FakePlayer> {
 
     override fun defaultSuggestions(): SuggestionProvider<BukkitCommandActor> {
         return SuggestionProvider { context ->
-            if (context.actor().isConsole) {
+            if (context.actor().isConsole || context.actor().sender().hasPermission(ADMIN)) {
                 return@SuggestionProvider fpm.fakeplayers().map { it -> it.name }
             } else if (context.actor().isPlayer) {
                 return@SuggestionProvider fpm.fakeplayersByOwnerUuid(context.actor().asPlayer()!!.uniqueId).map { it -> it.name }
