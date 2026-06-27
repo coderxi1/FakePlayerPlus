@@ -2,7 +2,7 @@
 
 <img align="right" src="https://github.com/user-attachments/assets/1ce21dfc-fd0c-4e6c-b006-ee3844adb274" border="0" alt="" />
 
-# FakePlayerPlus 假人插件
+# FakePlayerPlus ![](https://img.shields.io/badge/Paper-1.21.11_--_26.1.x-2B7FFF?logo=minecraft&logoColor=white)
 
 这个插件模拟了真实玩家，对服务端而言，这个插件生成的假人就是一个真正的“活人”。
 

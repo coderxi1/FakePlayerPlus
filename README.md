@@ -2,7 +2,7 @@
 
 <img align="right" src="https://github.com/user-attachments/assets/1ce21dfc-fd0c-4e6c-b006-ee3844adb274" border="0" alt="" />
 
-# FakePlayerPlus 
+# FakePlayerPlus ![](https://img.shields.io/badge/Paper-1.21.11_--_26.1.x-2B7FFF?logo=minecraft&logoColor=white)
 
 This plugin generates fake players that act as real ones. To the server, they are fully recognized as real, living players.
 
