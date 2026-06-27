@@ -11,7 +11,6 @@ import net.minecraft.core.Direction
 import net.minecraft.network.chat.PlayerChatMessage
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
-import net.minecraft.server.MinecraftServer
 import net.minecraft.server.PlayerAdvancements
 import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ParticleStatus
@@ -45,6 +44,7 @@ import com.coderxi.plugin.fakeplayer.api.FakePlayerPlusPluginApi.Companion.javaP
 open class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
 
     protected val handle: ServerPlayer get() = (player as CraftPlayer).handle
+    protected val server get() = handle.level().server
 
     override val x: Double get() = handle.x
     override val y: Double get() = handle.y
@@ -78,7 +78,7 @@ open class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
     override fun setJumping(jumping: Boolean) { handle.isJumping = jumping }
     override fun respawn() { handle.connection.handleClientCommand(ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN)) }
     override fun swapItemWithOffhand() { handle.connection.handlePlayerAction(ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND,BlockPos(0, 0, 0),Direction.DOWN)) }
-    override fun disableAdvancements() { advancements = FakePlayerAdvancements(server.fixerUpper, server.playerList, server.advancements, Paths.get(System.getProperty("java.io.tmpdir")), handle) }
+    override fun disableAdvancements() { advancements = FakePlayerAdvancements(server.getFixerUpper(), server.playerList, server.advancements, Paths.get(System.getProperty("java.io.tmpdir")), handle) }
     override fun setupClientOptions() { handle.updateOptions(ClientInformation(
             "en_us",
             Bukkit.getViewDistance(),
@@ -189,6 +189,10 @@ open class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
         handle.releaseUsingItem()
     }
 
+    var advancements: PlayerAdvancements?
+        get() = advancementsField?.get(handle) as? PlayerAdvancements
+        set(value) { advancementsField?.set(handle, value) }
+
     @Suppress("UnstableApiUsage", "OverrideOnly")
     override fun chat(msg: String) {
         val message = Component.text(msg)
@@ -211,12 +215,7 @@ open class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
 
     companion object {
         private val advancementsField: Field? = runCatching { ServerPlayer::class.java.getDeclaredField("advancements").apply { isAccessible = true } }.getOrNull()
-        private var NMSServerPlayerImpl.advancements: PlayerAdvancements?
-            get() = advancementsField?.get(handle) as? PlayerAdvancements
-            set(value) { advancementsField?.set(handle, value) }
-        private val NMSServerPlayerImpl.server: MinecraftServer
-            get() = handle.level().server
-        private fun Player.sendPacket(packet: Packet<*>) {
+        fun Player.sendPacket(packet: Packet<*>) {
             (this as CraftPlayer).handle.connection.send(packet)
         }
         private val dummyScoreboard  = Scoreboard()

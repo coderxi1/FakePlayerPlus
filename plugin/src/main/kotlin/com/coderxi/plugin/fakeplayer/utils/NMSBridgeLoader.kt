@@ -6,7 +6,7 @@ object NMSBridgeLoader : PluginComponent {
 
     // https://docs.papermc.io/paper/dev/internals/#getting-the-current-minecraft-version
     fun load(minecraftVersion: String): NMSBridge {
-        val mainVersion = minecraftVersion.split(".").firstOrNull()?.toIntOrNull() ?: 0
+        val (mainVersion) = (0..2).map { minecraftVersion.split(".").getOrNull(it)?.toIntOrNull() ?: 0 }
         return when {
             minecraftVersion == "1.21.11" -> {
                 com.coderxi.plugin.fakeplayer.nms.v1_21_11.NMSBridgeImpl()
