@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.0](https://github.com/xiplugin/FakePlayerPlus/compare/v1.2.0...v1.3.0) (2026-06-28)
+
+
+### Features
+
+* add keep inventory config option ([d3f1c01](https://github.com/xiplugin/FakePlayerPlus/commit/d3f1c01dcf355321a18aabcfa6784002f8840b6f))
+* add prevent kicking option for fake players to enhance compatibility ([08860ca](https://github.com/xiplugin/FakePlayerPlus/commit/08860ca939ba1d657533825dc98bf6b21a31ad0f))
+
+
+### Bug Fixes
+
+* call AsyncPlayerPreLoginEvent before spawn ([d31c0a1](https://github.com/xiplugin/FakePlayerPlus/commit/d31c0a10de2c98ee03a843384c906f75818e2d30))
+* ensure quitting on spawn failure runs on the main thread ([6deef83](https://github.com/xiplugin/FakePlayerPlus/commit/6deef83dd28c0b3eaa1993a53a1d65c71fbbc8ff))
+
 ## [1.2.0](https://github.com/xiplugin/FakePlayerPlus/compare/v1.1.4...v1.2.0) (2026-06-28)
 
 
