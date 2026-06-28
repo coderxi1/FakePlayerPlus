@@ -9,6 +9,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
+import java.util.concurrent.ConcurrentHashMap
 
 object SkinFetcher {
 
@@ -38,10 +39,13 @@ object SkinFetcher {
         return SkinInfo(value, signature)
     }
 
-    suspend fun getPlayerSkinInfoByName(name: String): SkinInfo? {
-        return withContext(Dispatchers.IO) {
+    private val skinInfoCache = ConcurrentHashMap<String, SkinInfo>()
+    suspend fun getPlayerSkinInfoByName(name: String, cache: Boolean = false): SkinInfo? {
+        val skin = skinInfoCache[name] ?: withContext(Dispatchers.IO) {
             getOnlinePlayerIdByName(name)?.let { getOnlinePlayerSkinInfoById(it) }
         }
+        if (cache && skin != null) skinInfoCache[name] = skin
+        return skin
     }
 
 }

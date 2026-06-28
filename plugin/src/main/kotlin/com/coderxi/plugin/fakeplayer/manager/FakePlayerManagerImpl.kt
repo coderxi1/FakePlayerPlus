@@ -6,6 +6,7 @@ import com.coderxi.plugin.fakeplayer.api.event.FakePlayerPreparingEvent
 import com.coderxi.plugin.fakeplayer.api.event.FakePlayerQuitedEvent
 import com.coderxi.plugin.fakeplayer.api.event.FakePlayerSpawnedEvent
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
+import com.coderxi.plugin.fakeplayer.api.nms.NMSServerPlayer
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.SpawnNoAvailableSequenceNameException
 import com.coderxi.plugin.fakeplayer.command.permission.Permission
 import com.coderxi.plugin.fakeplayer.entity.StandardFakePlayer
@@ -14,6 +15,7 @@ import com.coderxi.plugin.fakeplayer.utils.BukkitMain
 import com.coderxi.plugin.fakeplayer.utils.EMPTY_UUID
 import com.coderxi.plugin.fakeplayer.utils.IPGenerator
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
+import com.coderxi.plugin.fakeplayer.utils.SkinFetcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
@@ -68,8 +70,12 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
             FakePlayerPreparingEvent(fakePlayer).callEvent()
             val nmsPlayer =  plugin.nmsServer.newPlayer(fakePlayer.uuid, fakePlayer.name).apply {
                 disableAdvancements()
-                fakePlayer.skin?.let { setTextures(it.textures, it.signature) }
                 setupClientOptions()
+                fakePlayer.skin?.let {
+                    setTextures(it.textures, it.signature)
+                } ?: run {
+                    setupDefaultSkin(spawner)
+                }
             }
             registry.register(fakePlayer)
             val nmsNetwork = plugin.nms.createNetwork(IPGenerator.next())
@@ -86,6 +92,19 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
             FakePlayerSpawnedEvent(fakePlayer).callEvent()
         }
         return fakePlayer
+    }
+
+    private suspend fun NMSServerPlayer.setupDefaultSkin(spawner: CommandSender) {
+        val defaultSkin = plugin.config.skin.default
+        if (defaultSkin.isBlank() || defaultSkin == "NONE") {
+            return
+        } else if (defaultSkin == "SPAWNER") {
+            if (spawner is Player) copyTextures(spawner)
+        } else {
+            SkinFetcher.getPlayerSkinInfoByName(defaultSkin.split(',').random(), true)?.let { randomSkin ->
+                setTextures(randomSkin.textures, randomSkin.signature)
+            }
+        }
     }
 
     override suspend fun sequenceName(spawner: Player, reservedSequenceLength: Int): String {

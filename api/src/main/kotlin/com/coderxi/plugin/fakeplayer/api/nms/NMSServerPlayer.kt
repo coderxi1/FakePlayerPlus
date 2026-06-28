@@ -76,6 +76,8 @@ interface NMSServerPlayer {
     fun setupClientOptions()
     /** 设置皮肤贴图 */
     fun setTextures(value: String?, signature: String?)
+    /** 复制皮肤贴图 */
+    fun copyTextures(target: Player)
     /** 重设最后活跃时间 */
     fun resetLastActionTime()
 

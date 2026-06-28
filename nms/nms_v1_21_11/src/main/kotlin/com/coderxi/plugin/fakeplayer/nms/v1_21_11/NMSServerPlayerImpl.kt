@@ -100,6 +100,15 @@ open class NMSServerPlayerImpl(override val player: Player) : NMSServerPlayer {
         player.playerProfile = playerProfile
     }
 
+    override fun copyTextures(target: Player) {
+        val texturesProperty = target.playerProfile.properties.firstOrNull { it.name == "textures" }
+        if (texturesProperty != null) {
+            setTextures(texturesProperty.value, texturesProperty.signature)
+        } else {
+            setTextures(null, null)
+        }
+    }
+
     override fun resetLastActionTime() = handle.resetLastActionTime()
 
     private val playerTeam by lazy { PlayerTeam(dummyScoreboard, "${plugin.name}_${player.uniqueId}").apply { players.add(player.name) } }
