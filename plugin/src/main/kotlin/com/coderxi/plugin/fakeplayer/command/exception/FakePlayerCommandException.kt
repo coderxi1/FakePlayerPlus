@@ -1,5 +1,6 @@
 package com.coderxi.plugin.fakeplayer.command.exception
 
+import net.kyori.adventure.text.Component
 import revxrsal.commands.exception.CommandErrorException
 
 abstract class FakePlayerCommandException : CommandErrorException() {
@@ -17,6 +18,7 @@ abstract class FakePlayerCommandException : CommandErrorException() {
     class SpawnNameInvalidException(val name: String) : FakePlayerCommandException()
     class SpawnNameAlreadyUsedException(val name: String) : FakePlayerCommandException()
     class SpawnNoAvailableSequenceNameException : FakePlayerCommandException()
+    class SpawnDisallowedException(val causeMessage: Component) : FakePlayerCommandException()
 
     class OwnerMustBeHumanException(val ownerName: String, val fakePlayerName: String) : FakePlayerCommandException()
     class OwnerAlreadyBoundException(val ownerName: String, val fakePlayerName: String) : FakePlayerCommandException()

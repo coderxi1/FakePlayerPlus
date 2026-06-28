@@ -7,15 +7,12 @@ import com.coderxi.plugin.fakeplayer.api.event.FakePlayerQuitedEvent
 import com.coderxi.plugin.fakeplayer.api.event.FakePlayerSpawnedEvent
 import com.coderxi.plugin.fakeplayer.api.manager.FakePlayerManager
 import com.coderxi.plugin.fakeplayer.api.nms.NMSServerPlayer
+import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.SpawnDisallowedException
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.SpawnNoAvailableSequenceNameException
 import com.coderxi.plugin.fakeplayer.command.permission.Permission
 import com.coderxi.plugin.fakeplayer.entity.StandardFakePlayer
 import com.coderxi.plugin.fakeplayer.repository.FakePlayerRepository
-import com.coderxi.plugin.fakeplayer.utils.BukkitMain
-import com.coderxi.plugin.fakeplayer.utils.EMPTY_UUID
-import com.coderxi.plugin.fakeplayer.utils.IPGenerator
-import com.coderxi.plugin.fakeplayer.utils.PluginComponent
-import com.coderxi.plugin.fakeplayer.utils.SkinFetcher
+import com.coderxi.plugin.fakeplayer.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
@@ -26,6 +23,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import java.io.File
 import java.util.*
 import kotlin.math.pow
@@ -52,7 +50,7 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
 
     private fun uuid(name: String) = UUID.nameUUIDFromBytes("${plugin.name}:$name".toByteArray())
 
-    override suspend fun spawn(name: String, spawner: CommandSender, location: Location?) : FakePlayer? {
+    override suspend fun spawn(name: String, spawner: CommandSender, location: Location?) : FakePlayer {
         val spawnerAsPlayer = spawner as? Player
         val spawnerName = spawnerAsPlayer?.name ?: "system"
         val spawnerUuid = spawnerAsPlayer?.uniqueId ?: EMPTY_UUID
@@ -62,6 +60,13 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
             repository.findByName(name)
         } ?: StandardFakePlayer(name, uuid(name),spawnerUuid, mutableSetOf(spawnerUuid),null, plugin.config.defaultSettings.clone()).also {
             withContext(Dispatchers.IO) { repository.save(it, true) }
+        }
+        val address = IPGenerator.next()
+        AsyncPlayerPreLoginEvent(name,address, fakePlayer.uuid, false).let { event ->
+            event.callEvent()
+            if (event.loginResult != AsyncPlayerPreLoginEvent.Result.ALLOWED) {
+                throw SpawnDisallowedException(event.kickMessage())
+            }
         }
         withContext(Dispatchers.BukkitMain) {
             fakePlayer.spawnerName = spawnerName
@@ -77,9 +82,9 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
                     setupDefaultSkin(spawner)
                 }
             }
-            registry.register(fakePlayer)
-            val nmsNetwork = plugin.nms.createNetwork(IPGenerator.next())
+            val nmsNetwork = plugin.nms.createNetwork(address)
             val nmsConnection = nmsNetwork.placeNewPlayer(nmsPlayer.player)
+            registry.register(fakePlayer)
             fakePlayer.onConnected(nmsPlayer, nmsConnection)
             FakePlayerConnectedEvent(fakePlayer).callEvent()
         }
