@@ -33,7 +33,7 @@ val testVersions = listOf(
 )
 
 tasks {
-    nmsProjects.map { it.name.substringAfter("nms_v").replace('_', '.') }.plus(testVersions).forEach { version ->
+    nmsProjects.map { it.name.substringAfter("nms_v").replace('_', '.') }.plus(testVersions).toSortedSet().forEach { version ->
         register<xyz.jpenilla.runpaper.task.RunServer>("runServer_$version") {
             group = "run paper"
             runDirectory(layout.projectDirectory.dir("run_$version").asFile)
