@@ -10,3 +10,5 @@ enum class InvseeProviderType(val providerClass: Class<out InvseeProvider>) {
     VANILLA(VanillaInvseeProvider::class.java),
     OPENINV(OpenInvInvseeProvider::class.java)
 }
+
+enum class PreventKickingType { NEVER, SPAWNING }

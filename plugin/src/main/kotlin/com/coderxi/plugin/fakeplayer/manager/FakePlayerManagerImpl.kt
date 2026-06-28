@@ -10,9 +10,11 @@ import com.coderxi.plugin.fakeplayer.api.nms.NMSServerPlayer
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.SpawnDisallowedException
 import com.coderxi.plugin.fakeplayer.command.exception.FakePlayerCommandException.SpawnNoAvailableSequenceNameException
 import com.coderxi.plugin.fakeplayer.command.permission.Permission
+import com.coderxi.plugin.fakeplayer.config.PreventKickingType
 import com.coderxi.plugin.fakeplayer.entity.StandardFakePlayer
 import com.coderxi.plugin.fakeplayer.repository.FakePlayerRepository
 import com.coderxi.plugin.fakeplayer.utils.*
+import com.google.common.cache.CacheBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
@@ -24,8 +26,10 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
+import org.bukkit.event.player.PlayerKickEvent
 import java.io.File
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.math.pow
 
 class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
@@ -50,6 +54,8 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
 
     private fun uuid(name: String) = UUID.nameUUIDFromBytes("${plugin.name}:$name".toByteArray())
 
+    private val pendingSpawn = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build<UUID, Boolean>()
+
     override suspend fun spawn(name: String, spawner: CommandSender, location: Location?) : FakePlayer {
         val spawnerAsPlayer = spawner as? Player
         val spawnerName = spawnerAsPlayer?.name ?: "system"
@@ -61,6 +67,7 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
         } ?: StandardFakePlayer(name, uuid(name),spawnerUuid, mutableSetOf(spawnerUuid),null, plugin.config.defaultSettings.clone()).also {
             withContext(Dispatchers.IO) { repository.save(it, true) }
         }
+        pendingSpawn.put(fakePlayer.uuid,true)
         val address = IPGenerator.next()
         AsyncPlayerPreLoginEvent(name,address, fakePlayer.uuid, false).let { event ->
             event.callEvent()
@@ -90,8 +97,14 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
         }
         val spawned = fakePlayer.player.teleportAsync(spawnLocation).await()
         withContext(Dispatchers.BukkitMain) {
-            if (spawned) FakePlayerSpawnedEvent(fakePlayer).callEvent()
-            else fakePlayer.quit("Spawn failed")
+            if (spawned) {
+                FakePlayerSpawnedEvent(fakePlayer).callEvent()
+                scheduler.runTaskLater(plugin, Runnable {pendingSpawn.invalidate(fakePlayer.uuid)}, 20)
+            }
+            else {
+                fakePlayer.quit("Spawn failed")
+                pendingSpawn.invalidate(fakePlayer.uuid)
+            }
         }
         return fakePlayer
     }
@@ -143,6 +156,13 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
             number++
         }
         throw SpawnNoAvailableSequenceNameException()
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    fun onFakePlayerKick(event: PlayerKickEvent) {
+        if (plugin.config.behavior.preventKicking == PreventKickingType.SPAWNING && pendingSpawn.getIfPresent(event.player.uniqueId) != null) {
+            event.isCancelled = true
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
