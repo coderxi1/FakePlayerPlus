@@ -103,6 +103,11 @@ class FakePlayerPlusPluginConfig : OkaeriConfig() {
         @CustomKey("death-action")
         var deathAction = DeathEventAction.RESPAWN_BACK
 
+        @Comment("死亡不掉落")
+        @Comment("Keep inventory")
+        @CustomKey("keep-inventory")
+        var keepInventory = true
+
         @Comment("防止假人被其他插件踢掉, 这个选项用来兼容一些插件因为某些问题而踢掉假人", "NEVER:不进行任何处理 SPAWNING:创建时防止被踢出")
         @Comment("Prevent some plugins kick our fake players, enabling this option may resolve some compatibility issues with login plugins.", "NEVER / SPAWNING")
         @CustomKey("prevent-kicking")
