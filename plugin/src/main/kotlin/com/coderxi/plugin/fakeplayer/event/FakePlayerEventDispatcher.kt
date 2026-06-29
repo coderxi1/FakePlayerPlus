@@ -22,7 +22,15 @@ class FakePlayerEventDispatcher(private val fpm: FakePlayerManager): Listener, P
     }
     @EventHandler
     fun onFakePlayerDeath(event: PlayerDeathEvent) {
-        fpm.get(event.player.uniqueId)?.let { event.deathMessage(null); if (plugin.config.behavior.keepInventory) { event.keepInventory = true; event.drops.clear() }; FakePlayerDeathEvent(it,event.player.location).callEvent() }
+        fpm.get(event.player.uniqueId)?.let {
+            if (plugin.config.behavior.keepInventory) {
+                event.keepInventory = true;
+                event.drops.clear()
+            }
+            event.keepLevel = true
+            event.droppedExp = 0
+            event.deathMessage(null);
+            FakePlayerDeathEvent(it,event.player.location).callEvent() }
     }
     @EventHandler
     fun onFakePlayerRespawn(event: PlayerRespawnEvent) {

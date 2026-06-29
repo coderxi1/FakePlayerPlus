@@ -20,6 +20,8 @@ abstract class FakePlayerCommandException : CommandErrorException() {
     class SpawnNoAvailableSequenceNameException : FakePlayerCommandException()
     class SpawnDisallowedException(val causeMessage: Component) : FakePlayerCommandException()
 
+    class HasNoMoreExperience(val name: String) : FakePlayerCommandException()
+
     class OwnerMustBeHumanException(val ownerName: String, val fakePlayerName: String) : FakePlayerCommandException()
     class OwnerAlreadyBoundException(val ownerName: String, val fakePlayerName: String) : FakePlayerCommandException()
     class OwnerIsCreatorCannotBeRemovedException(val ownerName: String, val fakePlayerName: String) : FakePlayerCommandException()

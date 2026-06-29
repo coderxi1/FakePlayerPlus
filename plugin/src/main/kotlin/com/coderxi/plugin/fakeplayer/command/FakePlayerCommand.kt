@@ -167,6 +167,17 @@ class FakePlayerCommand: PluginComponent {
         fakePlayer.player.teleportAsyncWithSound(location)
     }
 
+    @Subcommand("expme")
+    @Permission(EXPME,BASIC)
+    fun Player.expme(@Select fakePlayer: FakePlayer) {
+        val totalExp = fakePlayer.player.calculateTotalExperiencePoints()
+        if (totalExp == 0) throw HasNoMoreExperience(fakePlayer.name)
+        fakePlayer.player.level = 0
+        fakePlayer.player.exp = 0f
+        giveExp(totalExp, false)
+        playSound(location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f)
+    }
+
     @Subcommand("skin")
     @Permission(SKIN,BASIC)
     @Cooldown(value = 1, unit = TimeUnit.MINUTES)
