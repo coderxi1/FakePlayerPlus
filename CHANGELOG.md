@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/xiplugin/FakePlayerPlus/compare/v1.3.0...v1.3.1) (2026-06-29)
+
+
+### Bug Fixes
+
+* **security:** patch item duplication exploit via keepInventory ([a923591](https://github.com/xiplugin/FakePlayerPlus/commit/a9235916d2eb4b9208ba3bd37ccbd2776c5df2d2))
+
 ## [1.3.0](https://github.com/xiplugin/FakePlayerPlus/compare/v1.2.0...v1.3.0) (2026-06-28)
 
 
