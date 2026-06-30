@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/xiplugin/FakePlayerPlus/compare/v1.4.1...v1.4.2) (2026-06-30)
+
+
+### Bug Fixes
+
+* fake players unable to be kicked in 26.1.1+ by using `/kick` or `/fp remove` ([4f9e196](https://github.com/xiplugin/FakePlayerPlus/commit/4f9e19663f331ff58bcd98aca8eabc7b991f10ad))
+
 ## [1.4.1](https://github.com/xiplugin/FakePlayerPlus/compare/v1.4.0...v1.4.1) (2026-06-30)
 
 
