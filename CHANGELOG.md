@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.1](https://github.com/xiplugin/FakePlayerPlus/compare/v1.4.0...v1.4.1) (2026-06-30)
+
+
+### Bug Fixes
+
+* fix severe CPU and RAM spikes from Lamp @Flag and custom ParameterType conflict ([ab356ec](https://github.com/xiplugin/FakePlayerPlus/commit/ab356ec8438f08325c43603e273720257bdbaf32))
+* prevent duplicate fakeplayer spawning tasks ([756d028](https://github.com/xiplugin/FakePlayerPlus/commit/756d02833f77222a2dd0becdb1fce6814ba782c4))
+
 ## [1.4.0](https://github.com/xiplugin/FakePlayerPlus/compare/v1.3.1...v1.4.0) (2026-06-29)
 
 
