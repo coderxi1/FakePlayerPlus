@@ -27,6 +27,9 @@ interface FakePlayer {
     var spawnerUuid: UUID
     var spawnerIp: String
 
+    // 是否执行doTick和actions.doTick
+    var ticking: Boolean
+
     // 动作控制器
     var actions: ActionHandler
 

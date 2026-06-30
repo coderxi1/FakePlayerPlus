@@ -13,11 +13,12 @@ class FakePlayerTicker(private val fpm: FakePlayerManager) : PluginComponent {
     private fun tick() {
         if (fpm.fakeplayersCount() <= 0) return
         fpm.fakeplayers().forEach { fakePlayer ->
-            try {
-                fakePlayer.nms.doTick()
-                fakePlayer.actions.doTick()
-            } catch (e: Exception) {
-                e.printStackTrace()
+            if (fakePlayer.ticking) {
+                try {
+                    fakePlayer.nms.doTick()
+                    fakePlayer.actions.doTick()
+                } catch (_: Exception) {
+                }
             }
         }
     }

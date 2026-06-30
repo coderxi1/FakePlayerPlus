@@ -102,6 +102,7 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
         val spawned = fakePlayer.player.teleportAsync(spawnLocation).await()
         withContext(Dispatchers.BukkitMain) {
             if (spawned) {
+                fakePlayer.ticking = true
                 FakePlayerSpawnedEvent(fakePlayer).callEvent()
                 scheduler.runTaskLater(plugin, Runnable {pendingSpawn.invalidate(fakePlayer.uuid)}, 20)
             }

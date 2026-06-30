@@ -41,6 +41,7 @@ class StandardFakePlayer(
     override lateinit var spawnerUuid: UUID
     override lateinit var spawnerIp: String
 
+    override var ticking: Boolean = false
     override var actions : ActionHandler = ActionHandlerImpl(this)
 
     private lateinit var nmsPlayer: NMSServerPlayer
