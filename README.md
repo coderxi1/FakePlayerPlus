@@ -44,7 +44,7 @@ Please refer to the `config.yml` configuration file in the plugin directory
 | **/fp spawn** | Summon a fake player | fakeplayer.spawn | The summon limit can be configured in the configuration file |
 | | | fakeplayer.spawn.limit.\<node\> | Configure node in the configuration file to set custom summon limits for specific players/groups |
 | /fp spawn \<name\> | Summon with a specific name | fakeplayer.spawn.name | Not recommended for regular players because it occupies unregistered real player names |
-| /fp select \<name\> | Select a fake player | fakeplayer.select | Any action command can target a specific fake player by adding `--select` at the end of the command |
+| /fp select \<name\> | Select a fake player | fakeplayer.select | Any action command can target a specific fake player by adding `<name>` at the end of the command |
 | /fp remove | Remove a fake player | fakeplayer.remove | **`--all` to remove all fake players** |
 | /fp kill | Kill the fake player | fakeplayer.kill | **`--all` to kill all fake players<br>** The `death-action` option can be configured in the config.yml to mimic vanilla plugin behavior. Note: If keep-inventory is disabled on the server, the kill command will cause items to drop from the inventory. |
 | /fp invsee | View fake player inventory | fakeplayer.invsee | Players can also right-click the fake player to open it |

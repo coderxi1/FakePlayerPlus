@@ -45,7 +45,7 @@
 | **/fp spawn** | 召唤假人 | fakeplayer.spawn | 可在配置文件中配置召唤数量限制 |
 | | | fakeplayer.spawn.limit.\<node\> | 在配置文件中配置 node 来实现为玩家/权限组单独配置召唤数量限制 |
 | /fp spawn \<name\> | 召唤假人时指定名称 | fakeplayer.spawn.name | 不建议给一般玩家权限 因为会占用未注册的真实玩家名额 |
-| /fp select \<name\> | 选中假人 | fakeplayer.select | 任何操作假人的命令都可以通过在**指令最后添加 `--select` 指定假人** |
+| /fp select \<name\> | 选中假人 | fakeplayer.select | 任何操作假人的命令都可以通过在**指令最后添加 `假人名称` 指定假人** |
 | /fp remove | 移除假人 | fakeplayer.remove | **`--all` 移除全部假人** |
 | /fp kill | 杀死假人 | fakeplayer.kill | **`--all` 杀死全部假人<br>** 在配置文件中可设置 `死亡时退出` 来模仿原版插件行为，注意：如果服务器开启了死亡掉落 kill指令会导致背包掉落 |
 | /fp invsee | 查看假人背包 | fakeplayer.invsee | 玩家对假人右键也可打开 |
