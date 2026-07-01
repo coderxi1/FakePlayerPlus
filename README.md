@@ -46,7 +46,7 @@ Please refer to the `config.yml` configuration file in the plugin directory
 | /fp spawn \<name\> | Summon with a specific name | fakeplayer.spawn.name | Not recommended for regular players because it occupies unregistered real player names |
 | /fp select \<name\> | Select a fake player | fakeplayer.select | Any action command can target a specific fake player by adding `<name>` at the end of the command |
 | /fp remove | Remove a fake player | fakeplayer.remove | **`--all` to remove all fake players** |
-| /fp kill | Kill the fake player | fakeplayer.kill | **`--all` to kill all fake players<br>** The `death-action` option can be configured in the config.yml to mimic vanilla plugin behavior. Note: If keep-inventory is disabled on the server, the kill command will cause items to drop from the inventory. |
+| /fp kill | Kill the fake player | fakeplayer.kill | **`--all` to kill all fake players<br>** The `death-action` option can be configured in the config.yml to mimic original plugin behavior. Note: If keep-inventory is disabled on the server, the kill command will cause items to drop from the inventory. |
 | /fp invsee | View fake player inventory | fakeplayer.invsee | Players can also right-click the fake player to open it |
 | /fp enderchest | View fake player enderchest | fakeplayer.enderchest | Players can also shift-right-click the fake player to open it |
 | /fp tp | Teleport to the fake player | fakeplayer.tp | |
@@ -75,6 +75,11 @@ Please refer to the `/fp settings` and `/fp action` commands.
 | Placeholder | Type | Description | Example Output |
 | :--- | :---: | :--- | :--- |
 | `%fakeplayer_total%` | Global | Gets the total number of fake players currently online across the server | `5` |
+| `%fakeplayer_list%` | Global | Gets the list of names of all fake players currently online *(The separator can be configured in the language file)* | `FakePlayer_1,FakePlayer_2` |
+| `%fakeplayer_list_0_name%` | Global | Gets the information of the fake player at the specified `index` in the list (`name` can be replaced with any FakePlayer-type attribute below, e.g., `uuid`, `spawner`, etc.) | `FakePlayer_1` |
 | `%fakeplayer_isfake%` | Player | Checks if the current player is a fake player | `true` / `false` |
-| `%fakeplayer_spawner%` | Fake Player | Gets the name of the creator who summoned this fake player | `Steve` |
-| `%fakeplayer_actions%` | Fake Player | Gets the list of actions currently being executed by the fake player *(Localized)* | `Attack\|Mine` |
+| `%fakeplayer_name%` | FakePlayer | The name of the fake player | `FakePlayer_1` |
+| `%fakeplayer_uuid%` | FakePlayer | The UUID of the fake player | `d6850f71-24e2-3d31-9ad4-1f5806837a17` |
+| `%fakeplayer_spawner%` | FakePlayer | Gets the name of the creator who summoned this fake player | `Steve` |
+| `%fakeplayer_spawntime%` | FakePlayer | The time when the fake player was summoned *(The time format can be configured in the language file)* | `2026-07-01 00:00:00` |
+| `%fakeplayer_actions%` | FakePlayer | Gets the list of actions currently being executed by the fake player *(The localized text and separator can be configured in the language file)* | `Attack\|Mine` |

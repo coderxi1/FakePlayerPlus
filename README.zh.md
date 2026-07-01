@@ -76,6 +76,11 @@
 | 变量名 | 变量类型 | 作用说明 | 示例输出 |
 | :--- | :---: | :--- | :--- |
 | `%fakeplayer_total%` | 全局 | 获取当前全服在线的假人总数量 | `5` |
+| `%fakeplayer_list%` | 全局 | 获取当前全服在线的假人名称列表 *（分隔符可以在语言文件中配置）* | `FakePlayer_1,FakePlayer_2` |
+| `%fakeplayer_list_0_name%` | 全局 | 获取假人列表中`index`位置的假人的信息（`name`可以替换为下面类型为假人的变量名，例如`uuid`，`spawner`等） | `FakePlayer_1` |
 | `%fakeplayer_isfake%` | 玩家 | 判断当前玩家是否为假人 | `true` / `false` |
-| `%fakeplayer_spawner%` | 假人 | 获取该假人的召唤者名称 | `Steve` |
-| `%fakeplayer_actions%` | 假人 | 获取该假人当前正在执行的动作列表 *(已本地化)* | `攻击\|挖掘` |
+| `%fakeplayer_name%` | 假人 | 假人名称 | `FakePlayer_1` |
+| `%fakeplayer_uuid%` | 假人 | 假人UUID | `d6850f71-24e2-3d31-9ad4-1f5806837a17` |
+| `%fakeplayer_spawner%` | 假人 | 假人的召唤者名称 | `Steve` |
+| `%fakeplayer_spawntime%` | 假人 | 假人被召唤的时间 *（时间格式可以在语言文件中配置）* | `2026年7月1日 00时00分00秒` |
+| `%fakeplayer_actions%` | 假人 | 假人当前正在执行的动作列表 *(翻译文本/分隔符可以在语言文件中配置)* | `攻击\|挖掘` |
