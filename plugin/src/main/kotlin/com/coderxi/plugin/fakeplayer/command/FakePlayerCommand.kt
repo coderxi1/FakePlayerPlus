@@ -14,6 +14,7 @@ import com.coderxi.plugin.fakeplayer.provider.invsee.InvseeProvider
 import com.coderxi.plugin.fakeplayer.utils.BukkitMain
 import com.coderxi.plugin.fakeplayer.utils.PluginComponent
 import com.coderxi.plugin.fakeplayer.utils.SkinFetcher
+import com.coderxi.plugin.fakeplayer.utils.hasPermission
 import com.coderxi.plugin.fakeplayer.utils.teleportAsyncWithSound
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -63,7 +64,7 @@ class FakePlayerCommand: PluginComponent {
             if (fpm.get(name) != null) throw SpawnAlreadyExistsException(name)
             if (player != null && fpm.isNameUsed(name)) {
                 val fakePlayer = fpm.getFromRepository(name)
-                if (fakePlayer != null && fakePlayer.ownerUuids.isNotEmpty() && !fakePlayer.ownerUuids.contains(player.uniqueId)) {
+                if (fakePlayer != null && fakePlayer.ownerUuids.isNotEmpty() && !fakePlayer.ownerUuids.contains(player.uniqueId) && !player.hasPermission(ADMIN)) {
                     throw SpawnNameAlreadyUsedException(name)
                 }
             }
