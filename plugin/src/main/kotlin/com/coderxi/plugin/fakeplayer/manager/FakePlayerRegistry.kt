@@ -11,6 +11,14 @@ class FakePlayerRegistry {
     internal val fakeplayersByOwnerUuids = ConcurrentHashMap<UUID, MutableSet<UUID>>()
 
     fun register(fp: FakePlayer) {
+        fakeplayers[fp.uuid]?.let { oldFp ->
+            oldFp.ownerUuids.forEach { oldOwnerId ->
+                fakeplayersByOwnerUuids.computeIfPresent(oldOwnerId) { _, fpUuids ->
+                    fpUuids.remove(fp.uuid)
+                    if (fpUuids.isEmpty()) null else fpUuids
+                }
+            }
+        }
         fakeplayers[fp.uuid] = fp
         fakeplayersByName[fp.name] = fp
         fp.ownerUuids.forEach { ownerId ->
@@ -22,9 +30,9 @@ class FakePlayerRegistry {
         fakeplayers.remove(fp.uuid)
         fakeplayersByName.remove(fp.name)
         fp.ownerUuids.forEach { ownerId ->
-            fakeplayersByOwnerUuids[ownerId]?.let { fpUuids ->
+            fakeplayersByOwnerUuids.computeIfPresent(ownerId) { _, fpUuids ->
                 fpUuids.remove(fp.uuid)
-                if (fpUuids.count() <= 0) fakeplayersByOwnerUuids.remove(ownerId)
+                if (fpUuids.isEmpty()) null else fpUuids
             }
         }
     }

@@ -61,9 +61,16 @@ class FakePlayerBehaviorImplementListener(private val fpm: FakePlayerManager): L
     @EventHandler
     fun implementFollowQuiting(event: PlayerQuitEvent) {
         if (!config.behavior.followQuiting) return
+        val isAdmin = event.player.hasPermission(ADMIN)
+        val uuid = event.player.uniqueId
         scheduler.runTaskLater(plugin, Runnable {
-            if (Bukkit.getPlayer(event.player.uniqueId)!=null) return@Runnable
-            fpm.fakeplayersByOwnerUuid(event.player.uniqueId).forEach { fakePlayer ->
+            val targets = if (isAdmin) {
+                fpm.fakeplayers().filter { it.spawnerUuid == uuid }
+            } else {
+                fpm.fakeplayersByOwnerUuid(uuid)
+            }
+            targets.forEach { fakePlayer ->
+                if (fakePlayer.ownerUuids.any { Bukkit.getPlayer(it) != null }) return@forEach
                 fakePlayer.quit("Follow Quiting")
             }
         }, (config.behavior.followQuitingDelay * 20).coerceAtLeast(0).toLong())
