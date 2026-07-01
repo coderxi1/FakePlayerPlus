@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.3](https://github.com/xiplugin/FakePlayerPlus/compare/v1.4.2...v1.4.3) (2026-07-01)
+
+
+### Bug Fixes
+
+* admin cannot force spawn ([fedd442](https://github.com/xiplugin/FakePlayerPlus/commit/fedd442b7b91866a359ba8b967c1a673cdb11405))
+* fakeplayer fail to follow-quit when spawned by admin but owned by others ([daf4b19](https://github.com/xiplugin/FakePlayerPlus/commit/daf4b19665e3d832caf2ffdb7e10b0607ff3d23a))
+
 ## [1.4.2](https://github.com/xiplugin/FakePlayerPlus/compare/v1.4.1...v1.4.2) (2026-06-30)
 
 
