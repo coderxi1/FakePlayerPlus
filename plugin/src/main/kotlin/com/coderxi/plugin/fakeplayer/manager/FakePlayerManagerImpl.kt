@@ -76,6 +76,7 @@ class FakePlayerManagerImpl : FakePlayerManager, PluginComponent, Listener {
         AsyncPlayerPreLoginEvent(name,address, fakePlayer.uuid, false).let { event ->
             event.callEvent()
             if (event.loginResult != AsyncPlayerPreLoginEvent.Result.ALLOWED) {
+                pendingSpawn.invalidate(fakePlayer.uuid)
                 throw SpawnDisallowedException(event.kickMessage())
             }
         }
