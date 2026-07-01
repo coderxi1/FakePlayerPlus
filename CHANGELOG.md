@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.5.0](https://github.com/xiplugin/FakePlayerPlus/compare/v1.4.3...v1.5.0) (2026-07-01)
+
+
+### Features
+
+* more placeholder vars ([4c19b6e](https://github.com/xiplugin/FakePlayerPlus/commit/4c19b6e31c4a267aaa54841aae5573f05c264f7e))
+* sort fakeplayer list by spawnTime and optimize concurrent read/write ([e41497b](https://github.com/xiplugin/FakePlayerPlus/commit/e41497ba7c1d26051a19e3866e1b05a7513fffb3))
+
+
+### Bug Fixes
+
+* clear pending queue when fakeplayer login is denied ([611c38a](https://github.com/xiplugin/FakePlayerPlus/commit/611c38ab84f18d52883a34593935552001fab0d3))
+
 ## [1.4.3](https://github.com/xiplugin/FakePlayerPlus/compare/v1.4.2...v1.4.3) (2026-07-01)
 
 
